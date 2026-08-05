@@ -1,0 +1,200 @@
+Line 1651:                                 </button>
+Line 1652: 
+Line 1653:                                 <!-- Card 20: 환경 설정 (Settings - Increased Size) -->
+Line 1654:                                 <button onclick="openApiSettingsModal()"
+Line 1655:                                     title="[환경 설정]&#10;API 키 및 각종 프리셋, 조회 조건을 통합적으로 설정합니다."
+Line 1656:                                     class="dashboard-btn-animate w-full group relative min-h-[140px] bg-gradient-to-br from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 rounded-[2rem] p-5 flex flex-col items-center justify-center text-center shadow-2xl transition-all duration-500 hover:scale-[1.03] hover:-translate-y-2 border border-white/10 active:scale-95 overflow-hidden text-white">
+Line 1657:                                     <div
+Line 1658:                                         class="bg-white/20 p-3 rounded-2xl mb-3 group-hover:scale-110 transition-all duration-500 shadow-sm backdrop-blur-md">
+Line 1659:                                         <i class="fas fa-cog text-2xl text-white"></i>
+Line 1660:                                     </div>
+Line 1661:                                     <span class="text-lg font-black tracking-tight">환경 설정</span>
+Line 1662:                                     <p class="text-white/60 text-[11px] mt-1.5 font-black">API 및 통합 설정</p>
+Line 1663:                                 </button>
+Line 1664: 
+Line 1665:                                 <!-- Card 19: 유튜브 콘텐츠 금광채굴기 (Increased Size) -->
+Line 1666:                                 <button onclick="switchSearchMode(1)"
+Line 1667:                                     class="dashboard-btn-animate w-full xl:col-span-4 lg:col-span-4 md:col-span-3 group relative min-h-[140px] bg-gradient-to-br from-blue-600 via-indigo-600 to-violet-700 hover:from-blue-500 hover:to-indigo-600 rounded-[2rem] p-6 flex flex-row items-center justify-center gap-10 text-left shadow-2xl transition-all duration-500 hover:scale-[1.03] hover:-translate-y-2 border border-white/10 active:scale-95 overflow-hidden text-white">
+Line 1668:                                     <div class="glint-sweep"></div>
+Line 1669:                                     <div
+Line 1670:                                         class="bg-white/20 p-6 rounded-2xl group-hover:rotate-12 transition-all duration-500 shadow-lg backdrop-blur-md">
+Line 1671:                                         <i class="fas fa-microchip text-5xl text-white"></i>
+Line 1672:                                     </div>
+Line 1673:                                     <div class="flex flex-col">
+Line 1674:                                         <span class="text-3xl font-black tracking-tighter drop-shadow-sm">유튜브 콘텐츠 금광 채굴기</span>
+Line 1675:                                         <p class="text-white/80 text-base mt-1.5 font-bold">AI 기반 유튜브 정밀 분석 알고리즘</p>
+Line 1676:                                     </div>
+Line 1677:                                 </button>
+Line 1678:                             </div>
+Line 1679: 
+Line 1680:                             <!-- [A AREA] API Usage Warning Notice -->
+Line 1681:                             <div class="mt-4 flex flex-wrap items-center justify-center gap-3 animate-fade-in px-4">
+Line 1682:                                 <div
+Line 1683:                                     class="px-8 py-2 bg-blue-50/80 border-2 border-blue-100 rounded-full flex items-center gap-3 shadow-md">
+Line 1684:                                     <i class="fas fa-info-circle text-blue-500 text-lg"></i>
+Line 1685:                                     <p class="text-[11px] font-bold text-gray-700 leading-relaxed tracking-tight">
+Line 1686:                                         너무 큰 범위의 조회나 단시간에 대사(스크립트), 영상다운 등을 많이 수행하면 유튜브 API 부하가 발생할 수 있습니다.
+Line 1687:                                     </p>
+Line 1688:                                 </div>
+Line 1689:                             </div>
+Line 1690:                         </div>
+Line 1691: 
+Line 1692:                 <!-- [NEW] Mode 20: Shopping Shorts Section -->
+Line 1693:                 <div id="shoppingShortsSection" class="hidden animate-fade-in space-y-8 max-w-[1450px] mx-auto px-4 pb-20 mt-10">
+Line 1694:                     <!-- Control Area -->
+Line 1695:                     <div class="bg-white rounded-[2.5rem] p-6 md:p-8 shadow-2xl border border-gray-100 flex flex-col gap-6 relative overflow-hidden">
+Line 1696:                         <div class="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
+Line 1697:                             <i class="fas fa-shopping-bag text-[180px] text-amber-500 rotate-12"></i>
+Line 1698:                         </div>
+Line 1699:                         
+Line 1700:                         <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+Line 1701:                             <div class="flex items-center gap-4">
+Line 1702:                                 <button onclick="switchSearchMode(0)" class="w-10 h-10 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full flex items-center justify-center transition shadow-sm mr-2" title="대시보드로 돌아가기">
+Line 1703:                                     <i class="fas fa-arrow-left text-sm"></i>
+Line 1704:                                 </button>
+Line 1705:                                 <div class="w-14 h-14 bg-amber-500 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-amber-200 animate-pulse">
+Line 1706:                                     <i class="fas fa-shopping-bag text-2xl"></i>
+Line 1707:                                 </div>
+Line 1708:                                 <div>
+Line 1709:                                     <h2 class="text-3xl font-black text-gray-900 tracking-tighter">쇼핑 쇼츠 스튜디오</h2>
+Line 1710:                                     <p class="text-gray-400 text-xs font-bold mt-1 uppercase tracking-widest">Shopping Shorts Discovery & Analysis</p>
+Line 1711:                                 </div>
+Line 1712:                             </div>
+Line 1713:                             
+Line 1714:                             <!-- Search & Filter Actions -->
+Line 1715:                             <div class="flex flex-wrap items-center gap-3">
+Line 1716:                                 <select id="shoppingFilterLinkType" onchange="filterAndRenderShoppingShorts()" class="bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2.5 text-xs font-black focus:outline-none focus:border-amber-500 cursor-pointer">
+Line 1717:                                     <option value="all">모든 제휴 쇼츠</option>
+Line 1718:                                     <option value="coupang">쿠팡 파트너스만</option>
+Line 1719:                                     <option value="smartstore">네이버 스마트스토어만</option>
+Line 1720:                                     <option value="has_link">쇼핑 링크 포함만</option>
+Line 1721:                                     <option value="no_link">쇼핑 링크 미포함</option>
+Line 1722:                                 </select>
+Line 1723:                                 <select id="shoppingFilterDateRange" onchange="triggerShoppingSearch()" class="bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2.5 text-xs font-black focus:outline-none focus:border-amber-500 cursor-pointer">
+Line 1724:                                     <option value="all">전체 기간</option>
+Line 1725:                                     <option value="2weeks">최근 2주 이내</option>
+Line 1726:                                     <option value="1month">최근 1개월 이내</option>
+Line 1727:                                 </select>
+Line 1728:                                 <select id="shoppingFilterMinViews" onchange="filterAndRenderShoppingShorts()" class="bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2.5 text-xs font-black focus:outline-none focus:border-amber-500 cursor-pointer">
+Line 1729:                                     <option value="all">전체 조회수</option>
+Line 1730:                                     <option value="10k">최소 1만 이상</option>
+Line 1731:                                     <option value="50k">최소 5만 이상</option>
+Line 1732:                                     <option value="100k">최소 10만 이상</option>
+Line 1733:                                 </select>
+Line 1734:                                 <select id="shoppingSortOrder" onchange="triggerShoppingSearch()" class="bg-gray-50 border-2 border-gray-100 rounded-xl px-4 py-2.5 text-xs font-black focus:outline-none focus:border-amber-500 cursor-pointer">
+Line 1735:                                     <option value="viewCount">조회수 높은순</option>
+Line 1736:                                     <option value="date">최신 등록순</option>
+Line 1737:                                     <option value="relevance">정확도 순</option>
+Line 1738:                                 </select>
+Line 1739:                             </div>
+Line 1740:                         </div>
+Line 1741: 
+Line 1742:                         <!-- Preset Quick Tags -->
+Line 1743:                         <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-gray-100">
+Line 1744:                             <span class="text-xs font-bold text-gray-500 mr-2 flex items-center gap-1"><i class="fas fa-tags text-amber-500"></i> 추천 태그:</span>
+Line 1745:                             <button onclick="searchShoppingByTag('유튜브쇼핑')" class="bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-black px-3.5 py-1.5 rounded-full transition-all">#유튜브쇼핑</button>
+Line 1746:                             <button onclick="searchShoppingByTag('쇼핑쇼츠')" class="bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-black px-3.5 py-1.5 rounded-full transition-all">#쇼핑쇼츠</button>
+Line 1747:                             <button onclick="searchShoppingByTag('쿠팡파트너스')" class="bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-black px-3.5 py-1.5 rounded-full transition-all">#쿠팡파트너스</button>
+Line 1748:                             <button onclick="searchShoppingByTag('추천템')" class="bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-black px-3.5 py-1.5 rounded-full transition-all">#추천템</button>
+Line 1749:                             <button onclick="searchShoppingByTag('내돈내산')" class="bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-black px-3.5 py-1.5 rounded-full transition-all">#내돈내산</button>
+Line 1750:                             <button onclick="searchShoppingByTag('살까말까')" class="bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-black px-3.5 py-1.5 rounded-full transition-all">#살까말까</button>
+Line 1751:                         </div>
+Line 1752:                     </div>
+Line 1753: 
+Line 1754:                     <!-- Custom Search Box -->
+Line 1755:                     <div class="flex gap-4">
+Line 1756:                         <input type="text" id="shoppingSearchInput" placeholder="쇼핑 쇼츠 검색어를 입력해 주세요... (예: 무선 이어폰, 주방 꿀템)" class="flex-1 bg-white border border-gray-200 rounded-2xl px-6 py-4 text-sm font-bold shadow-lg focus:outline-none focus:border-amber-500 transition-all" onkeydown="if(event.key === 'Enter') triggerShoppingSearch()">
+Line 1757:                         <button onclick="triggerShoppingSearch()" id="btnShoppingSearch" class="bg-amber-500 hover:bg-amber-600 text-white font-black px-8 py-4 rounded-2xl shadow-lg shadow-amber-200 transition-all flex items-center gap-2">
+Line 1758:                             <i class="fas fa-search"></i> 채굴 시작
+Line 1759:                         </button>
+Line 1760:                     </div>
+Line 1761: 
+Line 1762:                     <!-- Layout Area -->
+Line 1763:                     <div id="shoppingShortsGrid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+Line 1764:                         <div class="col-span-full py-20 text-center text-gray-400 font-bold">
+Line 1765:                             <i class="fas fa-shopping-bag text-5xl mb-4 text-gray-300"></i>
+Line 1766:                             <p>키워드를 입력하거나 추천 태그를 눌러 쇼핑 쇼츠 채굴을 시작하세요!</p>
+Line 1767:                         </div>
+Line 1768:                     </div>
+Line 1769:                 </div>
+Line 1770: 
+Line 1771:                 <!-- [NEW] Mode 19: Global Localization Consulting Section -->
+Line 1772:                 <div id="localizationSection"
+Line 1773:                     class="hidden animate-fade-in space-y-8 max-w-[1352px] mx-auto px-4 pb-20 mt-10">
+Line 1774:                     <!-- Input Area -->
+Line 1775:                     <div
+Line 1776:                         class="bg-white rounded-[2.5rem] p-8 md:p-12 shadow-2xl border border-gray-100 flex flex-col gap-8 relative overflow-hidden">
+Line 1777:                         <div class="absolute top-0 right-0 p-12 opacity-5 pointer-events-none">
+Line 1778:                             <i class="fas fa-earth-americas text-[200px] text-violet-500 rotate-12"></i>
+Line 1779:                         </div>
+Line 1780: 
+Line 1781:                         <div class="relative z-10">
+Line 1782:                             <div class="flex items-center gap-4 mb-8">
+Line 1783:                                 <div
+Line 1784:                                     class="w-14 h-14 bg-violet-600 rounded-2xl flex items-center justify-center text-white shadow-xl shadow-violet-200">
+Line 1785:                                     <i class="fas fa-passport text-2xl"></i>
+Line 1786:                                 </div>
+Line 1787:                                 <div>
+Line 1788:                                     <h2 class="text-3xl md:text-4xl font-black text-gray-900 tracking-tighter">글로벌 현지화
+Line 1789:                                         컨설팅</h2>
+Line 1790:                                     <p class="text-gray-400 text-sm font-bold mt-1 uppercase tracking-widest">Global
+Line 1791:                                         Localization Strategy by Gemini API</p>
+Line 1792:                                 </div>
+Line 1793:                             </div>
+Line 1794: 
+Line 1795:                             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+Line 1796:                                 <div class="space-y-6">
+Line 1797:                                     <div class="space-y-2">
+Line 1798:                                         <label
+Line 1799:                                             class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1 flex items-center gap-2">
+Line 1800:                                             <i class="fas fa-flag text-violet-500"></i> 타겟 국가 및 언어
+Line 1801:                                         </label>
+Line 1802:                                         <select id="locRegionSelect"
+Line 1803:                                             class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-6 py-4 text-sm font-black focus:outline-none focus:border-violet-500 transition-all appearance-none cursor-pointer">
+Line 1804:                                             <option value="US/English">🇺🇸 미국 (영어)</option>
+Line 1805:                                             <option value="JP/Japanese">🇯🇵 일본 (일본어)</option>
+Line 1806:                                             <option value="VN/Vietnamese">🇻🇳 베트남 (베트남어)</option>
+Line 1807:                                             <option value="ID/Indonesian">🇮🇩 인도네시아 (인도네시아어)</option>
+Line 1808:                                             <option value="TH/Thai">🇹🇭 태국 (태국어)</option>
+Line 1809:                                             <option value="ES/Spanish">🇪🇸 스페인/남미 (스페인어)</option>
+Line 1810:                                             <option value="BR/Portuguese">🇧🇷 브라질 (포르투갈어)</option>
+Line 1811:                                             <option value="FR/French">🇫🇷 프랑스 (프랑스어)</option>
+Line 1812:                                             <option value="DE/German">🇩🇪 독일 (독일어)</option>
+Line 1813:                                             <option value="IN/Hindi">🇮🇳 인도 (힌디어/영어)</option>
+Line 1814:                                         </select>
+Line 1815:                                     </div>
+Line 1816: 
+Line 1817:                                     <div class="space-y-2">
+Line 1818:                                         <label
+Line 1819:                                             class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1 flex items-center gap-2">
+Line 1820:                                             <i class="fas fa-lightbulb text-violet-500"></i> 콘텐츠 핵심 주제 / 아이디어
+Line 1821:                                         </label>
+Line 1822:                                         <textarea id="locTopicInput"
+Line 1823:                                             placeholder="기획 중인 영상의 제목이나 핵심 내용을 입력하세요.&#10;예: 한국의 매운 라면을 먹는 외국인 반응 영상"
+Line 1824:                                             class="w-full h-40 bg-gray-50 border-2 border-gray-100 rounded-2xl p-6 text-sm font-bold focus:outline-none focus:border-violet-500 transition-all resize-none"></textarea>
+Line 1825:                                     </div>
+Line 1826:                                 </div>
+Line 1827: 
+Line 1828:                                 <div class="space-y-6">
+Line 1829:                                     <div class="space-y-2">
+Line 1830:                                         <label
+Line 1831:                                             class="text-[11px] font-black text-gray-400 uppercase tracking-widest ml-1 flex items-center gap-2">
+Line 1832:                                             <i class="fas fa-link text-violet-500"></i> 참고 영상 URL (선택사항)
+Line 1833:                                         </label>
+Line 1834:                                         <input type="text" id="locUrlInput"
+Line 1835:                                             placeholder="https://www.youtube.com/watch?v=..."
+Line 1836:                                             class="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl px-6 py-4 text-sm font-bold focus:outline-none focus:border-violet-500 transition-all">
+Line 1837:                                     </div>
+Line 1838: 
+Line 1839:                                     <div class="bg-violet-50 rounded-3xl p-6 border border-violet-100 space-y-4">
+Line 1840:                                         <div class="flex items-center gap-2">
+Line 1841:                                             <i class="fas fa-info-circle text-violet-500 text-sm"></i>
+Line 1842:                                             <span class="text-xs font-black text-violet-800">컨설팅 리포트 포함 내용</span>
+Line 1843:                                         </div>
+Line 1844:                                         <ul class="space-y-2">
+Line 1845:                                             <li class="flex items-center gap-2 text-[11px] font-bold text-gray-600"><i
+Line 1846:                                                     class="fas fa-check text-violet-400"></i> 현지 문화적 맥락 및 에티켓 분석</li>
+Line 1847:                                             <li class="flex items-center gap-2 text-[11px] font-bold text-gray-600"><i
+Line 1848:                                                     class="fas fa-check text-violet-400"></i> 타겟 시청자 유입을 위한 현지화 훅(Hook)
+Line 1849:                                             </li>
+Line 1850:                                             <li class="flex items-center gap-2 text-[11px] font-bold text-gray-600"><i

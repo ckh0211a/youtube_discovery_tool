@@ -1,0 +1,55 @@
+# 가상환경
+.venv/
+venv/
+ENV/
+env/
+
+# 빌드 결과물 및 패키징 파일
+bin/
+build/
+dist/
+*.spec
+*.exe
+*.dll
+*.so
+*.dylib
+
+# 로그 파일
+*.log
+error_log.txt
+backend_out.txt
+output.txt
+diag_out.txt
+find_ci_out.txt
+find_ci_out2.txt
+find_js_out.txt
+find_settings.txt
+find_toggle.txt
+handles_debug.txt
+tmp_func.txt
+tmp_search.txt
+
+# 데이터 및 임시 파일
+downloads/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.cache/
+temp.json
+yt_data.json
+yt_html_dump.txt
+video_info.json
+channel_info.json
+*transcript.txt
+search_results_ids.txt
+
+# OS/IDEs
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# 백업 폴더
+versions/

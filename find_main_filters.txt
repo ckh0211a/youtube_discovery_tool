@@ -1,0 +1,72 @@
+L1365: <i class="fas fa-award text-orange-500"></i> 콘텐츠 등급
+L1366: </label>
+L1367: <select id="gradeFilter" onchange="applyViewMode(true)"
+L1368: title="[콘텐츠 등급]&#10;영상의 성과를 💎전설~⚪평범 6단계로 분류합니다.&#10;[공식: (조회수 / 구독자 수 / 경과일수) 를 종합하여 채널 평균 기대치와 대조 분석]"
+L1369: class="bg-gray-50 text-gray-800 text-sm font-bold rounded-xl px-4 py-2.5 border border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 hover:bg-white transition-all w-full cursor-pointer appearance-none shadow-sm">
+L1370: <option value="all" selected>전체 등급</option>
+L1371: <option value="전설">💎 전설</option>
+L1372: <option value="대박">🥇 대박</option>
+L1373: <option value="떡상">🥈 떡상</option>
+L1374: <option value="우수">🥉 우수</option>
+L1375: <option value="양호">✅ 양호</option>
+L1376: <option value="평범">⚪ 평범</option>
+L1377: </select>
+L1378: </div>
+L1379: <!-- Sort Filter -->
+L1380: <div class="flex flex-col gap-2">
+L1381: <label
+--------------------
+L1383: <i class="fas fa-sort text-red-500"></i> 정렬 기준
+L1384: </label>
+L1385: <select id="sortFilter" onchange="applyViewMode(true)"
+L1386: title="[정렬 기준]&#10;결과가 나열되는 우선순위를 결정합니다.&#10;최신 유행을 보려면 '최신순', 데이터가 검증된 소재를 찾으려면 '조회수순'을 적극 활용하세요."
+L1387: class="bg-gray-50 text-gray-800 text-sm font-bold rounded-xl px-4 py-2.5 border border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 hover:bg-white transition-all w-full cursor-pointer appearance-none shadow-sm">
+L1388: <option value="relevance">유사도순</option>
+L1389: <option value="viewCount">조회수순</option>
+L1390: <option value="date" selected>최신순</option>
+L1391: <option value="subs_desc">구독자순</option>
+L1392: </select>
+L1393: </div>
+L1394: 
+L1395: <!-- Region Filter -->
+L1396: <div class="flex flex-col gap-2">
+L1397: <label
+L1398: class="text-sm text-gray-600 font-black uppercase tracking-wider ml-1 flex items-center gap-2">
+L1399: <i class="fas fa-globe text-blue-500"></i> 타겟 국가
+--------------------
+L1414: <i class="fas fa-calendar-alt text-green-500"></i> 업로드 기간
+L1415: </label>
+L1416: <select id="dateFilter" onchange="applyViewMode(true)"
+L1417: title="[업로드 기간]&#10;특정 시점 이내에 올라온 영상만 선별합니다.&#10;초반 폭발력을 가진 소재를 찾으려면 '최근 1일' 또는 '최근 3일' 설정을 추천합니다."
+L1418: class="bg-gray-50 text-gray-800 text-sm font-bold rounded-xl px-4 py-2.5 border border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 hover:bg-white transition-all w-full cursor-pointer appearance-none shadow-sm">
+L1419: <option value="">전체 시간</option>
+L1420: <option value="10h">최근 10시간</option>
+L1421: <option value="1d" selected>최근 1일</option>
+L1422: <option value="3d">최근 3일</option>
+L1423: <option value="5d">최근 5일</option>
+L1424: <option value="7d">최근 7일</option>
+L1425: <option value="10d">최근 10일</option>
+L1426: <option value="20d">최근 20일</option>
+L1427: <option value="30d">최근 30일</option>
+L1428: <option value="60d">최근 60일</option>
+L1429: </select>
+L1430: </div>
+--------------------
+L1472: <i class="fas fa-eye text-yellow-500"></i> 최소 조회수
+L1473: </label>
+L1474: <select id="minViewsFilter" onchange="applyViewMode(true)"
+L1475: class="bg-gray-50 text-gray-800 text-sm font-bold rounded-xl px-4 py-2.5 border border-orange-500 focus:outline-none focus:ring-2 focus:ring-orange-500/20 hover:bg-white transition-all w-full cursor-pointer appearance-none shadow-sm">
+L1476: <option value="0" selected>전체 조회수</option>
+L1477: <option value="1000">1,000+</option>
+L1478: <option value="10000">10,000+</option>
+L1479: <option value="50000">50,000+</option>
+L1480: <option value="100000">100,000+</option>
+L1481: <option value="500000">500,000+</option>
+L1482: <option value="1000000">1,000,000+</option>
+L1483: </select>
+L1484: </div>
+L1485: 
+L1486: <!-- Duration Filter -->
+L1487: <div class="flex flex-col gap-2">
+L1488: <label
+--------------------

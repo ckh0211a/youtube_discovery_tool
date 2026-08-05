@@ -1,0 +1,2131 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>유투브 소재 채굴기 v3.6 (YouTube Material Discovery)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+        }
+
+        .ratio-high {
+            color: #10B981;
+            font-weight: bold;
+        }
+
+        /* Green for high ratio */
+        .ratio-med {
+            color: #F59E0B;
+            font-weight: bold;
+        }
+
+        /* Yellow for medium */
+        .ratio-low {
+            color: #EF4444;
+        }
+
+        /* Red for low */
+        /* Custom scrollbar for better look in Dark Mode */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #6b7280;
+        }
+
+        /* Markdown Styles for Dark Mode */
+        .prose strong {
+            color: #e5e7eb;
+        }
+
+        .prose h1,
+        .prose h2,
+        .prose h3 {
+            color: #f3f4f6;
+        }
+
+        .prose ul {
+            list-style-type: disc;
+            padding-left: 1.5rem;
+        }
+
+        .prose li {
+            color: #d1d5db;
+            margin-bottom: 0.5rem;
+        }
+
+        .prose p {
+            margin-bottom: 1.5em;
+            line-height: 1.8;
+        }
+
+        /* Increased spacing for readability */
+        .chart-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(17, 24, 39, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            z-index: 20;
+            backdrop-filter: blur(4px);
+        }
+
+        .group:hover .chart-container {
+            opacity: 1;
+        }
+
+        .vph-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #F59E0B;
+            color: #111827;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 800;
+            z-index: 30;
+        }
+
+        .quota-display {
+            position: absolute;
+            left: 0;
+            top: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            background: rgba(31, 41, 55, 0.8);
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1px border-gray-700;
+            backdrop-filter: blur(4px);
+            z-index: 60;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-900 min-h-screen text-gray-100 selection:bg-red-500 selection:text-white">
+
+    <!-- Header Section -->
+    <header class="bg-gray-800 shadow-lg sticky top-0 z-50 border-b border-gray-700">
+        <div class="container mx-auto px-4 py-10">
+            <div class="flex flex-col md:flex-row justify-center items-center gap-4 relative">
+                <!-- Quota Display (Left Top) -->
+                <div class="quota-display hidden md:flex border border-gray-700">
+                    <div class="flex items-center gap-2">
+                        <i class="fas fa-battery-half text-green-500 text-[10px]"></i>
+                        <span class="text-[10px] text-gray-400 font-bold uppercase tracking-wider">추정 할당량 잔량</span>
+                    </div>
+                    <div class="flex items-end gap-1">
+                        <span id="quotaValue" class="text-xs font-mono font-bold text-white">10000</span>
+                        <span class="text-[9px] text-gray-500 mb-0.5">/ 10,000 pt</span>
+                    </div>
+                    <div class="w-24 h-1 bg-gray-700 rounded-full mt-1 overflow-hidden">
+                        <div id="quotaBar" class="h-full bg-green-500 transition-all duration-500" style="width: 100%">
+                        </div>
+                    </div>
+                </div>
+
+                <h1 class="text-2xl font-bold text-red-500 flex items-center gap-2">
+                    <i class="fab fa-youtube text-3xl"></i> 유투브 소재 채굴기 v3.6
+                </h1>
+
+                <!-- Real-time Clock -->
+                <div id="clockDisplay" class="absolute right-0 text-gray-400 text-sm font-mono hidden md:block"></div>
+
+                <!-- API Key Inputs (Hidden) -->
+                <div
+                    class="flex flex-col sm:flex-row gap-2 w-full md:w-auto absolute right-0 top-0 opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none hover:pointer-events-auto z-50">
+                    <input type="password" id="youtubeApiKey" placeholder="YouTube API Key"
+                        class="bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white placeholder-gray-400 w-full md:w-48 focus:outline-none focus:ring-2 focus:ring-red-500 transition">
+                    <input type="password" id="geminiApiKey" placeholder="Gemini API Key"
+                        class="bg-gray-700 border border-gray-600 rounded px-3 py-2 text-sm text-white placeholder-gray-400 w-full md:w-48 focus:outline-none focus:ring-2 focus:ring-blue-500 transition">
+                </div>
+            </div>
+
+            <!-- Search Area with Filters -->
+            <div class="mt-10 flex flex-col gap-3">
+                <div class="flex flex-col lg:flex-row gap-4">
+                    <!-- Keyword Search Bar -->
+                    <div
+                        class="flex-1 flex flex-col sm:flex-row gap-0 shadow-lg rounded-xl overflow-hidden border border-gray-600 focus-within:ring-2 focus-within:ring-red-500/50 transition-all duration-300 bg-gray-700">
+                        <div class="flex-grow relative group/input">
+                            <i
+                                class="fas fa-keyboard absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within/input:text-red-400 transition-colors"></i>
+                            <input type="text" id="searchInput" placeholder="키워드 입력"
+                                class="w-full bg-transparent pl-11 pr-12 py-3.5 text-base text-white placeholder-gray-500 focus:outline-none"
+                                onkeypress="if(event.key === 'Enter') searchVideos()">
+                            <button
+                                onclick="document.getElementById('searchInput').value=''; document.getElementById('searchInput').focus();"
+                                class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-opacity opacity-0 group-focus-within/input:opacity-100">
+                                <i class="fas fa-times-circle"></i>
+                            </button>
+                        </div>
+                        <button onclick="searchVideos()"
+                            class="bg-red-600 hover:bg-red-700 active:bg-red-800 text-white px-6 py-3.5 font-bold transition-all duration-200 flex items-center justify-center gap-2 whitespace-nowrap border-t border-red-500 sm:border-t-0 sm:border-l">
+                            <i class="fas fa-search text-xs"></i> 키워드 검색
+                        </button>
+                        <select id="searchDepth" title="검색 범위 (할당량 전력)"
+                            class="bg-gray-800 text-xs text-gray-300 border-l border-gray-600 px-2 focus:outline-none hover:text-white transition">
+                            <option value="1">50개 (라이트)</option>
+                            <option value="3">150개 (표준)</option>
+                            <option value="5" selected>250개 (정밀)</option>
+                        </select>
+                    </div>
+
+                    <!-- Channel Search Bar -->
+                    <div
+                        class="flex-1 flex flex-col sm:flex-row gap-0 shadow-lg rounded-xl overflow-hidden border border-gray-600 focus-within:ring-2 focus-within:ring-blue-500/50 transition-all duration-300 bg-gray-700">
+                        <div class="flex-grow relative group/input">
+                            <i
+                                class="fas fa-id-badge absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 group-focus-within/input:text-blue-400 transition-colors"></i>
+                            <input type="text" id="channelFilter" placeholder="채널명 검색"
+                                class="w-full bg-transparent pl-11 pr-12 py-3.5 text-base text-white placeholder-gray-500 focus:outline-none"
+                                oninput="applyViewMode()"
+                                onkeypress="if(event.key === 'Enter') { if(!currentVideos || currentVideos.length === 0) searchVideos(); else applyViewMode(); }">
+                            <button
+                                onclick="document.getElementById('channelFilter').value=''; document.getElementById('channelFilter').focus();"
+                                class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-opacity opacity-0 group-focus-within/input:opacity-100">
+                                <i class="fas fa-times-circle"></i>
+                            </button>
+                        </div>
+                        <button
+                            onclick="if(!currentVideos || currentVideos.length === 0) searchVideos(); else applyViewMode();"
+                            class="bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white px-6 py-3.5 font-bold transition-all duration-200 flex items-center justify-center gap-2 whitespace-nowrap border-t border-blue-500 sm:border-t-0 sm:border-l">
+                            <i class="fas fa-search text-xs"></i> 채널 검색 / 필터
+                        </button>
+                        <select id="channelCategoryFilter" onchange="applyViewMode()" title="채널 성향별 필터"
+                            class="bg-gray-800 text-xs text-blue-300 border-l border-gray-600 px-2 focus:outline-none hover:text-white transition">
+                            <option value="all">모든 주제</option>
+                            <option value="Lifestyle">라이프스타일</option>
+                            <option value="Entertainment">엔터테인먼트</option>
+                            <option value="Gaming">게임</option>
+                            <option value="Society">뉴스/정치/사회</option>
+                            <option value="Knowledge">지식/교육/과학</option>
+                            <option value="Hobby">취미/레저</option>
+                            <option value="Sports">스포츠</option>
+                            <option value="Music">음악</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Trending Explorer Button -->
+                <div class="flex flex-wrap justify-center -mt-1 gap-4">
+                    <button onclick="exploreTrending()"
+                        class="group relative bg-gray-700 hover:bg-gray-600 border border-orange-500/30 hover:border-orange-500/60 text-orange-400 hover:text-orange-300 px-10 py-3 rounded-2xl font-black shadow-xl transition-all duration-300 flex items-center gap-3 transform hover:-translate-y-1 overflow-hidden">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-r from-orange-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                        </div>
+                        <i class="fas fa-fire text-xl animate-pulse text-orange-500"></i>
+                        <span class="tracking-tight">🔥 실시간 떡상 TOP 50 분석 (API 100배 절약 모드)</span>
+                        <i
+                            class="fas fa-chevron-right text-xs opacity-50 group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+
+                    <button onclick="searchPoliticsChannels()"
+                        class="group relative bg-gray-700 hover:bg-gray-600 border border-blue-500/30 hover:border-blue-500/60 text-blue-400 hover:text-blue-300 px-10 py-3 rounded-2xl font-black shadow-xl transition-all duration-300 flex items-center gap-3 transform hover:-translate-y-1 overflow-hidden">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                        </div>
+                        <i class="fas fa-balance-scale text-xl animate-pulse text-blue-500"></i>
+                        <span class="tracking-tight">⚖️ 정치 채널 정밀 분석 (주요 23개 채널)</span>
+                        <i
+                            class="fas fa-chevron-right text-xs opacity-50 group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+
+                    <button onclick="managePoliticsChannels()"
+                        class="group relative bg-gray-700 hover:bg-gray-600 border border-purple-500/30 hover:border-purple-500/60 text-purple-400 hover:text-purple-300 px-8 py-3 rounded-2xl font-black shadow-xl transition-all duration-300 flex items-center gap-3 transform hover:-translate-y-1 overflow-hidden">
+                        <div
+                            class="absolute inset-0 bg-gradient-to-r from-purple-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                        </div>
+                        <i class="fas fa-cog text-xl animate-spin-slow text-purple-500"></i>
+                        <span class="tracking-tight">채널 관리</span>
+                    </button>
+                </div>
+
+                <div class="flex justify-between items-center px-1 mt-2">
+                    <p class="text-[10px] text-gray-500 italic"><i class="fas fa-info-circle"></i> 키워드와 채널을 조합하면 특정 채널 내
+                        핵심 소재를 발굴할 수 있습니다.</p>
+                    <p class="text-[10px] text-green-600 font-medium animate-pulse"><i class="fas fa-shield-alt"></i> 최신
+                        안정 버전 백업 완료</p>
+                </div>
+
+                <!-- Filters -->
+                <div class="flex flex-wrap gap-4 items-center bg-gray-800 p-3 rounded-lg border border-gray-700">
+                    <!-- Sort -->
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm text-gray-400"><i class="fas fa-sort"></i> 정렬:</label>
+                        <select id="sortFilter"
+                            class="bg-gray-700 text-white text-sm rounded px-2 py-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                            <option value="relevance">연관순</option>
+                            <option value="viewCount" selected>조회수순</option>
+                            <option value="date">최신순</option>
+                        </select>
+                    </div>
+                    <!-- Region -->
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm text-gray-400"><i class="fas fa-globe"></i> 국가:</label>
+                        <select id="regionFilter"
+                            class="bg-gray-700 text-white text-sm rounded px-2 py-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                            <option value="">전세계</option>
+                            <option value="KR" selected>대한민국 (KR)</option>
+                            <option value="US">미국 (US)</option>
+                            <option value="JP">일본 (JP)</option>
+                            <option value="GB">영국 (GB)</option>
+                            <option value="CA">캐나다 (CA)</option>
+                            <option value="AU">호주 (AU)</option>
+                            <option value="VN">베트남 (VN)</option>
+                            <option value="TH">태국 (TH)</option>
+                            <option value="IN">인도 (IN)</option>
+                        </select>
+                    </div>
+                    <!-- Published After -->
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm text-gray-400"><i class="fas fa-calendar-alt"></i> 기간:</label>
+                        <select id="dateFilter"
+                            class="bg-gray-700 text-white text-sm rounded px-2 py-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                            <option value="" selected>전체 시간</option>
+                            <option value="24h">최근 24시간</option>
+                            <option value="7d">최근 7일</option>
+                            <option value="30d">최근 30일</option>
+                            <option value="60d">최근 60일</option>
+                            <option value="90d">최근 90일</option>
+                            <option value="1y">최근 1년</option>
+                            <option value="2y">최근 2년</option>
+                            <option value="3y">최근 3년</option>
+                            <option value="5y">최근 5년</option>
+                        </select>
+                    </div>
+                    <!-- Max Subs -->
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm text-gray-400"><i class="fas fa-users"></i> 최대 구독:</label>
+                        <select id="maxSubsFilter" onchange="applyViewMode()"
+                            class="bg-gray-700 text-white text-sm rounded px-2 py-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                            <option value="0">제한 없음</option>
+                            <option value="10000" selected>1만 미만</option>
+                            <option value="30000">3만 미만</option>
+                            <option value="50000">5만 미만</option>
+                            <option value="100000">10만 미만</option>
+                            <option value="200000">20만 미만</option>
+                            <option value="500000">50만 미만</option>
+                            <option value="1000000">100만 미만</option>
+                        </select>
+                    </div>
+                    <!-- Subscriber Visibility -->
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm text-gray-400"><i class="fas fa-eye-slash"></i> 구독자 공개:</label>
+                        <select id="hiddenSubsFilter" onchange="applyViewMode()"
+                            class="bg-gray-700 text-white text-sm rounded px-2 py-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                            <option value="all" selected>전체</option>
+                            <option value="public">공개 채널만</option>
+                            <option value="hidden">비공개 채널만</option>
+                        </select>
+                    </div>
+                    <!-- Min Views -->
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm text-gray-400"><i class="fas fa-eye"></i> 최소 조회:</label>
+                        <select id="minViewsFilter" onchange="applyViewMode()"
+                            class="bg-gray-700 text-white text-sm rounded px-2 py-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                            <option value="0">전체</option>
+                            <option value="1000">1천+</option>
+                            <option value="10000" selected>1만+</option>
+                            <option value="50000">5만+</option>
+                            <option value="100000">10만+</option>
+                            <option value="500000">50만+</option>
+                            <option value="1000000">100만+</option>
+                        </select>
+                    </div>
+
+                    <!-- Performance Ratio -->
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm text-gray-400"><i class="fas fa-chart-line"></i> 최소 성과도:</label>
+                        <select id="minRatioFilter" onchange="applyViewMode()"
+                            class="bg-gray-700 text-white text-sm rounded px-2 py-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                            <option value="0">제한 없음</option>
+                            <option value="50">50% 이상</option>
+                            <option value="100" selected>100% 이상 (떡상)</option>
+                            <option value="200">200% 이상 (초대박)</option>
+                            <option value="300">300% 이상 (전설)</option>
+                        </select>
+                    </div>
+                    <!-- Duration -->
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm text-gray-400"><i class="fas fa-clock"></i> 길이:</label>
+                        <select id="durationFilter" onchange="applyViewMode()"
+                            class="bg-gray-700 text-white text-sm rounded px-2 py-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                            <option value="any">전체</option>
+                            <option value="short">숏폼 (4분 미만)</option>
+                            <option value="long" selected>롱폼 (4분 이상)</option>
+                        </select>
+                    </div>
+                    <!-- Shorts Type -->
+                    <div id="shortsTypeWrapper" class="flex items-center gap-2">
+                        <label class="text-sm text-gray-400"><i class="fas fa-tags"></i> 숏폼 분류:</label>
+                        <select id="shortsTypeFilter" onchange="applyViewMode()"
+                            class="bg-gray-700 text-white text-sm rounded px-2 py-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                            <option value="all" selected>전체</option>
+                            <option value="shopping">쇼핑 (공구/꿀템)</option>
+                            <option value="meme">짤 (유머/명장면)</option>
+                            <option value="game">게임 (플레이/소식)</option>
+                            <option value="food">요리/먹방 (ASMR)</option>
+                            <option value="animal">동물 (귀요미)</option>
+                            <option value="knowledge">지식/상식 (1분공부)</option>
+                            <option value="beauty">뷰티/패션 (OOTD)</option>
+                            <option value="sports">스포츠/운동 (헬스)</option>
+                            <option value="entertainment">연예/아이돌 (K-pop)</option>
+                            <option value="other">기타</option>
+                        </select>
+                    </div>
+                    <!-- Script Filter -->
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm text-gray-400"><i class="fas fa-file-alt"></i> 스크립트:</label>
+                        <select id="scriptFilter" onchange="applyViewMode()"
+                            class="bg-gray-700 text-white text-sm rounded px-2 py-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                            <option value="all" selected>전체</option>
+                            <option value="yes">스크립트 있음</option>
+                            <option value="no">스크립트 없음</option>
+                        </select>
+                    </div>
+                    <!-- Hover Action Filter -->
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm text-gray-400"><i class="fas fa-mouse-pointer"></i> 마우스오버:</label>
+                        <select id="hoverFilter" onchange="applyViewMode()"
+                            class="bg-gray-700 text-white text-sm rounded px-2 py-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                            <option value="vidiq" selected>조회 추세 (vidIQ)</option>
+                            <option value="revenue">예상 수익 확인</option>
+                        </select>
+                    </div>
+                    <!-- Features Filter -->
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm text-gray-400"><i class="fas fa-wand-magic-sparkles"></i> 기능:</label>
+                        <select id="featureFilter"
+                            class="bg-gray-700 text-white text-sm rounded px-2 py-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                            <option value="any" selected>전체</option>
+                            <option value="live">라이브</option>
+                            <option value="highDef">HD/4K</option>
+                            <option value="cc">자막(CC)</option>
+                            <option value="creativeCommon">크리에이티브 커먼즈</option>
+                            <option value="3d">3D</option>
+                        </select>
+                    </div>
+                    <!-- View Mode -->
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm text-gray-400"><i class="fas fa-th-large"></i> 보기:</label>
+                        <select id="viewModeFilter" onchange="applyViewMode()"
+                            class="bg-gray-700 text-white text-sm rounded px-2 py-1 border border-gray-600 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                            <option value="grid" selected>그리드</option>
+                            <option value="list">리스트</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+
+        <!-- Loading State -->
+        <div id="loading" class="hidden text-center py-12">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-gray-600 border-t-red-500">
+            </div>
+            <p class="mt-4 text-gray-300 text-lg">데이터를 분석하고 있습니다...</p>
+            <p id="loadingText" class="text-sm text-gray-500 mt-2"></p>
+        </div>
+
+        <!-- Error Message -->
+        <div id="error" class="hidden bg-red-900 border-l-4 border-red-500 text-red-100 p-4 mb-6 rounded shadow-sm"
+            role="alert">
+            <p class="font-bold">Error</p>
+            <p id="errorMessage">Something went wrong.</p>
+        </div>
+
+        <!-- Results Grid -->
+        <div id="resultsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <!-- Items will be injected here -->
+        </div>
+
+    </main>
+
+    <!-- Analysis Modal -->
+    <div id="analysisModal"
+        class="fixed inset-0 bg-black bg-opacity-70 hidden flex items-center justify-center z-50 p-4 opacity-0 transition-opacity duration-300 backdrop-blur-sm">
+        <div
+            class="bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col transform scale-95 transition-transform duration-300 border border-gray-700">
+            <!-- Modal Header -->
+            <div class="p-6 border-b border-gray-700 flex justify-between items-start bg-gray-800 rounded-t-xl">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-100 flex items-center gap-2" id="modalTitle">
+                        <i class="fas fa-robot text-blue-400"></i> 영상 분석 결과
+                    </h2>
+                    <p class="text-sm text-gray-400 mt-1">Gemini 2.0 Flash가 분석한 인사이트입니다.</p>
+                </div>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-white transition">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="p-6 overflow-y-auto flex-grow bg-gray-900" id="modalContent">
+                <!-- AI Content will go here -->
+                <div class="flex flex-col items-center justify-center h-64 space-y-4">
+                    <div class="animate-spin rounded-full h-10 w-10 border-4 border-gray-600 border-t-blue-500"></div>
+                    <p class="text-gray-300">댓글을 수집하고 Gemini가 분석 중입니다...</p>
+                </div>
+            </div>
+            <!-- Keywords Selection Area (Hidden initially) -->
+            <div id="keywordSelectionArea" class="hidden p-4 bg-gray-800 border-t border-gray-700">
+                <h3 class="text-sm text-gray-400 mb-2 font-semibold">⚡ 추천 키워드 (클릭하여 대본 생성)</h3>
+                <div id="keywordButtons" class="flex flex-wrap gap-2"></div>
+            </div>
+            <!-- Script Generation Area (Hidden initially) -->
+            <div id="scriptGenerationArea" class="hidden p-6 bg-gray-850 border-t border-gray-700">
+                <h3 class="text-lg font-bold text-white mb-3"><i class="fas fa-file-alt text-yellow-500"></i> 대본 목차 생성
+                    결과</h3>
+                <div id="scriptContent" class="prose prose-invert max-w-none text-sm"></div>
+            </div>
+
+
+            <!-- Modal Footer -->
+            <div class="p-4 border-t border-gray-700 bg-gray-800 rounded-b-xl flex justify-end">
+                <button onclick="closeModal()"
+                    class="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition font-medium border border-gray-600">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Constants used for hardcoding keys if needed
+        const YOUTUBE_API_KEY = 'AIzaSyCiqpIPc3a0VqZHhRhPL6jmF6Oi6_mpVys';
+        const GEMINI_API_KEY = 'AIzaSyBf2ms9yROevKz5ZT8dmFZOFQ9c2_h6SVo';
+        const GEMINI_MODEL = 'gemini-2.0-flash';
+        const POLITICS_CHANNELS_KEY = 'politics_handles';
+
+        const YOUTUBE_API_STORAGE_KEY = 'yt_api_key';
+        const GEMINI_API_STORAGE_KEY = 'gemini_api_key';
+
+        const MAX_QUOTA = 10000;
+        let quotaUsed = 0;
+
+
+        // DOM Elements
+        const ytInput = document.getElementById('youtubeApiKey');
+        const geminiInput = document.getElementById('geminiApiKey');
+        const searchInput = document.getElementById('searchInput');
+        const resultsGrid = document.getElementById('resultsGrid');
+        const loading = document.getElementById('loading');
+        const loadingText = document.getElementById('loadingText');
+        const errorDiv = document.getElementById('error');
+        const errorMessage = document.getElementById('errorMessage');
+        const modal = document.getElementById('analysisModal');
+        const modalContent = document.getElementById('modalContent');
+        const modalTitle = document.getElementById('modalTitle');
+        const clockDisplay = document.getElementById('clockDisplay');
+        const sortFilter = document.getElementById('sortFilter');
+        const regionFilter = document.getElementById('regionFilter');
+        const maxSubsFilter = document.getElementById('maxSubsFilter');
+        const minViewsFilter = document.getElementById('minViewsFilter');
+        const searchDepthSelect = document.getElementById('searchDepth');
+        const durationFilter = document.getElementById('durationFilter');
+        const shortsTypeFilter = document.getElementById('shortsTypeFilter');
+        const scriptFilter = document.getElementById('scriptFilter');
+        const hoverFilter = document.getElementById('hoverFilter');
+        const featureFilter = document.getElementById('featureFilter');
+        const viewModeFilter = document.getElementById('viewModeFilter');
+        const channelFilter = document.getElementById('channelFilter');
+        const dateFilter = document.getElementById('dateFilter');
+        const hiddenSubsFilter = document.getElementById('hiddenSubsFilter');
+        const minRatioFilter = document.getElementById('minRatioFilter');
+        const channelCategoryFilter = document.getElementById('channelCategoryFilter');
+        const keywordSelectionArea = document.getElementById('keywordSelectionArea');
+        const scriptGenerationArea = document.getElementById('scriptGenerationArea');
+        const keywordButtons = document.getElementById('keywordButtons');
+        const scriptContent = document.getElementById('scriptContent');
+        const quotaValueDisplay = document.getElementById('quotaValue');
+        const quotaBarDisplay = document.getElementById('quotaBar');
+
+        let isSearching = false;
+        let politicsHandles = JSON.parse(localStorage.getItem(POLITICS_CHANNELS_KEY)) || [
+            "@MBCNEWS11", "@Jtvnews2021", "@g1tvnews", "@KTV이매진", "@NATV_korea",
+            "@이재명tv", "@dailyminjoo", "@KTV_korea", "@mbcradio_sisa", "@maebulshow",
+            "@gyeomsonisnothing", "@취재편의점", "@SPEAKS_TV", "@daeannews", "@HankyorehTV",
+            "@sisaineditor", "@choikyTV", "@사장남천동", "@kangseungbum", "@여의도옆문래동",
+            "@백운기의정어리TV", "@붕지욱기자", "@DHLeeTV"
+        ];
+
+
+        // Initialize
+        window.onload = () => {
+            initQuota(); // Initialize Quota logic
+            const savedYtKey = localStorage.getItem(YOUTUBE_API_STORAGE_KEY);
+            const savedGeminiKey = localStorage.getItem(GEMINI_API_STORAGE_KEY);
+
+            if (savedYtKey) ytInput.value = savedYtKey;
+            else if (YOUTUBE_API_KEY) ytInput.value = YOUTUBE_API_KEY;
+
+            if (savedGeminiKey) geminiInput.value = savedGeminiKey;
+            else if (GEMINI_API_KEY) geminiInput.value = GEMINI_API_KEY;
+
+            updateClock();
+            setInterval(updateClock, 1000);
+        };
+
+        // Utility: Quota Management
+        function initQuota() {
+            const now = new Date();
+            const lastReset = localStorage.getItem('yt_quota_reset');
+            const storedUsed = parseInt(localStorage.getItem('yt_quota_used') || '0');
+
+            // Daily reset at 4 PM KST
+            const currentResetDate = new Date();
+            currentResetDate.setHours(16, 0, 0, 0);
+            if (now < currentResetDate) {
+                currentResetDate.setDate(currentResetDate.getDate() - 1);
+            }
+
+            if (!lastReset || new Date(parseInt(lastReset)) < currentResetDate) {
+                quotaUsed = 0;
+                localStorage.setItem('yt_quota_used', '0');
+                localStorage.setItem('yt_quota_reset', now.getTime().toString());
+            } else {
+                quotaUsed = storedUsed;
+            }
+            updateQuotaDisplay();
+        }
+
+        function recordUsage(points) {
+            quotaUsed += points;
+            localStorage.setItem('yt_quota_used', quotaUsed.toString());
+            localStorage.setItem('yt_quota_reset', new Date().getTime().toString());
+            updateQuotaDisplay();
+        }
+
+        function updateQuotaDisplay() {
+            const remaining = Math.max(0, MAX_QUOTA - quotaUsed);
+            const percentage = (remaining / MAX_QUOTA) * 100;
+
+            if (quotaValueDisplay) quotaValueDisplay.innerText = remaining.toLocaleString();
+            if (quotaBarDisplay) {
+                quotaBarDisplay.style.width = percentage + '%';
+                if (percentage < 30) {
+                    quotaBarDisplay.style.backgroundColor = '#EF4444'; // red-500
+                } else if (percentage < 60) {
+                    quotaBarDisplay.style.backgroundColor = '#F59E0B'; // yellow-500
+                } else {
+                    quotaBarDisplay.style.backgroundColor = '#10B981'; // green-500
+                }
+            }
+        }
+
+        let currentVideos = [];
+        let currentKeywords = []; // Store suggested keywords
+
+        // Utility: Clock
+        function updateClock() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('ko-KR', { year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short' });
+            const timeStr = now.toLocaleTimeString('ko-KR', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            clockDisplay.innerText = `${dateStr} ${timeStr}`;
+        }
+
+
+        // Utility: Download File
+        function downloadText(content, filename) {
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+        }
+
+        // Utility: Save Keys
+        function saveKeys() {
+            if (ytInput.value) localStorage.setItem(YOUTUBE_API_STORAGE_KEY, ytInput.value.trim());
+            if (geminiInput.value) localStorage.setItem(GEMINI_API_STORAGE_KEY, geminiInput.value.trim());
+        }
+
+        // Utility: Escape RegExp
+        function escapeRegExp(string) {
+            return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        }
+
+        // Utility: Format Number (Korean style)
+        function formatNumber(num) {
+            if (num === null || num === undefined) return '비공개';
+            const n = typeof num === 'string' ? parseInt(num) : num;
+            if (isNaN(n)) return '0';
+
+            if (n >= 100000000) return (n / 100000000).toFixed(1).replace(/\.0$/, '') + '억';
+            if (n >= 10000) return (n / 10000).toFixed(1).replace(/\.0$/, '') + '만';
+            return n.toLocaleString();
+        }
+
+        // Utility: Get Grade Info based on Ratio
+        function getGradeInfo(ratio) {
+            const indicator = ratio / 100;
+            if (indicator >= 7.0) return { gradeIcon: '💎', gradeName: '전설', performanceIcon: '🔥 🔥', performanceText: '초대박' };
+            if (indicator >= 5.0) return { gradeIcon: '🥇', gradeName: '대박', performanceIcon: '🔥 🔥', performanceText: '초대박' };
+            if (indicator >= 3.0) return { gradeIcon: '🥈', gradeName: '떡상', performanceIcon: '🔥', performanceText: '대박' };
+            if (indicator >= 1.0) return { gradeIcon: '🥉', gradeName: '우수', performanceIcon: '✨', performanceText: '우수' };
+            if (indicator >= 0.5) return { gradeIcon: '✅', gradeName: '양호', performanceIcon: '👍', performanceText: '양호' };
+            return { gradeIcon: '⚪', gradeName: '평범', performanceIcon: '📈', performanceText: '보통' };
+        }
+
+        // Utility: Parse Duration (ISO 8601 to Seconds)
+        function parseDuration(duration) {
+            if (!duration) return 0;
+            const match = duration.match(/PT(\d+H)?(\d+M)?(\d+S)?/);
+            if (!match) return 0;
+            const hours = (parseInt(match[1]) || 0);
+            const minutes = (parseInt(match[2]) || 0);
+            const seconds = (parseInt(match[3]) || 0);
+            return (hours * 3600) + (minutes * 60) + seconds;
+        }
+
+        // Utility: Get RFC 3339 Date for PublishedAfter
+        function getPublishedAfterDate(period) {
+            const now = new Date();
+            if (period === '24h') now.setDate(now.getDate() - 1);
+            else if (period === '7d') now.setDate(now.getDate() - 7);
+            else if (period === '30d') now.setDate(now.getDate() - 30);
+            else if (period === '60d') now.setDate(now.getDate() - 60);
+            else if (period === '90d') now.setDate(now.getDate() - 90);
+            else if (period === '1y') now.setFullYear(now.getFullYear() - 1);
+            else if (period === '2y') now.setFullYear(now.getFullYear() - 2);
+            else if (period === '3y') now.setFullYear(now.getFullYear() - 3);
+            else if (period === '5y') now.setFullYear(now.getFullYear() - 5);
+            else return '';
+            return now.toISOString();
+        }
+
+        // Utility: Get Relative Time String
+        function getRelativeTime(date) {
+            const now = new Date();
+            const diff = now - date;
+            const diffMin = Math.floor(diff / 60000);
+            const diffHour = Math.floor(diff / 3600000);
+            const diffDay = Math.floor(diff / 86400000);
+            const diffMonth = Math.floor(diff / 2592000000);
+            const diffYear = Math.floor(diff / 31536000000);
+
+            if (diffYear > 0) return `${diffYear}년 전`;
+            if (diffMonth > 0) return `${diffMonth}개월 전`;
+            if (diffDay > 0) return `${diffDay}일 전`;
+            if (diffHour > 0) return `${diffHour}시간 전`;
+            if (diffMin > 0) return `${diffMin}분 전`;
+            return '방금 전';
+        }
+
+        // Utility: Show/Hide Loading
+        function showLoading(show, text = '') {
+            loading.style.display = show ? 'block' : 'none';
+            loadingText.innerText = text;
+            if (show) errorDiv.style.display = 'none';
+        }
+
+        // Utility: Show Error
+        function showError(msg, title = '검색 결과 없음') {
+            errorDiv.classList.remove('hidden');
+            errorDiv.innerHTML = `
+                <div class="flex items-start gap-3">
+                    <i class="fas fa-exclamation-circle text-2xl mt-0.5"></i>
+                    <div>
+                        <p class="font-bold text-lg mb-1">${title}</p>
+                        <p id="errorMessage" class="opacity-90 leading-relaxed">${msg}</p>
+                        <button onclick="this.parentElement.parentElement.parentElement.classList.add('hidden')" 
+                            class="mt-3 text-xs bg-red-800/50 hover:bg-red-700/50 px-3 py-1 rounded transition border border-red-700">
+                            확인
+                        </button>
+                    </div>
+                </div>
+            `;
+            loading.style.display = 'none';
+            console.error('[Error]', msg);
+        }
+
+        // Core: Search Videos
+        async function searchVideos() {
+            // Check essential DOM elements
+            if (!searchInput || !ytInput || !resultsGrid) {
+                console.error('Essential DOM elements missing');
+                return alert('화면 구성 요소를 불러오지 못했습니다. 페이지를 새로고침 해주세요.');
+            }
+
+            const keyword = (searchInput.value || '').trim();
+            const ytKey = (ytInput.value || '').trim();
+            const sortOrder = sortFilter ? sortFilter.value : 'relevance';
+            const region = regionFilter ? regionFilter.value : '';
+            const maxSubs = maxSubsFilter ? parseInt(maxSubsFilter.value) : 0;
+            const minViews = minViewsFilter ? parseInt(minViewsFilter.value) : 0;
+            const minRatio = minRatioFilter ? parseInt(minRatioFilter.value) : 0;
+            const durationType = durationFilter ? durationFilter.value : 'any';
+            const shortsType = shortsTypeFilter ? shortsTypeFilter.value : 'all';
+            const scriptMode = scriptFilter ? scriptFilter.value : 'all';
+            const featureMode = featureFilter ? featureFilter.value : 'any';
+            const dateRange = dateFilter ? dateFilter.value : '';
+            const hiddenSubsMode = hiddenSubsFilter ? hiddenSubsFilter.value : 'all';
+            const channelMatchRaw = (channelFilter ? channelFilter.value : '').trim();
+            const channelMatch = channelMatchRaw.toLowerCase();
+
+            if (isSearching) return;
+            if (!keyword && !channelMatchRaw) return alert('검색어나 채널명 중 하나는 반드시 입력해주세요.');
+            if (!ytKey) return alert('YouTube API 키를 입력해주세요. (오른쪽 상단 숨겨진 입력창)');
+
+            isSearching = true;
+
+            // Visual feedback for all search buttons
+            const searchBtns = document.querySelectorAll('button[onclick="searchVideos()"]');
+            searchBtns.forEach(btn => {
+                btn.disabled = true;
+                const icon = btn.querySelector('i');
+                if (icon) {
+                    icon.className = 'fas fa-spinner animate-spin text-xs';
+                }
+            });
+
+            saveKeys();
+            showLoading(true, 'YouTube에서 영상을 검색 중입니다...');
+            resultsGrid.innerHTML = '';
+            currentVideos = [];
+
+            let effectiveQuery = "";
+            if (keyword && channelMatchRaw) {
+                effectiveQuery = `${keyword} | ${channelMatchRaw}`;
+            } else {
+                effectiveQuery = keyword || channelMatchRaw;
+            }
+
+            console.log('--- 검색 시작 (OR 조건) ---', {
+                effectiveQuery,
+                keyword,
+                channelMatchRaw,
+                sortOrder,
+                region,
+                maxSubs,
+                minViews
+            });
+
+            try {
+                // 1. Search Videos (Fetcher) - Depth controlled by user
+                let allItems = [];
+                let nextToken = '';
+                const maxPages = searchDepthSelect ? parseInt(searchDepthSelect.value) : 5;
+
+                let totalRawFetched = 0;
+                for (let i = 0; i < maxPages; i++) {
+                    const pageNum = i + 1;
+                    showLoading(true, `유튜브 데이터 찾는 중... (${pageNum}/${maxPages} 페이지)`);
+
+                    let searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=50&order=${sortOrder}&key=${ytKey}`;
+
+                    // Construct q parameter carefully
+                    let q = keyword;
+                    if (channelMatchRaw) {
+                        q = q ? `${q} ${channelMatchRaw}` : channelMatchRaw;
+                    }
+                    searchUrl += `&q=${encodeURIComponent(q)}`;
+
+                    if (region) {
+                        searchUrl += `&regionCode=${region}`;
+                        if (region === 'KR') searchUrl += `&relevanceLanguage=ko`;
+                    }
+                    if (dateRange) {
+                        const publishedAfter = getPublishedAfterDate(dateRange);
+                        if (publishedAfter) searchUrl += `&publishedAfter=${publishedAfter}`;
+                    }
+
+                    // Add Feature Filters
+                    if (featureMode === 'live') searchUrl += `&eventType=live`;
+                    if (featureMode === 'highDef') searchUrl += `&videoDefinition=high`;
+                    if (featureMode === 'cc') searchUrl += `&videoCaption=closedCaption`;
+                    if (featureMode === 'creativeCommon') searchUrl += `&videoLicense=creativeCommon`;
+                    if (featureMode === '3d') searchUrl += `&videoDimension=3d`;
+
+                    if (nextToken) searchUrl += `&pageToken=${nextToken}`;
+
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+
+                    try {
+                        const searchRes = await fetch(searchUrl, { signal: controller.signal });
+                        clearTimeout(timeoutId);
+
+                        if (!searchRes.ok) {
+                            const errData = await searchRes.json().catch(() => ({}));
+                            const errMsg = errData.error?.message || `HTTP ${searchRes.status}`;
+                            if (errMsg.includes('quota')) throw new Error('API 호출 할당량이 소모되었습니다. 내일 다시 시도해 주세요.');
+                            throw new Error(errMsg);
+                        }
+
+                        const searchData = await searchRes.json();
+                        if (searchData.items && searchData.items.length > 0) {
+                            allItems = [...allItems, ...searchData.items];
+                            totalRawFetched += searchData.items.length;
+                        }
+
+                        nextToken = searchData.nextPageToken;
+                        recordUsage(100); // 100 units per search page
+                        if (!nextToken) break;
+                    } catch (e) {
+                        if (e.name === 'AbortError') throw new Error('연결 시간이 초과되었습니다. 인터넷 상태를 확인해 주세요.');
+                        throw e;
+                    }
+                }
+
+                if (allItems.length === 0) {
+                    showError('YouTube 검색 결과가 없습니다. 키워드를 변경하거나 지역 설정을 확인해주세요.');
+                    return;
+                }
+
+                // 2. Get Video Statistics (Chunked by 50)
+                let videosItems = [];
+                for (let i = 0; i < allItems.length; i += 50) {
+                    const chunk = allItems.slice(i, i + 50);
+                    const videoIds = chunk
+                        .map(item => item.id ? item.id.videoId : null)
+                        .filter(id => id)
+                        .join(',');
+
+                    if (!videoIds) continue;
+
+                    recordUsage(1); // Cost for video list item
+                    showLoading(true, `영상 상세 정보 분석 중... (${i + chunk.length}/${allItems.length})`);
+                    const videosUrl = `https://www.googleapis.com/youtube/v3/videos?part=statistics,snippet,contentDetails&id=${videoIds}&key=${ytKey}`;
+                    const videosRes = await fetch(videosUrl);
+                    const videosData = await videosRes.json();
+                    if (videosData.error) throw new Error(videosData.error.message);
+                    if (videosData.items) videosItems = [...videosItems, ...videosData.items];
+                }
+
+                // 3. Get Channel Statistics (Chunked by 50)
+                const channelIdsArray = [...new Set(videosItems.map(item => item.snippet.channelId))].filter(id => id);
+                const channelMap = {};
+                for (let i = 0; i < channelIdsArray.length; i += 50) {
+                    const chunk = channelIdsArray.slice(i, i + 50).join(',');
+                    if (!chunk) continue;
+
+                    recordUsage(1); // Cost for channel list
+                    showLoading(true, `채널 정보 수집 중... (${i + channelIdsArray.slice(i, i + 50).length}/${channelIdsArray.length})`);
+                    const channelsUrl = `https://www.googleapis.com/youtube/v3/channels?part=statistics,topicDetails&id=${chunk}&key=${ytKey}`;
+                    const channelsRes = await fetch(channelsUrl);
+                    const channelsData = await channelsRes.json();
+                    if (channelsData.error) throw new Error(channelsData.error.message);
+                    if (channelsData.items) {
+                        channelsData.items.forEach(ch => {
+                            const topics = (ch.topicDetails && ch.topicDetails.topicCategories) ? ch.topicDetails.topicCategories.join(',') : '';
+                            channelMap[ch.id] = {
+                                subs: ch.statistics.hiddenSubscriberCount ? null : ch.statistics.subscriberCount,
+                                topics: topics
+                            };
+                        });
+                    }
+                }
+                showLoading(true, '필터링 및 정렬 중...');
+
+                // 4. Process & Filter Data (Client-side)
+                const mappedResults = videosItems.map(video => {
+                    if (!video || !video.snippet) return null;
+
+                    const stats = video.statistics || {};
+                    const views = parseInt(stats.viewCount || 0);
+                    const channelId = video.snippet.channelId;
+                    const chData = channelMap[channelId] || {};
+                    const subsRaw = chData.subs;
+                    const subs = (subsRaw === null || subsRaw === undefined) ? null : parseInt(subsRaw);
+
+                    const filterSubs = (subs === null || subs === 0) ? 1 : subs;
+                    const ratio = (views / filterSubs) * 100;
+                    const durationSec = video.contentDetails ? parseDuration(video.contentDetails.duration) : 0;
+
+                    return {
+                        id: video.id,
+                        title: video.snippet.title || '제목 없음',
+                        description: video.snippet.description || '',
+                        thumbnail: video.snippet.thumbnails?.medium?.url || video.snippet.thumbnails?.default?.url || '',
+                        channelTitle: video.snippet.channelTitle || '알 수 없는 채널',
+                        publishedAt: video.snippet.publishedAt ? new Date(video.snippet.publishedAt).toLocaleDateString() : '날짜 정보 없음',
+                        publishedRelative: video.snippet.publishedAt ? getRelativeTime(new Date(video.snippet.publishedAt)) : '',
+                        publishedAtRaw: video.snippet.publishedAt ? new Date(video.snippet.publishedAt).getTime() : 0,
+                        views: views,
+                        subs: subs,
+                        ratio: ratio,
+                        durationSec: durationSec,
+                        tags: video.snippet.tags || [],
+                        region: region || 'ALL',
+                        hasScript: video.contentDetails ? video.contentDetails.caption === 'true' : false,
+                        shortsCategory: classifyShorts(video.snippet.title, video.snippet.description, video.snippet.tags || []),
+                        channelId: channelId,
+                        commentCount: parseInt(stats.commentCount || 0),
+                        likes: parseInt(stats.likeCount || 0),
+                        topics: chData.topics || ''
+                    };
+                }).filter(v => v !== null);
+
+                // Mandatory Filter: Region check if KR (Foreign content exclusion)
+                currentVideos = mappedResults.filter(video => {
+                    if (region === 'KR') {
+                        const hasKorean = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/.test(video.title) ||
+                            /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/.test(video.channelTitle) ||
+                            /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/.test(video.description);
+                        if (!hasKorean) return false;
+                    }
+
+                    // Filter: Keyword and/or Channel Name
+                    const titleLower = video.title.toLowerCase();
+                    const channelLower = video.channelTitle.toLowerCase();
+                    const tagsLower = (video.tags || []).map(t => t.toLowerCase());
+
+                    let isKeywordMatch = true;
+                    if (keyword) {
+                        const kwWords = keyword.toLowerCase().split(/\s+/).filter(w => w.length > 0);
+                        // All words in the keyword must be found in title or tags
+                        isKeywordMatch = kwWords.every(word =>
+                            titleLower.includes(word) || tagsLower.some(tag => tag.includes(word))
+                        );
+                    }
+
+                    let isChannelMatch = true;
+                    if (channelMatch) {
+                        isChannelMatch = channelLower.includes(channelMatch);
+                    }
+
+                    // Logic:
+                    // 1. If only keyword provided -> must match keyword
+                    // 2. If only channel provided -> must match channel
+                    // 3. If both provided -> Match if (Keyword AND Channel) - changed to stricter AND for preciser discovery within channel
+                    // Currently the user said "keyword search not working", likely it was too strict or the logic was flawed.
+                    // If they enter both, they usually want that keyword WITHIN that channel.
+
+                    if (keyword && channelMatch) {
+                        return isKeywordMatch && isChannelMatch;
+                    } else if (keyword) {
+                        return isKeywordMatch;
+                    } else if (channelMatch) {
+                        return isChannelMatch;
+                    }
+
+                    return true;
+                });
+
+                // Apply UI filters and render
+                applyViewMode();
+
+            } catch (err) {
+                console.error('검색 중 치명적 오류:', err);
+                showError('현재 검색을 수행할 수 없습니다: ' + err.message, '시스템 오류');
+                alert('검색 중 오류가 발생했습니다: ' + err.message);
+            } finally {
+                isSearching = false;
+                const searchBtns = document.querySelectorAll('button[onclick="searchVideos()"]');
+                searchBtns.forEach(btn => {
+                    btn.disabled = false;
+                    const icon = btn.querySelector('i');
+                    if (icon) {
+                        icon.className = 'fas fa-search text-xs';
+                    }
+                });
+            }
+        }
+
+        // New: Explore Trending Videos (Quota Efficient)
+        async function exploreTrending() {
+            const ytKey = (ytInput.value || '').trim();
+            const region = regionFilter ? regionFilter.value : 'KR';
+
+            if (isSearching) return;
+            if (!ytKey) return alert('YouTube API 키를 입력해주세요. (오른쪽 상단 숨겨진 입력창)');
+
+            isSearching = true;
+
+            // Visual feedback
+            const trendingBtn = document.querySelector('button[onclick="exploreTrending()"]');
+            const originalBtnContent = trendingBtn.innerHTML;
+            trendingBtn.disabled = true;
+            trendingBtn.innerHTML = '<i class="fas fa-spinner animate-spin"></i> 분석 중...';
+
+            saveKeys();
+            showLoading(true, '실시간 인기 급상승 데이터를 100배 빠르게 분석 중입니다...');
+            resultsGrid.innerHTML = '';
+            currentVideos = [];
+
+            try {
+                // 1. Get Most Popular Videos (Cost: 1 unit)
+                const popularUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics,contentDetails&chart=mostPopular&regionCode=${region || 'KR'}&maxResults=50&key=${ytKey}`;
+                const popularRes = await fetch(popularUrl);
+                const popularData = await popularRes.json();
+                recordUsage(1);
+
+                if (popularData.error) {
+                    const errMsg = popularData.error.message;
+                    if (errMsg.includes('quota')) throw new Error('API 호출 할당량이 소모되었습니다. 내일 다시 시도해 주세요.');
+                    throw new Error(errMsg);
+                }
+
+                if (!popularData.items || popularData.items.length === 0) {
+                    throw new Error('현재 지역의 인기 급상승 영상을 가져올 수 없습니다.');
+                }
+
+                // 2. Get Channel Stats for these videos (Cost: 1 unit)
+                const videoItems = popularData.items;
+                const channelIds = [...new Set(videoItems.map(item => item.snippet.channelId))].filter(id => id).join(',');
+
+                let channelMap = {};
+                if (channelIds) {
+                    const channelsUrl = `https://www.googleapis.com/youtube/v3/channels?part=statistics,topicDetails&id=${channelIds}&key=${ytKey}`;
+                    const channelsRes = await fetch(channelsUrl);
+                    const channelsData = await channelsRes.json();
+                    recordUsage(1);
+                    if (channelsData.items) {
+                        channelsData.items.forEach(ch => {
+                            channelMap[ch.id] = {
+                                subs: ch.statistics.hiddenSubscriberCount ? null : ch.statistics.subscriberCount,
+                                topics: (ch.topicDetails && ch.topicDetails.topicCategories) ? ch.topicDetails.topicCategories.join(',') : ''
+                            };
+                        });
+                    }
+                }
+
+                // 3. Process & Map
+                const processedResults = videoItems.map(video => {
+                    const stats = video.statistics || {};
+                    const views = parseInt(stats.viewCount || 0);
+                    const channelId = video.snippet.channelId;
+                    const chData = channelMap[channelId] || {};
+                    const subsRaw = chData.subs;
+                    const subs = (subsRaw === null || subsRaw === undefined) ? null : parseInt(subsRaw);
+                    const filterSubs = (subs === null || subs === 0) ? 1 : subs;
+                    const ratio = (views / filterSubs) * 100;
+                    const durationSec = video.contentDetails ? parseDuration(video.contentDetails.duration) : 0;
+
+                    return {
+                        id: video.id,
+                        title: video.snippet.title || '제목 없음',
+                        description: video.snippet.description || '',
+                        thumbnail: video.snippet.thumbnails?.medium?.url || video.snippet.thumbnails?.default?.url || '',
+                        channelTitle: video.snippet.channelTitle || '알 수 없는 채널',
+                        publishedAt: new Date(video.snippet.publishedAt).toLocaleDateString(),
+                        publishedRelative: getRelativeTime(new Date(video.snippet.publishedAt)),
+                        publishedAtRaw: new Date(video.snippet.publishedAt).getTime(),
+                        views: views,
+                        subs: subs,
+                        ratio: ratio,
+                        durationSec: durationSec,
+                        tags: video.snippet.tags || [],
+                        hasScript: video.contentDetails ? video.contentDetails.caption === 'true' : false,
+                        shortsCategory: classifyShorts(video.snippet.title, video.snippet.description, video.snippet.tags || []),
+                        channelId: channelId,
+                        commentCount: parseInt(stats.commentCount || 0),
+                        likes: parseInt(stats.likeCount || 0),
+                        topics: chData.topics || ''
+                    };
+                });
+
+                currentVideos = processedResults;
+                applyViewMode();
+
+            } catch (err) {
+                console.error('Trending 분석 오류:', err);
+                showError(err.message, '분석 중 오류');
+            } finally {
+                isSearching = false;
+                trendingBtn.disabled = false;
+                trendingBtn.innerHTML = originalBtnContent;
+            }
+        }
+
+        // New: Search within Specific Politics Channels
+        async function searchPoliticsChannels() {
+            const ytKey = (ytInput.value || '').trim();
+            const keyword = (searchInput.value || '').trim();
+            const sortOrder = sortFilter ? sortFilter.value : 'relevance';
+            const dateRange = dateFilter ? dateFilter.value : '';
+
+            if (isSearching) return;
+            if (!ytKey) return alert('YouTube API 키를 입력해주세요. (오른쪽 상단 숨겨진 입력창)');
+
+            isSearching = true;
+
+            // Visual feedback
+            const politicsBtn = document.querySelector('button[onclick="searchPoliticsChannels()"]');
+            const originalBtnContent = politicsBtn.innerHTML;
+            politicsBtn.disabled = true;
+            politicsBtn.innerHTML = '<i class="fas fa-spinner animate-spin"></i> 분석 중...';
+
+            saveKeys();
+            showLoading(true, '지정된 정치 채널들에서 인사이트를 발굴하는 중입니다...');
+            resultsGrid.innerHTML = '';
+            currentVideos = [];
+
+            try {
+                // Construct query efficiently
+                // Use a combined OR query with handles to target these channels
+                let query = politicsHandles.join(" | ");
+                if (keyword) {
+                    query = `(${keyword}) (${query})`;
+                }
+
+                const publishedAfter = getPublishedAfterDate(dateRange);
+                let searchUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&maxResults=50&order=${sortOrder}&key=${ytKey}`;
+                if (publishedAfter) searchUrl += `&publishedAfter=${publishedAfter}`;
+
+                const searchRes = await fetch(searchUrl);
+                const searchData = await searchRes.json();
+                recordUsage(100);
+
+                if (searchData.error) throw new Error(searchData.error.message);
+                if (!searchData.items || searchData.items.length === 0) throw new Error('해당 조건의 정밀 분석 결과가 없습니다.');
+
+                // Process IDs
+                const videoItems = searchData.items;
+                const videoIds = videoItems.map(item => item.id.videoId).join(',');
+                const channelIds = [...new Set(videoItems.map(item => item.snippet.channelId))].join(',');
+
+                // Get Details (Statistics & ContentDetails) - Cost: 1 unit
+                const detailUrl = `https://www.googleapis.com/youtube/v3/videos?part=snippet,statistics,contentDetails&id=${videoIds}&key=${ytKey}`;
+                const detailRes = await fetch(detailUrl);
+                const detailData = await detailRes.json();
+                recordUsage(1);
+
+                // Get Channel Stats - Cost: 1 unit
+                let channelMap = {};
+                if (channelIds) {
+                    const channelsUrl = `https://www.googleapis.com/youtube/v3/channels?part=statistics,topicDetails&id=${channelIds}&key=${ytKey}`;
+                    const channelsRes = await fetch(channelsUrl);
+                    const channelsData = await channelsRes.json();
+                    recordUsage(1);
+                    if (channelsData.items) {
+                        channelsData.items.forEach(ch => {
+                            channelMap[ch.id] = {
+                                subs: ch.statistics.hiddenSubscriberCount ? null : ch.statistics.subscriberCount,
+                                topics: (ch.topicDetails && ch.topicDetails.topicCategories) ? ch.topicDetails.topicCategories.join(',') : ''
+                            };
+                        });
+                    }
+                }
+
+                // Process & Map results
+                const processedResults = detailData.items.map(video => {
+                    const stats = video.statistics || {};
+                    const views = parseInt(stats.viewCount || 0);
+                    const channelId = video.snippet.channelId;
+                    const chData = channelMap[channelId] || {};
+                    const subsRaw = chData.subs;
+                    const subs = (subsRaw === null || subsRaw === undefined) ? null : parseInt(subsRaw);
+                    const filterSubs = (subs === null || subs === 0) ? 1 : subs;
+                    const ratio = (views / filterSubs) * 100;
+                    const durationSec = video.contentDetails ? parseDuration(video.contentDetails.duration) : 0;
+
+                    return {
+                        id: video.id,
+                        title: video.snippet.title || '제목 없음',
+                        description: video.snippet.description || '',
+                        thumbnail: video.snippet.thumbnails?.medium?.url || video.snippet.thumbnails?.default?.url || '',
+                        channelTitle: video.snippet.channelTitle || '알 수 없는 채널',
+                        publishedAt: new Date(video.snippet.publishedAt).toLocaleDateString(),
+                        publishedRelative: getRelativeTime(new Date(video.snippet.publishedAt)),
+                        publishedAtRaw: new Date(video.snippet.publishedAt).getTime(),
+                        views: views,
+                        subs: subs,
+                        ratio: ratio,
+                        durationSec: durationSec,
+                        tags: video.snippet.tags || [],
+                        hasScript: video.contentDetails ? video.contentDetails.caption === 'true' : false,
+                        shortsCategory: classifyShorts(video.snippet.title, video.snippet.description, video.snippet.tags || []),
+                        channelId: channelId,
+                        commentCount: parseInt(stats.commentCount || 0),
+                        likes: parseInt(stats.likeCount || 0),
+                        topics: chData.topics || ''
+                    };
+                });
+
+                currentVideos = processedResults;
+                applyViewMode();
+
+            } catch (err) {
+                console.error('정치 채널 분석 오류:', err);
+                showError(err.message, '분석 중 오류');
+            } finally {
+                isSearching = false;
+                politicsBtn.disabled = false;
+                politicsBtn.innerHTML = originalBtnContent;
+            }
+        }
+
+        // New: Manage Politics Channels
+        function managePoliticsChannels() {
+            modal.classList.remove('hidden');
+            keywordSelectionArea.classList.add('hidden');
+            scriptGenerationArea.classList.add('hidden');
+
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.children[0].classList.remove('scale-95');
+            }, 10);
+
+            modalTitle.innerHTML = `<i class="fas fa-cog text-purple-400"></i> 정치 분석 대상 채널 관리`;
+            modalContent.innerHTML = `
+                <div class="p-2">
+                    <p class="text-sm text-gray-400 mb-4 bg-gray-800/50 p-3 rounded-lg border border-gray-700">
+                        <i class="fas fa-info-circle text-blue-400 mr-2"></i> 
+                        분석대상 채널의 핸들을 직접 입력하거나 수정할 수 있습니다. <br>
+                        예) @MBCNEWS11, @이재명tv (공백이나 줄바꿈으로 구분)
+                    </p>
+                    <textarea id="politicsHandleInput" 
+                        class="w-full h-64 bg-gray-900 text-gray-100 border border-gray-700 rounded-xl p-4 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 transition-all"
+                        placeholder="@handle1 @handle2 ...">${politicsHandles.join('\n')}</textarea>
+                    
+                    <div class="mt-6 flex justify-end gap-3">
+                        <button onclick="closeModal()" 
+                            class="px-6 py-2.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-xl font-bold transition border border-gray-600">
+                            취소
+                        </button>
+                        <button onclick="savePoliticsChannels()" 
+                            class="px-8 py-2.5 bg-purple-600 hover:bg-purple-700 text-white rounded-xl font-bold shadow-lg shadow-purple-900/20 active:scale-95 transition-all flex items-center gap-2">
+                            <i class="fas fa-save"></i> 설정 저장
+                        </button>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-gray-700">
+                        <p class="text-xs text-gray-500">현재 등록된 채널 수: <span class="text-purple-400 font-bold">${politicsHandles.length}개</span></p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function savePoliticsChannels() {
+            const input = document.getElementById('politicsHandleInput').value;
+            // Split by any whitespace or commas, filter out empty strings
+            const newHandles = input.split(/[\s,]+/).filter(h => h.trim().length > 0);
+
+            if (newHandles.length === 0) {
+                return alert('최소 하나 이상의 채널 핸들을 입력해야 합니다.');
+            }
+
+            politicsHandles = newHandles;
+            localStorage.setItem(POLITICS_CHANNELS_KEY, JSON.stringify(politicsHandles));
+
+            closeModal();
+            alert(`총 ${politicsHandles.length}개의 채널이 성공적으로 저장되었습니다.`);
+        }
+
+        // New Helper to switch view without re-searching
+        function applyViewMode() {
+            if (!currentVideos || currentVideos.length === 0) return;
+
+            const maxSubs = maxSubsFilter ? parseInt(maxSubsFilter.value) : 0;
+            const minViews = minViewsFilter ? parseInt(minViewsFilter.value) : 0;
+            const minRatio = minRatioFilter ? parseInt(minRatioFilter.value) : 0;
+            const durationType = durationFilter ? durationFilter.value : 'any';
+            const hiddenSubsMode = hiddenSubsFilter ? hiddenSubsFilter.value : 'all';
+            const scriptMode = scriptFilter ? scriptFilter.value : 'all';
+            const shortsType = shortsTypeFilter ? shortsTypeFilter.value : 'all';
+            const selectedTopic = channelCategoryFilter ? channelCategoryFilter.value : 'all';
+            const sortOrder = sortFilter ? sortFilter.value : 'relevance';
+            const keyword = (searchInput ? searchInput.value : '').trim().toLowerCase();
+            const channelMatchRaw = (channelFilter ? channelFilter.value : '').trim();
+            const channelMatch = channelMatchRaw.toLowerCase();
+
+            // Filter
+            const filtered = currentVideos.filter(video => {
+                // Keyword Search (Client-side secondary filter)
+                if (keyword) {
+                    const titleLower = video.title.toLowerCase();
+                    const tagsLower = (video.tags || []).map(t => t.toLowerCase());
+                    const kwWords = keyword.split(/\s+/).filter(w => w.length > 0);
+
+                    // EVERY word must be found
+                    const isMatch = kwWords.every(word =>
+                        titleLower.includes(word) || tagsLower.some(tag => tag.includes(word))
+                    );
+                    if (!isMatch) return false;
+                }
+
+                // Channel Name Filter (Local)
+                if (channelMatch && !video.channelTitle.toLowerCase().includes(channelMatch)) return false;
+
+                // Topic/Category Filter (YouTube Content Categorization)
+                if (selectedTopic !== 'all' && !video.topics.toLowerCase().includes(selectedTopic.toLowerCase())) return false;
+
+                // Channel Subscriber Count (Max)
+                if (maxSubs > 0 && video.subs !== null && video.subs > maxSubs) return false;
+
+                // Subscriber Visibility
+                if (hiddenSubsMode === 'public' && video.subs === null) return false;
+                if (hiddenSubsMode === 'hidden' && video.subs !== null) return false;
+
+                // Video View Count (Min)
+                if (minViews > 0 && video.views < minViews) return false;
+
+                // Performance Ratio (Min)
+                if (minRatio > 0 && (video.ratio === null || video.ratio < minRatio)) return false;
+
+                // Duration (4 min)
+                if (durationType === 'short' && video.durationSec >= 240) return false;
+                if (durationType === 'long' && video.durationSec < 240) return false;
+
+                // Shorts Category
+                if (video.durationSec < 240 && shortsType !== 'all') {
+                    if (video.shortsCategory !== shortsType) return false;
+                }
+
+                // Script (Captions)
+                if (scriptMode === 'yes' && !video.hasScript) return false;
+                if (scriptMode === 'no' && video.hasScript) return false;
+
+                return true;
+            });
+
+            // Sort
+            if (sortOrder === 'date') {
+                filtered.sort((a, b) => b.publishedAtRaw - a.publishedAtRaw);
+            } else if (sortOrder === 'viewCount') {
+                filtered.sort((a, b) => b.views - a.views);
+            } else if (sortOrder === 'relevance' && !keyword) {
+                // If no keyword, default to performance (ratio)
+                filtered.sort((a, b) => b.ratio - a.ratio);
+            }
+
+            // Render
+            renderResults(filtered, keyword);
+            showLoading(false);
+        }
+
+        // Core: Render Results
+        function renderResults(videos, kw) {
+            if (videos.length === 0) {
+                resultsGrid.innerHTML = '<p class="col-span-full text-center text-gray-500 py-10">조건에 맞는 영상이 없습니다. 필터를 조금 완화해보세요.</p>';
+                return;
+            }
+
+            const viewMode = viewModeFilter.value;
+            resultsGrid.innerHTML = '';
+
+            if (viewMode === 'list') {
+                resultsGrid.className = 'grid grid-cols-1 gap-4';
+                videos.forEach(video => {
+                    const card = createListCard(video, kw);
+                    resultsGrid.appendChild(card);
+                });
+            } else {
+                resultsGrid.className = 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6';
+                videos.forEach(video => {
+                    const card = createGridCard(video, kw);
+                    resultsGrid.appendChild(card);
+                });
+            }
+        }
+
+        function createGridCard(video, kw) {
+            let ratioClass = 'text-gray-400';
+            let jackpotBadge = '';
+
+            const inTitle = kw && video.title.toLowerCase().includes(kw.toLowerCase());
+            const inTags = kw && !inTitle && video.tags.some(tag => tag.toLowerCase().includes(kw.toLowerCase()));
+            const tagMatchBadge = inTags ? '<span class="text-[10px] bg-blue-900/50 text-blue-300 px-1.5 py-0.5 rounded ml-1 border border-blue-800/50 whitespace-nowrap">태그 일치</span>' : '';
+            const scriptBadge = video.hasScript ? '<span class="absolute top-2 right-2 bg-blue-600 text-white text-[10px] px-2 py-0.5 rounded font-bold z-10 shadow-sm"><i class="fas fa-file-lines"></i> 스크립트</span>' : '';
+
+            if (video.ratio >= 200) {
+                ratioClass = 'text-green-400 font-bold';
+                jackpotBadge = `<span class="absolute top-2 left-2 bg-red-600 text-white text-xs px-2 py-1 rounded font-bold animate-pulse z-10">🔥 대박 영상</span>`;
+            } else if (video.ratio >= 100) {
+                ratioClass = 'text-blue-400 font-bold';
+            } else if (video.ratio >= 50) {
+                ratioClass = 'text-yellow-500 font-medium';
+            }
+
+            const mins = Math.floor(video.durationSec / 60);
+            const secs = video.durationSec % 60;
+            const durationStr = `${mins}:${secs.toString().padStart(2, '0')}`;
+
+            const card = document.createElement('div');
+            card.className = 'bg-gray-800 rounded-xl shadow-lg hover:shadow-2xl transition duration-300 overflow-hidden border border-gray-700 flex flex-col group relative';
+
+            const hoverMode = hoverFilter ? hoverFilter.value : 'vidiq';
+            card.onmouseenter = () => hoverMode === 'vidiq' ? showTrendChart(video.id, card) : showRevenueInfo(video.id, card);
+
+            const hoursSince = Math.max(1, (Date.now() - video.publishedAtRaw) / 3600000);
+            const vph = (video.views / hoursSince).toFixed(1);
+
+            card.innerHTML = `
+                <div class="relative cursor-pointer" onclick="window.open('https://www.youtube.com/watch?v=${video.id}', '_blank')">
+                    <img src="${video.thumbnail}" alt="${video.title}" class="w-full h-48 object-cover group-hover:scale-105 transition duration-500 opacity-90 group-hover:opacity-100">
+                    ${jackpotBadge}
+                    ${scriptBadge}
+                    <div class="vph-badge">${vph} VPH</div>
+                    <div class="chart-container" id="hover-overlay-${video.id}">
+                        ${hoverMode === 'vidiq' ? `
+                            <p class="text-[10px] text-gray-400 mb-1 font-bold uppercase tracking-widest">실시간 유입 추세 (VPH: ${vph})</p>
+                            <canvas id="chart-${video.id}"></canvas>
+                            <p class="text-[9px] text-yellow-500 mt-2 italic">※ vidIQ 스타일 시뮬레이션 지표</p>
+                        ` : `
+                            <div class="flex flex-col items-center text-center">
+                                <i class="fas fa-coins text-3xl text-yellow-500 mb-3 animate-bounce"></i>
+                                <p class="text-xs text-gray-400 uppercase font-bold tracking-tighter mb-1">예상 수익액 (Total)</p>
+                                <p class="text-2xl font-black text-white mb-1"><span class="text-green-500">₩</span> ${formatNumber(video.views * 2.5)}</p>
+                                <p class="text-[10px] text-gray-500 px-4">평균 CPM 2.5원 기준으로 산출된 예상 금액입니다.</p>
+                                <div class="mt-4 border-t border-gray-700 pt-4 w-full">
+                                    <p class="text-xs text-blue-400 font-bold">시간당 수익: ₩${formatNumber(vph * 2.5)}</p>
+                                </div>
+                            </div>
+                        `}
+                    </div>
+                    <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition duration-300 flex items-center justify-center">
+                        <i class="fab fa-youtube text-red-600 text-5xl opacity-0 group-hover:opacity-100 transition duration-300 drop-shadow-lg scale-75 group-hover:scale-100"></i>
+                    </div>
+                    <div class="absolute bottom-2 right-2 bg-black bg-opacity-80 text-white text-xs px-2 py-1 rounded flex items-center gap-1">
+                        <span>${durationStr}</span>
+                        <span class="opacity-50">|</span>
+                        <span>${video.publishedAt} <span class="text-yellow-400 font-bold">(${video.publishedRelative})</span></span>
+                    </div>
+                </div>
+                <div class="p-5 flex-grow flex flex-col justify-between">
+                    <div>
+                        <h3 class="font-bold text-gray-100 line-clamp-2 leading-tight mb-2 h-12 group-hover:text-red-400 transition" title="${video.title}">
+                            ${kw ? video.title.replace(new RegExp(`(${escapeRegExp(kw)})`, 'gi'), '<span class="text-red-400">$1</span>') : video.title}
+                        </h3>
+                        <div class="flex flex-col gap-1 text-[13px] text-gray-300 mb-4 bg-gray-700/50 p-3 rounded-lg border border-gray-600">
+                            <p>📺 채널명 : <a href="https://www.youtube.com/channel/${video.channelId}" target="_blank" class="text-blue-400 hover:underline font-medium">${video.channelTitle}</a></p>
+                            <p>👤 구독자수 : ${formatNumber(video.subs)}명</p>
+                            <p>📅 발행일시 : ${video.publishedAt} <span class="text-xs text-yellow-500 font-bold">(${video.publishedRelative})</span></p>
+                            <div class="flex flex-wrap items-center gap-2 mt-1 py-1 border-t border-gray-600/50">
+                                <span>👁️ ${video.views.toLocaleString()}</span>
+                                <span class="text-gray-500">/</span>
+                                <span>👍 ${video.likes.toLocaleString()}</span>
+                                <span class="text-gray-500">/</span>
+                                <span>💬 ${video.commentCount.toLocaleString()}</span>
+                            </div>
+                            <div class="mt-1 pt-1 border-t border-gray-600/50">
+                                <p>떡상등급 : ${getGradeInfo(video.ratio).gradeIcon} ${getGradeInfo(video.ratio).gradeName} (지표: ${(video.ratio / 100).toFixed(2)})</p>
+                                <p>성과지표 : <span class="${getGradeInfo(video.ratio).performanceText === '초대박' ? 'text-red-500 font-bold' : 'text-gray-300'}">${getGradeInfo(video.ratio).performanceIcon} ${getGradeInfo(video.ratio).performanceText}</span></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex flex-col gap-2">
+                        <button onclick="analyzeVideo('${video.id}')" 
+                            class="w-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white py-2 rounded-lg font-semibold shadow-md active:transform active:scale-95 transition flex items-center justify-center gap-2 border border-blue-500">
+                            <i class="fas fa-magic"></i> AI 소재 분석
+                        </button>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button onclick="handleComments('${video.id}')" 
+                                class="bg-gray-700 hover:bg-gray-600 text-gray-300 py-1.5 rounded-lg text-[11px] font-medium border border-gray-600 flex items-center justify-center gap-1 transition">
+                                <i class="fas fa-comments text-green-500"></i> 댓글 보기/다운
+                            </button>
+                            <button onclick="handleScript('${video.id}')" 
+                                class="bg-gray-700 hover:bg-gray-600 text-gray-300 py-1.5 rounded-lg text-[11px] font-medium border border-gray-600 flex items-center justify-center gap-1 transition">
+                                <i class="fas fa-file-alt text-yellow-500"></i> 대본 보기/다운
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            return card;
+        }
+
+        function createListCard(video, kw) {
+            let ratioClass = 'text-gray-400';
+            if (video.ratio >= 200) ratioClass = 'text-green-400 font-bold';
+            else if (video.ratio >= 100) ratioClass = 'text-blue-400 font-bold';
+            else if (video.ratio >= 50) ratioClass = 'text-yellow-500 font-medium';
+
+            const mins = Math.floor(video.durationSec / 60);
+            const secs = video.durationSec % 60;
+            const durationStr = `${mins}:${secs.toString().padStart(2, '0')}`;
+
+            const card = document.createElement('div');
+            card.className = 'bg-gray-800 rounded-lg shadow border border-gray-700 overflow-hidden hover:border-gray-500 transition group flex flex-row items-stretch relative';
+
+            const hoverMode = hoverFilter ? hoverFilter.value : 'vidiq';
+            card.onmouseenter = () => hoverMode === 'vidiq' ? showTrendChart(video.id, card) : showRevenueInfo(video.id, card);
+
+            const hoursSince = Math.max(1, (Date.now() - video.publishedAtRaw) / 3600000);
+            const vph = (video.views / hoursSince).toFixed(1);
+
+            card.innerHTML = `
+                <div class="relative w-48 flex-shrink-0 cursor-pointer overflow-hidden" onclick="window.open('https://www.youtube.com/watch?v=${video.id}', '_blank')">
+                    <img src="${video.thumbnail}" alt="${video.title}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500">
+                    ${video.hasScript ? '<div class="absolute top-1 left-1 bg-blue-600 text-white text-[9px] px-1 rounded font-bold z-10 shadow-sm">SCRIPT</div>' : ''}
+                    <div class="vph-badge" style="top:5px; right:5px;">${vph}</div>
+                    <div class="chart-container" id="hover-overlay-${video.id}">
+                        ${hoverMode === 'vidiq' ? `
+                             <canvas id="chart-${video.id}"></canvas>
+                        ` : `
+                            <p class="text-[10px] text-yellow-500 font-bold mb-1">예상 수익</p>
+                            <p class="text-xs font-black text-white">₩${formatNumber(video.views * 2.5)}</p>
+                        `}
+                    </div>
+                    <div class="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all flex items-center justify-center">
+                        <i class="fab fa-youtube text-red-600 text-3xl opacity-0 group-hover:opacity-100 transition scale-75 group-hover:scale-100"></i>
+                    </div>
+                    <div class="absolute bottom-1 right-1 bg-black/80 text-[10px] px-1 rounded text-white font-mono">
+                        ${durationStr}
+                    </div>
+                </div>
+                <div class="p-4 flex-grow flex flex-col justify-center">
+                    <h3 class="font-bold text-gray-100 line-clamp-1 text-base group-hover:text-red-400 transition mb-3" title="${video.title}">
+                        ${kw ? video.title.replace(new RegExp(`(${escapeRegExp(kw)})`, 'gi'), '<span class="text-red-400">$1</span>') : video.title}
+                    </h3>
+                    
+                    <div class="flex flex-row gap-4 items-center">
+                        <!-- Left Section: Channel & Date (Fixed Width for stability) -->
+                        <div class="w-64 flex flex-col gap-2 bg-gray-700/20 p-3 rounded-xl border border-gray-700/50">
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-tv text-blue-400 text-xs w-4"></i>
+                                <a href="https://www.youtube.com/channel/${video.channelId}" target="_blank" class="text-sm font-bold text-white hover:underline truncate">${video.channelTitle}</a>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <i class="fas fa-calendar-alt text-yellow-500 text-xs w-4"></i>
+                                <span class="text-xs text-gray-300 font-medium">${video.publishedAt} <span class="text-yellow-500 text-[10px]">(${video.publishedRelative})</span></span>
+                            </div>
+                        </div>
+
+                        <!-- Middle Section: Technical Stats (Flexible Growth) -->
+                        <div class="flex-grow grid grid-cols-4 gap-x-4 gap-y-1 bg-gray-900/40 p-3 rounded-xl border border-gray-700/50">
+                            <div class="flex flex-col">
+                                <span class="text-[9px] text-gray-500 font-bold uppercase tracking-tighter">구독자</span>
+                                <span class="text-xs text-gray-200 font-mono">${formatNumber(video.subs)}</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-[9px] text-gray-500 font-bold uppercase tracking-tighter">조회수</span>
+                                <span class="text-xs text-gray-200 font-mono">${video.views.toLocaleString()}</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-[9px] text-gray-500 font-bold uppercase tracking-tighter">좋아요</span>
+                                <span class="text-xs text-gray-200 font-mono">${video.likes.toLocaleString()}</span>
+                            </div>
+                            <div class="flex flex-col">
+                                <span class="text-[9px] text-gray-500 font-bold uppercase tracking-tighter">댓글</span>
+                                <span class="text-xs text-gray-200 font-mono">${video.commentCount.toLocaleString()}</span>
+                            </div>
+                            <!-- Separator -->
+                            <div class="col-span-4 border-t border-gray-700/50 my-0.5"></div>
+                            <div class="col-span-2 flex items-center gap-2">
+                                <span class="text-[9px] text-gray-500 font-bold uppercase">성과</span>
+                                <span class="text-xs ${getGradeInfo(video.ratio).performanceText === '초대박' ? 'text-red-500 font-bold' : 'text-gray-300'}">${getGradeInfo(video.ratio).performanceIcon} ${getGradeInfo(video.ratio).performanceText}</span>
+                            </div>
+                            <div class="col-span-2 flex items-center justify-end gap-2">
+                                <span class="text-[9px] text-gray-500 font-bold uppercase">등급</span>
+                                <span class="text-xs text-blue-400 font-bold">${getGradeInfo(video.ratio).gradeIcon} ${getGradeInfo(video.ratio).gradeName}</span>
+                            </div>
+                        </div>
+
+                        <!-- Right Section: Action Buttons (Fixed Width) -->
+                        <div class="w-72 flex flex-col gap-2">
+                            <button onclick="analyzeVideo('${video.id}')" 
+                                class="w-full py-2 bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 text-white rounded-lg text-xs font-bold shadow-lg shadow-blue-900/20 active:scale-95 transition-all flex items-center justify-center gap-2 border border-blue-500/50">
+                                <i class="fas fa-magic"></i> AI 정밀 분석
+                            </button>
+                            <div class="flex gap-2">
+                                <button onclick="handleComments('${video.id}')" 
+                                    class="flex-1 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg text-[10px] font-bold border border-gray-600 flex items-center justify-center gap-1 transition active:scale-95">
+                                    <i class="fas fa-comments text-green-500"></i> 댓글
+                                </button>
+                                <button onclick="handleScript('${video.id}')" 
+                                    class="flex-1 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg text-[10px] font-bold border border-gray-600 flex items-center justify-center gap-1 transition active:scale-95">
+                                    <i class="fas fa-file-alt text-yellow-500"></i> 대본
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            return card;
+        }
+
+        // New: Handle Comments
+        async function handleComments(videoId) {
+            const video = currentVideos.find(v => v.id === videoId);
+            const ytKey = ytInput.value.trim();
+            if (!ytKey) return alert('YouTube API 키가 필요합니다.');
+
+            modal.classList.remove('hidden');
+            keywordSelectionArea.classList.add('hidden');
+            scriptGenerationArea.classList.add('hidden');
+
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.children[0].classList.remove('scale-95');
+            }, 10);
+
+            modalTitle.innerHTML = `<i class="fas fa-comments text-green-400"></i> "${video.title}" 댓글 분석`;
+            modalContent.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-64 space-y-4">
+                    <div class="animate-spin rounded-full h-10 w-10 border-4 border-gray-600 border-t-green-500"></div>
+                    <p class="text-gray-300">댓글 100개를 수집하고 있습니다...</p>
+                </div>
+            `;
+
+            try {
+                const url = `https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=${videoId}&maxResults=100&order=relevance&key=${ytKey}`;
+                const res = await fetch(url);
+                const data = await res.json();
+                recordUsage(1);
+
+                if (!data.items || data.items.length === 0) {
+                    modalContent.innerHTML = '<div class="text-center py-20 text-gray-500">수집된 댓글이 없습니다.</div>';
+                    return;
+                }
+
+                const comments = data.items.map(item => {
+                    const snippet = item.snippet.topLevelComment.snippet;
+                    return {
+                        author: snippet.authorDisplayName,
+                        text: snippet.textDisplay,
+                        likeCount: snippet.likeCount
+                    };
+                });
+
+                const fullText = comments.map(c => `[${c.author}] (👍${c.likeCount})\n${c.text}\n`).join('\n---\n\n');
+
+                modalContent.innerHTML = `
+                    <div class="flex justify-between items-center mb-6 bg-gray-800 p-4 rounded-lg border border-gray-700">
+                        <div>
+                            <p class="text-sm text-gray-400">수집 완료</p>
+                            <p class="text-xl font-bold text-white">${comments.length}개의 주요 댓글</p>
+                        </div>
+                        <button id="downloadCommentsBtn" class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 shadow-lg transition active:scale-95">
+                            <i class="fas fa-file-download"></i> 전체 댓글 다운로드 (.txt)
+                        </button>
+                    </div>
+                    <div class="space-y-4 overflow-y-auto max-h-[50vh] pr-2 custom-scrollbar">
+                        ${comments.map(c => `
+                            <div class="bg-gray-800 p-4 rounded-lg border border-gray-700 hover:border-gray-600 transition">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="font-bold text-blue-400 text-sm">${c.author}</span>
+                                    <span class="text-[10px] text-gray-500 flex items-center gap-1"><i class="fas fa-thumbs-up"></i> ${c.likeCount}</span>
+                                </div>
+                                <div class="text-gray-300 text-sm leading-relaxed">${c.text}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+
+                document.getElementById('downloadCommentsBtn').onclick = () => {
+                    const header = `영상 제목: ${video.title}\n원본 URL: https://youtu.be/${videoId}\n수집 일시: ${new Date().toLocaleString()}\n\n========================================\n\n`;
+                    downloadText(header + fullText, `${video.title}_댓글.txt`);
+                };
+
+            } catch (err) {
+                modalContent.innerHTML = `<div class="text-red-400 p-10 text-center">${err.message}</div>`;
+            }
+        }
+
+        // New: Handle Script Draft
+        async function handleScript(videoId) {
+            const video = currentVideos.find(v => v.id === videoId);
+            const geminiKey = geminiInput.value.trim();
+            if (!geminiKey) return alert('Gemini API 키가 필요합니다.');
+
+            modal.classList.remove('hidden');
+            keywordSelectionArea.classList.add('hidden');
+            scriptGenerationArea.classList.add('hidden');
+
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.children[0].classList.remove('scale-95');
+            }, 10);
+
+            modalTitle.innerHTML = `<i class="fas fa-file-alt text-yellow-500"></i> "${video.title}" 대본 생성`;
+            modalContent.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-64 space-y-4">
+                    <div class="animate-spin rounded-full h-12 w-12 border-4 border-gray-600 border-t-yellow-500"></div>
+                    <p class="text-lg text-gray-300 font-medium">영상 데이터를 바탕으로 대본 초안을 작성 중입니다...</p>
+                    <p class="text-sm text-gray-500">Gemini 2.0 Flash 분석 중...</p>
+                </div>
+            `;
+
+            try {
+                const prompt = `
+당신은 유튜브 전문 방송 작가입니다. 아래 영상의 메타데이터를 분석하여 이 영상을 벤치마킹한 새로운 영상용 대본을 작성해주세요.
+
+[영상 정보]
+제목: ${video.title}
+설명: ${video.description.substring(0, 500)}
+
+[요청 사항]
+1. 대본은 반드시 다음 두 섹션으로 나누어 작성하세요.
+2. **섹션 1: 상세 구성안**: [도입부(훅)] - [본론 1, 2, 3] - [결론 및 구독 유도] 순서로 중간 제목과 각 파트별 설명을 포함하여 구체적으로 작성하세요.
+3. **섹션 2: 순수 나레이션**: 위 구성안을 바탕으로 실제로 읽을 전체 멘트만 작성하세요. 이 섹션에는 중간 제목, 소제목, 섹션 구분([본론] 등), 괄호 설명 등을 **절대 넣지 말고** 오직 읽을 텍스트(말)만 자연스럽게 줄글로 적어주세요.
+4. 톤앤매너: 시청자의 호기심을 자극하고 몰입감을 높이는 말투 (예: ~하시나요?, ~입니다! 등)
+5. 전체 길이는 공백 제외 1,500자 내외로 상세하게 작성해주세요.
+                `;
+
+                const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${geminiKey}`;
+                const res = await fetch(geminiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                });
+
+                const data = await res.json();
+                if (data.error) throw new Error(data.error.message);
+
+                const scriptText = data.candidates[0].content.parts[0].text;
+
+                modalContent.innerHTML = `
+                    <div class="flex justify-between items-center mb-6 bg-gray-800 p-4 rounded-lg border border-gray-700">
+                        <div>
+                            <p class="text-sm text-gray-400">AI 초안 생성 완료</p>
+                            <p class="text-xl font-bold text-white">상세 대본 (Script Draft)</p>
+                        </div>
+                        <button id="downloadScriptBtn" class="bg-yellow-600 hover:bg-yellow-700 text-white px-6 py-2 rounded-lg font-bold flex items-center gap-2 shadow-lg transition active:scale-95">
+                            <i class="fas fa-file-download"></i> 대본 다운로드 (.txt)
+                        </button>
+                    </div>
+                    <div class="prose prose-invert max-w-none bg-gray-900 p-6 rounded-xl border border-gray-800 overflow-y-auto max-h-[50vh] text-gray-300 leading-relaxed">
+                        ${marked.parse(scriptText)}
+                    </div>
+                `;
+
+                document.getElementById('downloadScriptBtn').onclick = () => {
+                    const header = `[유튜브 대본 초안]\n참고 영상: ${video.title}\n생성 일시: ${new Date().toLocaleString()}\n\n========================================\n\n`;
+                    downloadText(header + scriptText, `${video.title}_대본초안.txt`);
+                };
+
+            } catch (err) {
+                modalContent.innerHTML = `<div class="text-red-400 p-10 text-center">${err.message}</div>`;
+            }
+        }
+
+        // Core: Analyze Video with Gemini (Updated v3)
+        async function analyzeVideo(videoId) {
+            const geminiKey = geminiInput.value.trim();
+            const ytKey = ytInput.value.trim();
+            const video = currentVideos.find(v => v.id === videoId);
+
+            if (!geminiKey) return alert('Gemini API 키를 입력해주세요.');
+
+            // Open Modal & Reset
+            modal.classList.remove('hidden');
+            keywordSelectionArea.classList.add('hidden');
+            scriptGenerationArea.classList.add('hidden');
+            keywordButtons.innerHTML = '';
+            scriptContent.innerHTML = '';
+
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.children[0].classList.remove('scale-95');
+            }, 10);
+
+            modalTitle.innerHTML = `<i class="fas fa-robot text-blue-400"></i> "${video.title}" 분석 중...`;
+            modalContent.innerHTML = `
+                <div class="flex flex-col items-center justify-center h-64 space-y-4">
+                    <div class="animate-spin rounded-full h-12 w-12 border-4 border-gray-600 border-t-blue-500"></div>
+                    <p class="text-lg text-gray-300 font-medium">댓글과 영상 데이터를 분석하고 있습니다...</p>
+                    <p class="text-sm text-gray-500">다국어 댓글 통합 분석 및 키워드 추출 중...</p>
+                </div>
+            `;
+
+            try {
+                // 1. Get Top Comments
+                const commentsUrl = `https://www.googleapis.com/youtube/v3/commentThreads?part=snippet&videoId=${videoId}&maxResults=50&order=relevance&key=${ytKey}`;
+                const commentsRes = await fetch(commentsUrl);
+                const commentsData = await commentsRes.json();
+
+                let commentsText = "댓글 없음";
+                if (commentsData.items && commentsData.items.length > 0) {
+                    commentsText = commentsData.items.map(item =>
+                        `- ${item.snippet.topLevelComment.snippet.textDisplay}`
+                    ).join('\n');
+                }
+
+                // 2. Prepare Prompt (v3: Multilingual Summary & JSON Keywords)
+                const prompt = `
+당신은 유튜브 콘텐츠 전략가입니다. 아래 영상 정보와 시청자 댓글을 분석하여 통찰력을 제공하세요.
+
+[영상 정보]
+- 제목: ${video.title}
+- 설명: ${video.description.substring(0, 300)}...
+- 성과: ${video.ratio.toFixed(0)}% (조회수/구독자)
+
+[시청자 댓글 (다국어 혼합 가능)]
+${commentsText}
+
+[요청 사항]
+1. **댓글 요약**: 댓글의 언어(한글/영어 등)에 상관없이 내용을 종합하여 **한국어로** 핵심 반응을 요약해주세요. (긍정적 포인트, 아쉬운 점 등)
+2. **소재 추천**: 이 영상의 성공 요인을 벤치마킹하여 만들 수 있는 새로운 콘텐츠 주제 3가지를 제안해주세요.
+3. **추천 키워드 추출**: 분석 결과, 가장 소구력 있는 **키워드 5개**를 뽑아주세요. 이 키워드는 영상을 만들 때 주제로 사용할 것입니다.
+
+**[중요]** 마지막 줄에는 반드시 추천 키워드 5개를 아래와 같은 JSON 배열 형식으로만 출력해주세요. 다른 텍스트 없이.
+["키워드1", "키워드2", "키워드3", "키워드4", "키워드5"]
+                `;
+
+                // 3. Call Gemini
+                const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${geminiKey}`;
+                const geminiBody = {
+                    contents: [{
+                        parts: [{ text: prompt }]
+                    }]
+                };
+
+                const geminiRes = await fetch(geminiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(geminiBody)
+                });
+
+                const geminiData = await geminiRes.json();
+                if (geminiData.error) throw new Error(geminiData.error.message);
+
+                let aiResponse = geminiData.candidates[0].content.parts[0].text;
+
+                // 4. Extract Keywords (JSON parsing)
+                const jsonMatch = aiResponse.match(/\[.*\]/s);
+                let keywords = [];
+                if (jsonMatch) {
+                    try {
+                        keywords = JSON.parse(jsonMatch[0]);
+                        // Remove the JSON part from display text
+                        aiResponse = aiResponse.replace(jsonMatch[0], '');
+                    } catch (e) { console.error("JSON Parse Error", e); }
+                }
+
+                // 5. Render Analysis
+                modalTitle.innerHTML = `<i class="fas fa-check-circle text-green-400"></i> 분석 완료: ${video.title}`;
+                modalContent.innerHTML = `
+                    <div class="flex justify-end mb-4">
+                        <button id="downloadAnalysisBtn" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1.5 rounded text-xs font-bold flex items-center gap-2 transition shadow-md">
+                            <i class="fas fa-download"></i> 분석 결과 저장 (.txt)
+                        </button>
+                    </div>
+                    <div class="prose prose-invert max-w-none">
+                        ${marked.parse(aiResponse)}
+                    </div>
+                `;
+
+                document.getElementById('downloadAnalysisBtn').onclick = () => {
+                    const header = `[AI 인사이트 분석]\n영상: ${video.title}\n분석 일시: ${new Date().toLocaleString()}\n\n========================================\n\n`;
+                    downloadText(header + aiResponse, `${video.title}_분석결과.txt`);
+                };
+
+                // 6. Render Keywords Buttons
+                if (keywords.length > 0) {
+                    keywordSelectionArea.classList.remove('hidden');
+                    keywordButtons.innerHTML = keywords.map(kw => `
+                        <button onclick="generateScript('${kw}')" 
+                            class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-full text-sm font-semibold transition shadow-md border border-blue-400">
+                            #${kw}
+                        </button>
+                    `).join('');
+                }
+
+            } catch (err) {
+                console.error(err);
+                modalContent.innerHTML = `
+                    <div class="text-center text-red-400 p-8">
+                        <i class="fas fa-exclamation-triangle text-4xl mb-4"></i>
+                        <h3 class="text-xl font-bold mb-2 text-red-500">분석 중 오류 발생</h3>
+                        <p>${err.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Core: Generate Script (v3.1 Optimized)
+        async function generateScript(keyword) {
+            const geminiKey = geminiInput.value.trim();
+
+            scriptGenerationArea.classList.remove('hidden');
+            scriptContent.innerHTML = `
+                <div class="flex items-center gap-2 text-gray-300">
+                    <div class="animate-spin rounded-full h-4 w-4 border-2 border-yellow-500 border-t-transparent"></div>
+                    <span>'${keyword}' 주제로 대본 목차를 생성 중입니다...</span>
+                </div>
+            `;
+
+            try {
+                // Optimized Prompt for Readability & Length
+                const prompt = `
+주제: "${keyword}"
+당신은 유튜브 전문 작가입니다. 위 주제로 영상 대본을 작성해주세요.
+
+[구성 요청]
+1. **섹션 1: 대본 목차**: [훅] - [본론] - [결론] 순서로 중간 제목을 포함하여 가독성 있게 작성하세요.
+2. **섹션 2: 전체 나레이션 (순수 텍스트)**: '섹션 1'의 목차를 바탕으로 실제 영상에서 말할 전체 대본을 작성하세요. 여기에는 중간 제목, 소제목, 괄호 등 어떤 부가 설명도 넣지 말고 **오직 읽을 멘트만** 자연스럽게 연결해서 적어주세요.
+
+[필수 조건]
+1. 총 분량: 공백 제외 1,000자 내외로 작성하세요.
+2. 가독성: 각 문단 사이에는 빈 줄을 두어 가독성을 높이세요.
+3. 톤앤매너: 친근하고 몰입감 있는 한국어 구어로 작성하세요.
+                `;
+
+                const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${geminiKey}`;
+                const geminiBody = {
+                    contents: [{
+                        parts: [{ text: prompt }]
+                    }]
+                };
+
+                const geminiRes = await fetch(geminiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(geminiBody)
+                });
+
+                const geminiData = await geminiRes.json();
+                if (geminiData.error) throw new Error(geminiData.error.message);
+
+                const scriptText = geminiData.candidates[0].content.parts[0].text;
+                scriptContent.innerHTML = marked.parse(scriptText); // Render Markdown
+
+            } catch (err) {
+                scriptContent.innerText = "대본 생성 실패: " + err.message;
+            }
+        }
+
+        // Core: Close Modal
+        function closeModal() {
+            modal.classList.add('opacity-0');
+            modal.children[0].classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 300);
+        }
+
+        // vidIQ Style Chart Logic
+        const chartInstances = {};
+
+        function showTrendChart(videoId, card) {
+            const canvas = document.getElementById(`chart-${videoId}`);
+            if (!canvas || chartInstances[videoId]) return;
+
+            const video = currentVideos.find(v => v.id === videoId);
+            if (!video) return;
+
+            // Generate realistic-looking trend data based on VPH and view count
+            const hoursSince = Math.max(1, (Date.now() - video.publishedAtRaw) / 3600000);
+            const vph = video.views / hoursSince;
+
+            const dataPoints = 12;
+            const labels = Array.from({ length: dataPoints }, (_, i) => `${i}h`);
+            const data = [];
+
+            let currentTrend = vph * 0.5;
+            for (let i = 0; i < dataPoints; i++) {
+                // Growth simulation with some randomness
+                currentTrend += (Math.random() * vph * 0.2);
+                if (i > 8) currentTrend *= 1.1; // "Burst" at the end
+                data.push(currentTrend);
+            }
+
+            const ctx = canvas.getContext('2d');
+            chartInstances[videoId] = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Views Trend',
+                        data: data,
+                        borderColor: '#F59E0B',
+                        backgroundColor: 'rgba(245, 158, 11, 0.2)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    },
+                    scales: {
+                        x: { display: false },
+                        y: {
+                            display: false,
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        }
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeModal();
+        });
+
+        // Shorts Classification Logic
+        function classifyShorts(title, desc, tags) {
+            const fullText = (title + ' ' + desc + ' ' + tags.join(' ')).toLowerCase();
+
+            // Gaming
+            const gameKeywords = ['게임', 'game', '롤', 'lol', '배그', 'pubg', '마인크래프트', 'minecraft', '피파', 'fifa', '발로란트', 'valorant', '스팀', 'nintendo', 'ps5', '전략', '공략'];
+            if (gameKeywords.some(kw => fullText.includes(kw))) return 'game';
+
+            // Shopping
+            const shoppingKeywords = ['쇼핑', '공구', '쿠팡', '추천템', '내돈내산', '광고', '협찬', '리뷰', '언박싱', '가격', 'ad', 'shopping', 'review', '최저가', '꿀템'];
+            if (shoppingKeywords.some(kw => fullText.includes(kw))) return 'shopping';
+
+            // Food/ASMR
+            const foodKeywords = ['먹방', '요리', '레시피', '맛집', 'mukbang', 'cooking', 'recipe', 'asmr', '식당', '디저트', '카페', '베이킹', '맛있는'];
+            if (foodKeywords.some(kw => fullText.includes(kw))) return 'food';
+
+            // Animal
+            const animalKeywords = ['강아지', '고양이', '동물', '반려견', '반려묘', 'cute', 'animal', 'dog', 'cat', '귀여운', '집사', '댕댕이', '냥이'];
+            if (animalKeywords.some(kw => fullText.includes(kw))) return 'animal';
+
+            // Knowledge/News
+            const knowledgeKeywords = ['지식', '정보', '동기부여', '뉴스', '과학', '역사', '궁금', '사실', 'fact', 'news', 'knowledge', '1분', '설명', '비밀', '이유'];
+            if (knowledgeKeywords.some(kw => fullText.includes(kw))) return 'knowledge';
+
+            // Beauty/Fashion
+            const beautyKeywords = ['메이크업', '화장', '코디', '패션', '피부', '패션쇼', 'makeup', 'fashion', 'beauty', 'ootd', '옷', '스타일', '성형'];
+            if (beautyKeywords.some(kw => fullText.includes(kw))) return 'beauty';
+
+            // Sports/Exercise
+            const sportsKeywords = ['운동', '축구', '야구', '헬스', 'pt', '스포츠', '골프', 'football', 'soccer', 'workout', 'sports', '홈트', '근육', '피트니스'];
+            if (sportsKeywords.some(kw => fullText.includes(kw))) return 'sports';
+
+            // Entertainment/K-pop
+            const entertainmentKeywords = ['아이돌', '연예인', '가수', '배우', '연예', 'idol', 'kpop', 'bts', 'celebrity', '뮤직', '직캠', '무대', '예능'];
+            if (entertainmentKeywords.some(kw => fullText.includes(kw))) return 'entertainment';
+
+            // Meme/Clip (짤)
+            const memeKeywords = ['짤', '유머', '웃긴', '레전드', '영화', '드라마', '명장면', '괴담', '이슈', 'funny', 'meme', 'clip', '상황극', '쇼츠추천'];
+            if (memeKeywords.some(kw => fullText.includes(kw))) return 'meme';
+
+            return 'other';
+        }
+
+    </script>
+
+    <!-- Marked.js for Markdown Rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+</body>
+
+</html>

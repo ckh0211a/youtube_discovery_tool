@@ -1,0 +1,130 @@
+L596: <div class="flex items-center gap-1.5">
+L597: <i class="fas fa-battery-half text-yellow-500 text-[13px]"></i>
+L598: <span class="text-[13px] text-gray-500 font-bold uppercase tracking-wider">할당량:</span>
+L599: <div class="flex items-center gap-1.5 cursor-pointer" onclick="resetQuotaManual()"
+L600: title="클릭하여 초기화">
+L601: <span id="quotaValue" class="text-[13px] font-mono font-black text-yellow-600">10000</span>
+L602: <span class="text-[13px] text-gray-400 ml-1">/ 10,000 pt</span>
+L603: </div>
+L604: </div>
+L605: 
+--------------------
+L657: 
+L658: <p class="mt-6 text-[11px] text-gray-500 leading-relaxed bg-gray-900/50 p-3 rounded-xl border border-gray-700/30">
+L659: <i class="fas fa-info-circle mr-1"></i> ※ 할당량이 소모된 경우 수동으로 키를 교체하면 즉시 사용 가능합니다.<br>
+L660: <i class="fas fa-shield-alt mr-1"></i> ※ API 키는 브라우저의 로컬 저장소에 암호화되지 않은 채로 안전하게 저장됩니다.
+L661: </p>
+L662: </div>
+L663: </div>
+L664: </div>
+L665: </div>
+L666: 
+--------------------
+L1807: 
+L1808: const MAX_QUOTA = 10000;
+L1809: let quotaUsed = 0;
+L1810: let isManagedDashboardMode = false; // Flag for managed view
+L1811: let isTrendingMode = false;        // Flag for trending view bypass
+L1812: 
+L1813: 
+L1814: // DOM Elements
+L1815: const ytInput = document.getElementById('youtubeApiKey');
+L1816: const geminiInput = document.getElementById('geminiApiKey');
+--------------------
+L2774: // 수동 초기화 함수 추가
+L2775: function resetQuotaManual() {
+L2776: if (confirm('할당량 추정치를 초기화하시겠습니까? (10,000pt로 복구됩니다)')) {
+L2777: quotaUsed = 0;
+L2778: localStorage.setItem('yt_quota_used', '0');
+L2779: localStorage.setItem('yt_quota_reset', new Date().getTime().toString());
+L2780: updateQuotaDisplay();
+L2781: alert('할당량이 초기화되었습니다.');
+L2782: }
+L2783: }
+--------------------
+L2779: localStorage.setItem('yt_quota_reset', new Date().getTime().toString());
+L2780: updateQuotaDisplay();
+L2781: alert('할당량이 초기화되었습니다.');
+L2782: }
+L2783: }
+L2784: 
+L2785: function recordUsage(points) {
+L2786: quotaUsed += points;
+L2787: localStorage.setItem('yt_quota_used', quotaUsed.toString());
+L2788: // 버그 수정: 여기서 reset 타임을 갱신하지 않음 (매일 1회만 되도록)
+--------------------
+L2783: }
+L2784: 
+L2785: function recordUsage(points) {
+L2786: quotaUsed += points;
+L2787: localStorage.setItem('yt_quota_used', quotaUsed.toString());
+L2788: // 버그 수정: 여기서 reset 타임을 갱신하지 않음 (매일 1회만 되도록)
+L2789: updateQuotaDisplay();
+L2790: }
+L2791: 
+L2792: // --- TTS Logic ---
+--------------------
+L2866: const dropdown = document.getElementById('settingsDropdown');
+L2867: 
+L2868: // 만약 홈 화면이라 할당량 표시가 숨겨져 있다면 설정을 열 때 강제로 보여줌
+L2869: if (quotaArea && quotaArea.classList.contains('hidden')) {
+L2870: quotaArea.classList.remove('hidden');
+L2871: }
+L2872: 
+L2873: const isHidden = dropdown.classList.contains('hidden');
+L2874: 
+L2875: if (isHidden) {
+--------------------
+L3465: statusDiv.classList.replace('text-gray-400', 'text-red-400');
+L3466: let msg = '연결 실패';
+L3467: if (data.error && data.error.reason === 'quotaExceeded') msg = '할당량 초과';
+L3468: if (data.error && data.error.reason === 'keyInvalid') msg = '잘못된 키';
+L3469: if (data.error && data.error.message.includes('not enabled')) msg = 'API 미활성화 (설정 필요)';
+L3470: statusDiv.innerHTML = `<i class="fas fa-times-circle"></i> ${msg}: ${data.error ? data.error.code : 'Error'}`;
+L3471: console.error('API Test Error:', data.error);
+L3472: }
+L3473: } catch (err) {
+L3474: statusDiv.classList.replace('bg-gray-900/50', 'bg-red-900/50');
+--------------------
+L4193: if (cache[handle]) {
+L4194: resolvedIds.push(cache[handle]);
+L4195: } else if (newResolves < 5) { // 과도한 API 할당량 소진 방지 (1회 최대 5개)
+L4196: const hUrl = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&maxResults=1&q=${encodeURIComponent(handle)}&key=${ytKey}`;
+L4197: const hRes = await fetch(hUrl).then(r => r.json());
+L4198: recordUsage(100);
+L4199: if (hRes.items && hRes.items.length > 0) {
+L4200: cache[handle] = hRes.items[0].id.channelId;
+L4201: resolvedIds.push(cache[handle]);
+L4202: }
+--------------------
+L4659: const errData = await searchRes.json().catch(() => ({}));
+L4660: const errMsg = errData.error?.message || `HTTP ${searchRes.status}`;
+L4661: if (errMsg.includes('quota')) throw new Error('API 호출 할당량이 소모되었습니다. 내일 다시 시도해 주세요.');
+L4662: throw new Error(errMsg);
+L4663: }
+L4664: 
+L4665: const searchData = await searchRes.json();
+L4666: if (searchData.items && searchData.items.length > 0) {
+L4667: allItems = [...allItems, ...searchData.items];
+L4668: totalRawFetched += searchData.items.length;
+--------------------
+L4886: if (popularData.error) {
+L4887: const errMsg = popularData.error.message;
+L4888: if (errMsg.includes('quota')) throw new Error('API 호출 할당량이 소모되었습니다. 내일 다시 시도해 주세요.');
+L4889: throw new Error(errMsg);
+L4890: }
+L4891: 
+L4892: if (!popularData.items || popularData.items.length === 0) {
+L4893: throw new Error('현재 지역의 인기 급상승 영상을 가져올 수 없습니다.');
+L4894: }
+L4895: 
+--------------------
+L8026: closePromptDetailModal();
+L8027: }
+L8028: function recordUsage(calls, inTokens, outTokens) { console.log('Usage recorded:', {calls, inTokens, outTokens}); }
+L8029: </script>
+L8030: <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+L8031: </body>
+L8032: 
+L8033: </html>
+--------------------
