@@ -9,8 +9,13 @@ import urllib.request
 import csv
 import io
 import ssl
-import tkinter as tk
-from tkinter import messagebox, simpledialog
+try:
+    import tkinter as tk
+    from tkinter import messagebox, simpledialog
+except ImportError:
+    tk = None
+    messagebox = None
+    simpledialog = None
 import time
 import subprocess
 import ctypes
