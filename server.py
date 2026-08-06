@@ -62,7 +62,7 @@ app.secret_key = 'youtube-discovery-tool-secure-session-key-98127391'
 CORS(app)
 
 # Google OAuth 2.0 Client ID (구글 클라우드 콘솔에서 발급받은 ID를 기입해주세요)
-GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
+GOOGLE_CLIENT_ID = "588331118283-t89f64a8js9bmcakd2i8vnbvehvoiofo.apps.googleusercontent.com"
 
 print("\n" + "="*60)
 print("  [서버] 유튜브 소재 채굴기 서버 v1.2.7 (포트 5001) 실행 중  ")
