@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, make_response
+from flask import Flask, request, jsonify, make_response, session
 from flask_cors import CORS
 import requests
 import urllib3
@@ -58,7 +58,11 @@ if os.path.exists(FFMPEG_PATH):
         os.environ["PATH"] += os.pathsep + ffmpeg_dir
 
 app = Flask(__name__)
+app.secret_key = 'youtube-discovery-tool-secure-session-key-98127391'
 CORS(app)
+
+# Google OAuth 2.0 Client ID (구글 클라우드 콘솔에서 발급받은 ID를 기입해주세요)
+GOOGLE_CLIENT_ID = "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com"
 
 print("\n" + "="*60)
 print("  [서버] 유튜브 소재 채굴기 서버 v1.2.7 (포트 5001) 실행 중  ")
@@ -97,6 +101,67 @@ def serve_index():
         from flask import send_file
         return send_file(html_path)
     return "youtube_discovery_tool.html not found", 404
+
+@app.route('/api/auth/google', methods=['POST'])
+def google_auth():
+    token = request.json.get('token')
+    if not token:
+        return jsonify({"status": "fail", "message": "토큰이 없습니다."}), 400
+
+    # 개발 편의를 위한 더미 토큰 우회 처리
+    if token == "dummy-auth-token-for-testing":
+        session['user'] = "test-user@example.com"
+        session['user_name'] = "개발용테스터"
+        return jsonify({
+            "status": "success",
+            "user": {
+                "email": "test-user@example.com",
+                "name": "개발용테스터",
+                "picture": ""
+            }
+        })
+
+    try:
+        from google.oauth2 import id_token
+        from google.auth.transport import requests as google_requests
+
+        id_info = id_token.verify_oauth2_token(token, google_requests.Request(), GOOGLE_CLIENT_ID)
+        
+        user_email = id_info.get('email')
+        user_name = id_info.get('name')
+        user_picture = id_info.get('picture')
+
+        session['user'] = user_email
+        session['user_name'] = user_name
+
+        return jsonify({
+            "status": "success",
+            "user": {
+                "email": user_email,
+                "name": user_name,
+                "picture": user_picture
+            }
+        })
+    except Exception as e:
+        return jsonify({"status": "fail", "message": f"구글 토큰 검증 실패: {str(e)}"}), 401
+
+@app.route('/api/auth/session', methods=['GET'])
+def check_session():
+    if 'user' in session:
+        return jsonify({
+            "logged_in": True,
+            "user": {
+                "email": session.get('user'),
+                "name": session.get('user_name', '')
+            }
+        })
+    return jsonify({"logged_in": False}), 401
+
+@app.route('/api/auth/logout', methods=['POST'])
+def logout():
+    session.pop('user', None)
+    session.pop('user_name', None)
+    return jsonify({"status": "success", "message": "로그아웃 성공"})
 
 @app.route('/api/transcript', methods=['GET'])
 def get_transcript():
