@@ -64,6 +64,21 @@ CORS(app)
 # Google OAuth 2.0 Client ID (구글 클라우드 콘솔에서 발급받은 ID를 기입해주세요)
 GOOGLE_CLIENT_ID = "588331118283-t89f64a8js9bmcakd2i8vnbvehvoiofo.apps.googleusercontent.com"
 
+# Supabase Configuration
+SUPABASE_URL = os.environ.get("SUPABASE_URL")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
+supabase_client = None
+
+if SUPABASE_URL and SUPABASE_KEY:
+    try:
+        from supabase import create_client
+        supabase_client = create_client(SUPABASE_URL, SUPABASE_KEY)
+        print("[서버] 수파베이스 클라우드 DB 연동 완료")
+    except Exception as e:
+        print(f"[서버] 수파베이스 초기화 실패: {str(e)}")
+else:
+    print("[서버] 수파베이스 환경변수(SUPABASE_URL, SUPABASE_KEY)가 설정되지 않아 로컬 메모리 세션만 유지합니다.")
+
 print("\n" + "="*60)
 print("  [서버] 유튜브 소재 채굴기 서버 v1.2.7 (포트 5001) 실행 중  ")
 print("  동영상 직접 다운로드 기능이 활성화되었습니다.     ")
@@ -96,11 +111,26 @@ def set_file_hidden(path, hidden=True):
 
 @app.route('/')
 def serve_index():
+    with open('debug.txt', 'a') as f: f.write('serve_index called!\n')
     html_path = resource_path('youtube_discovery_tool.html')
+    print("DEBUG html_path:", html_path, "Exists:", os.path.exists(html_path))
+    if os.path.exists(html_path):
+        from flask import send_file
+        try:
+            return send_file(html_path)
+        except Exception as e:
+            return f"send_file error: {str(e)}", 500
+    return "youtube_discovery_tool.html not found at " + html_path, 404
+
+@app.route('/admin')
+def serve_admin():
+    if 'user' not in session:
+        return "<script>alert('로그인이 필요합니다. 메인 페이지에서 로그인해주세요.'); window.close();</script>", 401
+    html_path = resource_path('admin.html')
     if os.path.exists(html_path):
         from flask import send_file
         return send_file(html_path)
-    return "youtube_discovery_tool.html not found", 404
+    return "admin.html not found", 404
 
 @app.route('/api/auth/google', methods=['POST'])
 def google_auth():
@@ -110,13 +140,29 @@ def google_auth():
 
     # 개발 편의를 위한 더미 토큰 우회 처리
     if token == "dummy-auth-token-for-testing":
-        session['user'] = "test-user@example.com"
-        session['user_name'] = "개발용테스터"
+        user_email = "test-user@example.com"
+        user_name = "개발용테스터"
+        session['user'] = user_email
+        session['user_name'] = user_name
+
+        # Supabase DB에 로그인 정보 기록
+        if supabase_client:
+            try:
+                from datetime import datetime, timezone
+                now_str = datetime.now(timezone.utc).isoformat()
+                supabase_client.table("users").upsert({
+                    "email": user_email,
+                    "name": user_name,
+                    "last_login_at": now_str
+                }).execute()
+            except Exception as db_err:
+                print(f"[서버] 수파베이스 저장 실패: {str(db_err)}")
+
         return jsonify({
             "status": "success",
             "user": {
-                "email": "test-user@example.com",
-                "name": "개발용테스터",
+                "email": user_email,
+                "name": user_name,
                 "picture": ""
             }
         })
@@ -133,6 +179,19 @@ def google_auth():
 
         session['user'] = user_email
         session['user_name'] = user_name
+
+        # Supabase DB에 로그인 정보 기록
+        if supabase_client:
+            try:
+                from datetime import datetime, timezone
+                now_str = datetime.now(timezone.utc).isoformat()
+                supabase_client.table("users").upsert({
+                    "email": user_email,
+                    "name": user_name,
+                    "last_login_at": now_str
+                }).execute()
+            except Exception as db_err:
+                print(f"[서버] 수파베이스 저장 실패: {str(db_err)}")
 
         return jsonify({
             "status": "success",

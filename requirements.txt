@@ -5,3 +5,4 @@ urllib3
 yt-dlp
 youtube-transcript-api
 google-auth
+supabase

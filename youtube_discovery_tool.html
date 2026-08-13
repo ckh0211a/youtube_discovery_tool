@@ -5,8 +5,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="appTitleText">유튜브 소재 채굴기 v2.8.1 (YouTube Material Discovery)</title>
-    <!-- Google Sign-In SDK -->
+    <script>
+        // Auto-redirect to local server if opened via file:// to prevent Google OAuth errors
+        if (window.location.protocol === 'file:') {
+            window.location.href = 'http://127.0.0.1:5001';
+        }
+    </script>
+    <!-- Google Sign-In SDK (Old) -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         // API Base URL Interceptor for Web Deployment
         (function() {
@@ -29,7 +37,7 @@
         window.APP_VERSION = {
             major: 3,
             minor: 1,
-            patch: 2
+            patch: 3
         };
         window.PROGRAM_ID = "";
         // [SCORCHED EARTH] Persistent Seen IDs for Mode 3 NEW badge
@@ -1178,7 +1186,7 @@
 <body class="bg-gray-50 min-h-screen text-gray-900 font-sans selection:bg-red-100 selection:text-red-900">
 
     <!-- Google Login Overlay -->
-    <div id="loginOverlay" class="fixed inset-0 z-[9999] bg-[#090d16] flex items-center justify-center p-4">
+    <div id="loginOverlay" style="display: none;" class="fixed inset-0 z-[9999] bg-[#090d16]/90 backdrop-blur-sm flex items-center justify-center p-4">
         <!-- Background decorative elements -->
         <div class="absolute top-1/4 left-1/4 w-96 h-96 bg-red-600/10 rounded-full blur-[120px] pointer-events-none"></div>
         <div class="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-[120px] pointer-events-none"></div>
@@ -1196,38 +1204,16 @@
 
             <!-- Google Sign-in Elements -->
             <div class="flex flex-col items-center justify-center gap-4">
-                <!-- Google Standard Button -->
-                <div id="g_id_onload"
-                     data-client_id="588331118283-t89f64a8js9bmcakd2i8vnbvehvoiofo.apps.googleusercontent.com"
-                     data-callback="handleCredentialResponse"
-                     data-auto_prompt="false">
-                </div>
-                <div class="g_id_signin"
-                     data-type="standard"
-                     data-size="large"
-                     data-theme="filled_blue"
-                     data-text="signin_with"
-                     data-shape="pill"
-                     data-logo_alignment="left">
-                </div>
-
-                <!-- Spacer / Divider -->
-                <div class="relative flex py-2 items-center w-full">
-                    <div class="flex-grow border-t border-white/10"></div>
-                    <span class="flex-shrink mx-4 text-gray-500 text-xs font-semibold uppercase tracking-wider">또는</span>
-                    <div class="flex-grow border-t border-white/10"></div>
-                </div>
-
-                <!-- Dummy Test Login Button -->
-                <button onclick="loginWithDummy()" 
-                        class="w-full py-3 px-4 bg-white/10 hover:bg-white/15 text-white border border-white/10 hover:border-white/20 transition-all rounded-full font-bold text-sm shadow-md flex items-center justify-center gap-2">
-                    <i class="fas fa-flask text-amber-500"></i>
-                    <span>개발자용 더미 로그인 (테스트용)</span>
+                <button onclick="loginWithGoogle()" 
+                        class="w-full py-3 px-4 bg-white hover:bg-gray-50 text-gray-800 border border-gray-200 transition-all rounded-full font-bold text-sm shadow-md flex items-center justify-center gap-3">
+                    <img src="https://www.google.com/favicon.ico" alt="Google" class="w-5 h-5">
+                    <span>구글 계정으로 로그인</span>
                 </button>
-                
+
                 <p class="text-xs text-gray-500 mt-2">
-                    <i class="fas fa-info-circle"></i> 구글 로그인을 실제 활성화하려면 소스 코드의 Client ID 값을 설정해야 합니다.
+                    <i class="fas fa-info-circle"></i> Supabase 연동이 필요합니다. 
                 </p>
+                <button onclick="document.getElementById('loginOverlay').style.display='none'" class="mt-4 text-gray-500 hover:text-white text-xs underline">닫기</button>
             </div>
         </div>
     </div>
@@ -1422,14 +1408,20 @@
                 </div>
 
                 <!-- Clock & User Header Display (Top-Right) -->
-                <div class="absolute right-6 top-4 flex items-center gap-2 z-[600]">
+                <div class="w-full flex justify-end items-center gap-2 z-[600] mb-2 pr-2">
                     <div id="userInfoHeader" class="hidden items-center gap-2 bg-white border border-gray-200 p-2 px-3 rounded-xl shadow-md text-[13px] font-bold text-gray-700 h-[42px]">
                         <i class="fas fa-user-circle text-gray-400 text-lg"></i>
                         <span id="userNameSpan"></span>
-                        <button onclick="handleLogout()" class="ml-2 px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-black transition-all border border-red-100 flex items-center gap-1">
+                        <a href="/admin" target="_blank" class="ml-2 px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-xs font-black transition-all border border-blue-100 flex items-center gap-1">
+                            <i class="fas fa-cog"></i> 관리자
+                        </a>
+                        <button onclick="handleLogout()" class="ml-1 px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-black transition-all border border-red-100 flex items-center gap-1">
                             <i class="fas fa-sign-out-alt"></i> 로그아웃
                         </button>
                     </div>
+                    <button id="headerLoginBtn" onclick="document.getElementById('loginOverlay').style.display='flex'" class="flex items-center gap-2 bg-white hover:bg-gray-50 border border-gray-200 p-2 px-4 rounded-xl shadow-md text-[13px] font-bold text-gray-700 h-[42px] transition-all">
+                        <i class="fas fa-sign-in-alt text-blue-500"></i> 로그인
+                    </button>
                     <div id="clockDisplay"
                         class="flex items-center gap-2 bg-white border border-gray-200 p-2 px-4 rounded-xl shadow-md text-[13px] font-mono font-black text-gray-600 h-[42px]">
                         <i class="far fa-clock text-blue-500"></i>
@@ -4808,6 +4800,10 @@
         initQuota();
 
         function startProgram() {
+            if (!window.isUserLoggedIn && SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
+                document.getElementById('loginOverlay').style.display = 'flex';
+                return;
+            }
             const landing = document.getElementById('landingPage');
             const app = document.getElementById('appInterface');
 
@@ -5029,6 +5025,12 @@
 
         // Search Mode Switcher (UI Only)
         function switchSearchMode(mode) {
+            // Check Auth for modes other than Dashboard(0)
+            if (mode !== 0 && !window.isUserLoggedIn && SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
+                document.getElementById('loginOverlay').style.display = 'flex';
+                return;
+            }
+            
             // [NEW] 현재 모드의 상태 저장
             saveModeState(currentSearchMode);
             // [NEW] 13번 모드(실시간 이슈) 진입 시 네비게이션바 노출 유지 및 큐레이션 렌더링 호출
@@ -18673,6 +18675,10 @@ ${commentsText}
         }
 
         async function openTtsStudio() {
+            if (!window.isUserLoggedIn && SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
+                document.getElementById('loginOverlay').style.display = 'flex';
+                return;
+            }
             const modal = document.getElementById('ttsStudioModal');
             modal.classList.remove('hidden');
             
@@ -18691,28 +18697,122 @@ ${commentsText}
             }
         }
 
+        // --- Supabase Client Initialization ---
+        const SUPABASE_URL = 'https://lpsqagujuhblpthvrqdn.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_TyGy0J574dfCo3JFJVDeSg_KnD5TRNr';
+        
+        let supabaseClient = null;
+
+        function initSupabaseClient() {
+            if (supabaseClient) return supabaseClient; // 이미 초기화됨
+            try {
+                // Supabase JS SDK v2 CDN은 window.supabase 또는 globalThis.supabase로 노출됨
+                const supabaseLib = window.supabase || globalThis.supabase;
+                if (supabaseLib && typeof supabaseLib.createClient === 'function') {
+                    supabaseClient = supabaseLib.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    console.log('[Supabase] 클라이언트 초기화 성공');
+                } else {
+                    console.error('[Supabase] SDK가 로드되지 않았습니다. 네트워크 또는 광고 차단기를 확인하세요.');
+                }
+            } catch(e) {
+                console.error('[Supabase] 초기화 실패:', e);
+            }
+            return supabaseClient;
+        }
+
+        // 페이지 로드 후 초기화 시도
+        document.addEventListener('DOMContentLoaded', () => {
+            initSupabaseClient();
+        });
+        // 혹은 이미 DOM이 준비된 경우 즉시 시도
+        if (document.readyState !== 'loading') {
+            initSupabaseClient();
+        }
+        
+        window.isUserLoggedIn = false;
+
         async function checkSession() {
             try {
-                const res = await fetch('/api/auth/session');
-                const data = await res.json();
-                if (data.logged_in) {
-                    document.getElementById('loginOverlay').style.display = 'none';
-                    const userHeader = document.getElementById('userInfoHeader');
-                    userHeader.classList.remove('hidden');
-                    userHeader.classList.add('flex');
-                    document.getElementById('userNameSpan').innerText = data.user.name || data.user.email;
+                const client = initSupabaseClient();
+                if (!client) {
+                    throw new Error("Supabase가 초기화되지 않았습니다.");
+                }
+                
+                const { data: { session }, error } = await client.auth.getSession();
+                
+                const loginOverlay = document.getElementById('loginOverlay');
+                const userHeader = document.getElementById('userInfoHeader');
+                const loginBtn = document.getElementById('headerLoginBtn');
+                const clockDisplay = document.getElementById('clockDisplay');
+
+                if (session) {
+                    window.isUserLoggedIn = true;
+                    if (loginOverlay) loginOverlay.style.display = 'none';
+                    if (userHeader) {
+                        userHeader.classList.remove('hidden');
+                        userHeader.classList.add('flex');
+                        document.getElementById('userNameSpan').innerText = session.user.user_metadata.full_name || session.user.email;
+                    }
+                    if (loginBtn) {
+                        loginBtn.classList.add('hidden');
+                        loginBtn.classList.remove('flex');
+                    }
                 } else {
-                    document.getElementById('loginOverlay').style.display = 'flex';
+                    window.isUserLoggedIn = false;
+                    if (userHeader) {
+                        userHeader.classList.add('hidden');
+                        userHeader.classList.remove('flex');
+                    }
+                    if (loginBtn) {
+                        loginBtn.classList.remove('hidden');
+                        loginBtn.classList.add('flex');
+                    }
                 }
             } catch (err) {
-                console.error('Session check failed:', err);
-                document.getElementById('loginOverlay').style.display = 'flex';
+                console.error('Supabase Session check failed:', err);
+                // 오류가 발생해도 비로그인 상태로 간주하고 버튼 노출
+                window.isUserLoggedIn = false;
+                const loginBtn = document.getElementById('headerLoginBtn');
+                if (loginBtn) {
+                    loginBtn.classList.remove('hidden');
+                    loginBtn.classList.add('flex');
+                }
             }
         }
 
         async function handleCredentialResponse(response) {
+            // Deprecated Google GSI Client Callback
             const idToken = response.credential;
             await sendTokenToBackend(idToken);
+        }
+
+        async function loginWithGoogle() {
+            try {
+                console.log("[loginWithGoogle] 버튼 클릭됨");
+                // 클릭 시점에 재초기화 시도 (SDK가 나중에 로드됐을 경우 대비)
+                const client = initSupabaseClient();
+                if (!client) {
+                    notify('Supabase SDK가 로드되지 않았습니다.\n광고 차단기를 비활성화하거나 새로고침 해주세요.', 'error');
+                    console.error('[loginWithGoogle] supabaseClient가 null입니다. SDK 로드 여부:', !!window.supabase);
+                    return;
+                }
+                console.log("[loginWithGoogle] Supabase 클라이언트 준비됨, OAuth 시작...");
+                const redirectUrl = window.location.origin || 'http://127.0.0.1:5001';
+                const { data, error } = await client.auth.signInWithOAuth({
+                    provider: 'google',
+                    options: {
+                        redirectTo: redirectUrl
+                    }
+                });
+                console.log("[loginWithGoogle] OAuth 결과:", data, error);
+                if (error) {
+                    notify('Google 로그인 오류: ' + error.message, 'error');
+                    throw error;
+                }
+            } catch (err) {
+                notify('Google 로그인 중 오류가 발생했습니다: ' + err.message, 'error');
+                console.error('[loginWithGoogle] 오류:', err);
+            }
         }
 
         async function loginWithDummy() {
@@ -18721,7 +18821,7 @@ ${commentsText}
 
         async function sendTokenToBackend(token) {
             try {
-                const res = await fetch('/api/auth/google', {
+                const res = await fetch('http://127.0.0.1:5001/api/auth/google', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ token: token })
@@ -18741,21 +18841,27 @@ ${commentsText}
 
         async function handleLogout() {
             try {
-                const res = await fetch('/api/auth/logout', { method: 'POST' });
-                const data = await res.json();
-                if (data.status === 'success') {
-                    notify('로그아웃 되었습니다.', 'info');
-                    location.reload();
+                const client = initSupabaseClient();
+                if (client) {
+                    const { error } = await client.auth.signOut();
+                    if (error) throw error;
                 }
+                notify('로그아웃 되었습니다.', 'info');
+                location.reload();
             } catch (err) {
                 console.error('Logout failed:', err);
+                notify('로그아웃 오류', 'error');
             }
         }
 
         // Run checkSession on load
-        window.addEventListener('DOMContentLoaded', () => {
+        if (document.readyState === 'loading') {
+            window.addEventListener('DOMContentLoaded', () => {
+                checkSession();
+            });
+        } else {
             checkSession();
-        });
+        }
     </script>
     
     <!-- TTS 스튜디오 모달 -->
