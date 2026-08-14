@@ -4707,7 +4707,7 @@
         const GEMINI_API_KEY = '';
         const GEMINI_MODEL = "gemini-2.0-flash";
         const GEMINI_TTS_MODEL = "gemini-2.0-flash";
-        const POLITICS_CHANNELS_KEY = 'yt_politics_channels';
+        let POLITICS_CHANNELS_KEY = 'yt_politics_channels';
 
         const YOUTUBE_API_STORAGE_KEY = 'yt_api_key';
         const GEMINI_API_STORAGE_KEY = 'gemini_api_key';
@@ -7664,7 +7664,6 @@ ${newsContext}
                 btn.classList.remove('show');
             }
         };
-        let storedHandles = localStorage.getItem(POLITICS_CHANNELS_KEY);
         let politicsHandles = {};
         const defaultHandles = {
             public: ["@MBCNEWS11", "@Jtvnews2021", "@g1tvnews", "@KTV이매진", "@NATV_korea", "@KTV_korea", "@mbcradio_sisa", "@이재명tv", "@dailyminjoo", "@maebulshow", "@gyeomsonisnothing", "@취재편의점", "@SPEAKS_TV", "@daeannews", "@HankyorehTV", "@sisaineditor", "@choikyTV", "@사장남천동", "@kangseungbum", "@여의도옆문래동", "@백운기의정어리TV", "@붕지욱기자", "@DHLeeTV", "@mbc_pdnote", "@saenal", "@Lee_TV"],
@@ -7682,28 +7681,30 @@ ${newsContext}
             category_music: ["@1theK", "@StoneMusicEnt", "@Mnet", "@KBSKpop", "@MBCkpop", "@sbskpop", "@YG_Ent", "@SM_Ent", "@JYP_Ent", "@Bighit"]
         };
 
-        if (!storedHandles) {
-            // First run: Use defaults
-            politicsHandles = defaultHandles;
-        } else {
-            // Respect user-saved data (even if empty lists)
-            politicsHandles = JSON.parse(storedHandles);
-        }
-
-        // --- Version Logic ---
-        function initVersionLogic() {
-            // 사용자 요청에 의해 localStorage의 이전 값을 강제 갱신
-            let handleUpdated = false;
+        function loadPoliticsHandles() {
+            let storedHandles = localStorage.getItem(POLITICS_CHANNELS_KEY);
+            if (!storedHandles) {
+                // 깊은 복사하여 초기 기본값 할당
+                politicsHandles = JSON.parse(JSON.stringify(defaultHandles));
+            } else {
+                politicsHandles = JSON.parse(storedHandles);
+            }
+            
             // 기존 private 데이터를 public으로 병합하여 유지
             if (politicsHandles.private) {
                 politicsHandles.public = [...new Set([...(politicsHandles.public || []), ...politicsHandles.private])];
                 delete politicsHandles.private;
-                handleUpdated = true;
-            }
-            // 필수 핸들 강제 추가 로직 제거 (사용자 관리 명단의 자율성 100% 보장)
-            if (handleUpdated) {
                 localStorage.setItem(POLITICS_CHANNELS_KEY, JSON.stringify(politicsHandles));
             }
+        }
+
+        // 초기 실행
+        loadPoliticsHandles();
+
+        // --- Version Logic ---
+        function initVersionLogic() {
+            // 필수 핸들 강제 추가 로직 제거 (사용자 관리 명단의 자율성 100% 보장)
+            // loadPoliticsHandles() 내부에 통합하여 불필요한 로직 간소화
 
             // 기존의 localStorage 기반 하드코딩된 버전 로직 제거
             // <head>에 선언된 통일된 전역 변수(window.APP_VERSION)와 로직(window.updateVersionDisplay) 우선 사용
@@ -18876,8 +18877,23 @@ ${commentsText}
                 if (session) {
                     window.isUserLoggedIn = true;
                     window.currentUserId = session.user.id;
+                    
+                    // 1. 즐겨찾기 키 및 데이터 로드
                     BOOKMARKS_KEY = 'miner_bookmarks_v3_' + session.user.id;
                     bookmarks = JSON.parse(localStorage.getItem(BOOKMARKS_KEY)) || [];
+
+                    // 2. 채널관리 키 업데이트 및 마이그레이션
+                    const accountChannelsKey = 'yt_politics_channels_' + session.user.id;
+                    const guestChannelsKey = 'yt_politics_channels';
+                    
+                    // 만약 이 계정의 채널 설정이 로컬 스토리지에 없고, 게스트(비로그인) 채널 설정이 존재한다면 마이그레이션 진행
+                    if (!localStorage.getItem(accountChannelsKey) && localStorage.getItem(guestChannelsKey)) {
+                        localStorage.setItem(accountChannelsKey, localStorage.getItem(guestChannelsKey));
+                        localStorage.removeItem(guestChannelsKey);
+                    }
+                    
+                    POLITICS_CHANNELS_KEY = accountChannelsKey;
+                    loadPoliticsHandles();
 
                     if (loginOverlay) loginOverlay.style.display = 'none';
                     if (userHeader) {
@@ -18895,8 +18911,12 @@ ${commentsText}
                 } else {
                     window.isUserLoggedIn = false;
                     window.currentUserId = null;
+                    
                     BOOKMARKS_KEY = 'miner_bookmarks_v3';
                     bookmarks = JSON.parse(localStorage.getItem(BOOKMARKS_KEY)) || [];
+
+                    POLITICS_CHANNELS_KEY = 'yt_politics_channels';
+                    loadPoliticsHandles();
 
                     if (userHeader) {
                         userHeader.classList.add('hidden');
@@ -18912,8 +18932,13 @@ ${commentsText}
                 // 오류가 발생해도 비로그인 상태로 간주하고 버튼 노출
                 window.isUserLoggedIn = false;
                 window.currentUserId = null;
+                
                 BOOKMARKS_KEY = 'miner_bookmarks_v3';
                 bookmarks = JSON.parse(localStorage.getItem(BOOKMARKS_KEY)) || [];
+
+                POLITICS_CHANNELS_KEY = 'yt_politics_channels';
+                loadPoliticsHandles();
+
                 const loginBtn = document.getElementById('headerLoginBtn');
                 if (loginBtn) {
                     loginBtn.classList.remove('hidden');
@@ -19000,9 +19025,53 @@ ${commentsText}
         if (document.readyState === 'loading') {
             window.addEventListener('DOMContentLoaded', () => {
                 checkSession();
+                setupAuthStateListener();
             });
         } else {
             checkSession();
+            setupAuthStateListener();
+        }
+
+        // Supabase 인증 상태 변경 리스너 (로그인/로그아웃 시 계정별 채널 데이터 자동 전환)
+        function setupAuthStateListener() {
+            try {
+                const client = initSupabaseClient();
+                if (!client) return;
+
+                client.auth.onAuthStateChange(async (event, session) => {
+                    if (event === 'SIGNED_IN' && session) {
+                        const userId = session.user.id;
+
+                        // 즐겨찾기 키 전환
+                        BOOKMARKS_KEY = 'miner_bookmarks_v3_' + userId;
+                        bookmarks = JSON.parse(localStorage.getItem(BOOKMARKS_KEY)) || [];
+
+                        // 채널관리 키 전환 및 마이그레이션
+                        const accountChannelsKey = 'yt_politics_channels_' + userId;
+                        const guestChannelsKey = 'yt_politics_channels';
+                        if (!localStorage.getItem(accountChannelsKey) && localStorage.getItem(guestChannelsKey)) {
+                            localStorage.setItem(accountChannelsKey, localStorage.getItem(guestChannelsKey));
+                            localStorage.removeItem(guestChannelsKey);
+                        }
+                        POLITICS_CHANNELS_KEY = accountChannelsKey;
+                        loadPoliticsHandles();
+
+                        console.log(`[채널관리] 계정 전환: ${userId} → 키: ${accountChannelsKey}`);
+
+                    } else if (event === 'SIGNED_OUT') {
+                        // 비로그인 상태로 복귀
+                        BOOKMARKS_KEY = 'miner_bookmarks_v3';
+                        bookmarks = JSON.parse(localStorage.getItem(BOOKMARKS_KEY)) || [];
+
+                        POLITICS_CHANNELS_KEY = 'yt_politics_channels';
+                        loadPoliticsHandles();
+
+                        console.log('[채널관리] 로그아웃 → 게스트 키로 복귀');
+                    }
+                });
+            } catch (err) {
+                console.warn('[setupAuthStateListener] 초기화 실패:', err);
+            }
         }
     </script>
     
