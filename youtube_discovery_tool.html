@@ -4717,7 +4717,7 @@
 
         const YOUTUBE_API_STORAGE_KEY = 'yt_api_key';
         const GEMINI_API_STORAGE_KEY = 'gemini_api_key';
-        const BOOKMARKS_KEY = 'miner_bookmarks_v3';
+        let BOOKMARKS_KEY = 'miner_bookmarks_v3';
 
         let bookmarks = JSON.parse(localStorage.getItem(BOOKMARKS_KEY)) || [];
 
@@ -18824,7 +18824,9 @@ ${commentsText}
         async function migrateLocalBookmarksToDB() {
             if (!window.isUserLoggedIn || !supabaseClient) return;
 
-            const localBookmarks = JSON.parse(localStorage.getItem(BOOKMARKS_KEY)) || [];
+            // 항상 비로그인(게스트) 상태의 즐겨찾기 키인 'miner_bookmarks_v3'에서 마이그레이션 데이터를 로드함
+            const anonymousKey = 'miner_bookmarks_v3';
+            const localBookmarks = JSON.parse(localStorage.getItem(anonymousKey)) || [];
             if (localBookmarks.length === 0) return;
 
             try {
@@ -18844,6 +18846,9 @@ ${commentsText}
 
                 if (error) throw error;
                 console.log(`[Bookmark DB] ${localBookmarks.length}개의 로컬 즐겨찾기를 DB에 동기화했습니다.`);
+                
+                // 마이그레이션 성공 후 게스트 데이터를 삭제하여 다른 계정에 이중 동기화 방지
+                localStorage.removeItem(anonymousKey);
             } catch (err) {
                 console.error('[Bookmark DB] 마이그레이션 실패:', err);
             }
@@ -18876,6 +18881,10 @@ ${commentsText}
 
                 if (session) {
                     window.isUserLoggedIn = true;
+                    window.currentUserId = session.user.id;
+                    BOOKMARKS_KEY = 'miner_bookmarks_v3_' + session.user.id;
+                    bookmarks = JSON.parse(localStorage.getItem(BOOKMARKS_KEY)) || [];
+
                     if (loginOverlay) loginOverlay.style.display = 'none';
                     if (userHeader) {
                         userHeader.classList.remove('hidden');
@@ -18891,6 +18900,10 @@ ${commentsText}
                     await loadBookmarksFromDB();
                 } else {
                     window.isUserLoggedIn = false;
+                    window.currentUserId = null;
+                    BOOKMARKS_KEY = 'miner_bookmarks_v3';
+                    bookmarks = JSON.parse(localStorage.getItem(BOOKMARKS_KEY)) || [];
+
                     if (userHeader) {
                         userHeader.classList.add('hidden');
                         userHeader.classList.remove('flex');
@@ -18904,6 +18917,9 @@ ${commentsText}
                 console.error('Supabase Session check failed:', err);
                 // 오류가 발생해도 비로그인 상태로 간주하고 버튼 노출
                 window.isUserLoggedIn = false;
+                window.currentUserId = null;
+                BOOKMARKS_KEY = 'miner_bookmarks_v3';
+                bookmarks = JSON.parse(localStorage.getItem(BOOKMARKS_KEY)) || [];
                 const loginBtn = document.getElementById('headerLoginBtn');
                 if (loginBtn) {
                     loginBtn.classList.remove('hidden');
