@@ -7684,8 +7684,8 @@ ${newsContext}
         function loadPoliticsHandles() {
             let storedHandles = localStorage.getItem(POLITICS_CHANNELS_KEY);
             if (!storedHandles) {
-                // 깊은 복사하여 초기 기본값 할당
-                politicsHandles = JSON.parse(JSON.stringify(defaultHandles));
+                // 신규 사용자: 공란으로 초기화 (기존 데이터가 있는 계정은 아래 else에서 처리)
+                politicsHandles = { public: [], target: [], daily: [] };
             } else {
                 politicsHandles = JSON.parse(storedHandles);
             }
