@@ -2,7 +2,7 @@ flask
 flask-cors
 requests
 urllib3
-yt-dlp
+yt-dlp>=2024.12.13
 youtube-transcript-api
 google-auth
 supabase

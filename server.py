@@ -578,12 +578,14 @@ def download_video_api():
             elif d['status'] == 'finished':
                 download_tasks[t_key]['progress'] = 100
 
-        # Try multiple strategies to bypass blocks and handle internal errors
+        # Try multiple strategies to bypass YouTube authentication blocks
         strategies = [
-            {'name': '모바일 우회', 'cookies': None, 'client': ['android', 'ios']},
-            {'name': '크롬 쿠키', 'cookies': 'chrome', 'client': ['web']},
-            {'name': '엣지 쿠키', 'cookies': 'edge', 'client': ['web']},
-            {'name': '일반 모드', 'cookies': None, 'client': ['web']}
+            {'name': 'TV 임베드 우회', 'cookies': None, 'client': ['tv_embedded'], 'skip': ['webpage', 'config']},
+            {'name': '모바일 우회', 'cookies': None, 'client': ['android', 'ios'], 'skip': []},
+            {'name': 'mweb 우회', 'cookies': None, 'client': ['mweb'], 'skip': ['webpage']},
+            {'name': '크롬 쿠키', 'cookies': 'chrome', 'client': ['web'], 'skip': []},
+            {'name': '엣지 쿠키', 'cookies': 'edge', 'client': ['web'], 'skip': []},
+            {'name': '일반 모드', 'cookies': None, 'client': ['web'], 'skip': []},
         ]
         
         last_err = ""
@@ -593,6 +595,10 @@ def download_video_api():
             try:
                 print(f"[다운로드] 전략 시도: {strategy['name']} (타입: {d_type})")
                 
+                extractor_args = {'youtube': {'player_client': strategy['client']}}
+                if strategy.get('skip'):
+                    extractor_args['youtube']['player_skip'] = strategy['skip']
+
                 ydl_opts = {
                     'outtmpl': os.path.join(download_dir, '%(title)s.%(ext)s'),
                     'quiet': True,
@@ -600,10 +606,12 @@ def download_video_api():
                     'nocheckcertificate': True,
                     'noplaylist': True,
                     'progress_hooks': [progress_hook],
-                    'extractor_args': {'youtube': {'player_client': strategy['client']}},
-                    'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+                    'extractor_args': extractor_args,
+                    'http_headers': {
+                        'User-Agent': 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.119 Mobile Safari/537.36',
+                        'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
+                    },
                     'ffmpeg_location': FFMPEG_PATH if os.path.exists(FFMPEG_PATH) else None,
-                    'config_location': YTDLP_CONFIG_PATH if os.path.exists(YTDLP_CONFIG_PATH) else None
                 }
 
                 if d_type == 'audio':
@@ -616,12 +624,15 @@ def download_video_api():
                 else:
                     ydl_opts['format'] = 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'
                 
-                # Try to apply cookies safely
-                if strategy['cookies']:
+                # cookies.txt 파일이 있으면 우선 사용 (서버 배포 시 가장 안정적)
+                cookies_file = os.path.join(os.getcwd(), 'cookies.txt')
+                if os.path.exists(cookies_file):
+                    ydl_opts['cookiefile'] = cookies_file
+                elif strategy['cookies']:
                     try:
                         ydl_opts['cookiesfrombrowser'] = (strategy['cookies'],)
                     except:
-                        continue # Skip this browser if it causes immediate error
+                        continue  # 해당 브라우저 쿠키를 읽을 수 없으면 다음 전략으로
 
                 with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                     target_url = v_id if (v_id.startswith('http') or 'tiktok.com' in v_id) else f"https://www.youtube.com/watch?v={v_id}"
