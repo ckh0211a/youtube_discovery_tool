@@ -11343,7 +11343,10 @@ ${newsContext}
                         searchUrl += `&regionCode=${region}`;
                         if (region === 'KR') searchUrl += `&relevanceLanguage=ko`;
                     }
-                    if (dateRange) {
+                    // [FIX] '2년 전 업로드만' 토글이 켜져 있으면 업로드 기간 조건 무시
+                    const _twoYearsToggle = document.getElementById('twoYearsAgoToggle');
+                    const _isTwoYearsMode = _twoYearsToggle && _twoYearsToggle.checked;
+                    if (dateRange && !_isTwoYearsMode) {
                         const publishedAfter = getPublishedAfterDate(dateRange);
                         if (publishedAfter) searchUrl += `&publishedAfter=${publishedAfter}`;
                     }
