@@ -2550,14 +2550,7 @@
                                         <option value="long">롱폼 (3분 이상)</option>
                                         <option value="short">숏폼 (3분 미만)</option>
                                     </select>
-                                    <select id="foreignLimitSelect"
-                                        class="bg-transparent text-sm font-bold text-gray-800 focus:outline-none h-full px-4 border-r border-orange-500 cursor-pointer appearance-none outline-none">
-                                        <option value="100" selected>100개</option>
-                                        <option value="200">200개</option>
-                                        <option value="300">300개</option>
-                                        <option value="400">400개</option>
-                                        <option value="500">500개</option>
-                                    </select>
+
                                     <select id="foreignLayoutSelect" onchange="applyViewMode(true)"
                                         class="bg-transparent text-sm font-bold text-gray-800 focus:outline-none h-full px-4 border-r border-orange-500 cursor-pointer appearance-none outline-none">
                                         <option value="grid">카드형 (그리드)</option>
@@ -14942,7 +14935,7 @@ ${commentsText}
                 };
                 const expectedLangs = regionLangMap[region] || null; // null이면 언어 필터 미적용
 
-                const limit = parseInt(document.getElementById('foreignLimitSelect').value) || 100;
+                const limit = 100; // 100개 고정 (갯수 선택 드롭다운 제거)
                 while (allFilteredItems.length < limit && catIndex < safeCategories.length && loopCount < 30) {
                     loopCount++;
                     const targetCat = safeCategories[catIndex];
