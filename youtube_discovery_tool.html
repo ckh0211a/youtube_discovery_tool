@@ -14916,10 +14916,61 @@ ${commentsText}
                 let catIndex = 0;
                 let apiErrorOccurred = false;
 
+                // [IMPROVEMENT ①] 해당 국가에서 지원하는 카테고리 사전 확인
+                // videoCategories.list API로 지원 카테고리 목록을 가져와
+                // safeCategories 중 미지원 카테고리는 처음부터 건너뜀 → 다른 나라 영상 혼재 방지
+                let supportedCategoryIds = new Set();
+                try {
+                    const catListUrl = `http://127.0.0.1:5001/api/proxy/google/youtube/v3/videoCategories?part=snippet&regionCode=${region}&hl=en&key=${ytKey}`;
+                    const catListRes = await fetch(catListUrl);
+                    const catListData = await catListRes.json();
+                    if (catListData.items && catListData.items.length > 0) {
+                        catListData.items.forEach(c => supportedCategoryIds.add(c.id));
+                        console.log(`[해외인기] ${region} 지원 카테고리:`, [...supportedCategoryIds]);
+                    }
+                } catch (e) {
+                    // 사전 확인 실패 시 무시하고 계속 진행
+                    console.warn('[해외인기] 카테고리 사전 확인 실패, 기존 방식으로 진행:', e);
+                }
+
+                // [IMPROVEMENT ①] 국가→언어 매핑 테이블 (후처리 필터용)
+                const regionLangMap = {
+                    'US': ['en'], 'GB': ['en'], 'CA': ['en', 'fr'], 'AU': ['en'], 'NZ': ['en'], 'IE': ['en'],
+                    'JP': ['ja'], 'KR': ['ko'], 'CN': ['zh'], 'TW': ['zh'], 'HK': ['zh'],
+                    'DE': ['de'], 'AT': ['de'], 'CH': ['de', 'fr', 'it'],
+                    'FR': ['fr'], 'BE': ['fr', 'nl'], 'ES': ['es'], 'MX': ['es'], 'AR': ['es'],
+                    'CO': ['es'], 'CL': ['es'], 'PE': ['es'],
+                    'BR': ['pt'], 'PT': ['pt'],
+                    'IN': ['hi', 'en', 'ta', 'te', 'mr', 'bn'],
+                    'ID': ['id'], 'MY': ['ms', 'en'], 'TH': ['th'], 'VN': ['vi'],
+                    'PH': ['tl', 'fil', 'en'], 'SG': ['en', 'zh', 'ms'],
+                    'RU': ['ru'], 'PL': ['pl'], 'NL': ['nl'], 'IT': ['it'],
+                    'SA': ['ar'], 'EG': ['ar'], 'AE': ['ar'], 'TR': ['tr'],
+                    'SE': ['sv'], 'NO': ['no'], 'DK': ['da'], 'FI': ['fi'],
+                    'UA': ['uk'], 'CZ': ['cs'], 'RO': ['ro'], 'HU': ['hu'],
+                    'IL': ['he', 'iw'], 'GR': ['el'], 'NG': ['en'], 'ZA': ['en'],
+                    'PK': ['ur', 'en'], 'BD': ['bn'], 'NP': ['ne']
+                };
+                const expectedLangs = regionLangMap[region] || null; // null이면 언어 필터 미적용
+
                 const limit = parseInt(document.getElementById('foreignLimitSelect').value) || 100;
                 while (allFilteredItems.length < limit && catIndex < safeCategories.length && loopCount < 30) {
                     loopCount++;
                     const targetCat = safeCategories[catIndex];
+
+                    // [IMPROVEMENT ①] 미지원 카테고리는 API 호출 없이 건너뜀
+                    // (supportedCategoryIds가 비어있으면 사전 확인 실패 → 기존 방식대로 진행)
+                    if (supportedCategoryIds.size > 0 && targetCat !== '0' && !supportedCategoryIds.has(targetCat)) {
+                        console.log(`[해외인기] ${region}에서 카테고리 ${targetCat} 미지원 → 스킵`);
+                        if (isSpecificCategory) {
+                            apiErrorOccurred = true;
+                            break;
+                        }
+                        catIndex++;
+                        currentToken = '';
+                        continue;
+                    }
+
                     let url = `http://127.0.0.1:5001/api/proxy/google/youtube/v3/videos?part=snippet,statistics,contentDetails&chart=mostPopular&regionCode=${region}&maxResults=50&key=${ytKey}`;
                     const activeCat = targetCat;
                     if (activeCat !== '0') url += `&videoCategoryId=${activeCat}`;
@@ -14968,6 +15019,7 @@ ${commentsText}
                                 '感動', '涙', '号泣', '奇跡', '温かい', '救助', '悲しい', '里親', '保護',
                                 'cảm động', 'nước mắt', 'nhân văn', 'cứu sống', 'phép màu', 'ấm áp'
                             ];
+                            // emotion 모드는 다국어 키워드 검색 특성상 언어 필터 미적용
                             filtered = lastRawData.items.filter(item => {
                                 const title = (item.snippet.title || '').toLowerCase();
                                 const desc = (item.snippet.description || '').toLowerCase();
@@ -14983,6 +15035,44 @@ ${commentsText}
                                 return item.snippet.categoryId === categoryId;
                             });
                         }
+
+                        // [IMPROVEMENT ②] 언어/국가 후처리 필터
+                        // YouTube API가 regionCode를 강제 필터가 아닌 '힌트'로 처리하기 때문에
+                        // 해당 국가와 무관한 영상이 섞일 수 있음 → snippet의 언어/국가 정보로 추가 검증
+                        if (!isEmotionMode && expectedLangs) {
+                            const beforeCount = filtered.length;
+                            filtered = filtered.filter(item => {
+                                const audioLang  = (item.snippet.defaultAudioLanguage || '').toLowerCase().split('-')[0];
+                                const textLang   = (item.snippet.defaultLanguage     || '').toLowerCase().split('-')[0];
+                                const chCountry  = (item.snippet.channelCountry      || '').toUpperCase();
+
+                                // 채널 국가가 명확하고 선택 국가와 다르면 제외
+                                // (단, 채널 국가 정보가 없는 경우는 관대하게 통과)
+                                if (chCountry && chCountry !== region) {
+                                    // 언어도 불일치하면 최종 제외
+                                    const langToCheck = audioLang || textLang;
+                                    if (langToCheck && !expectedLangs.includes(langToCheck)) {
+                                        return false;
+                                    }
+                                }
+
+                                // 언어 정보가 있고 기대 언어와 전혀 다르면 제외
+                                // (언어 정보가 없는 영상은 관대하게 통과 → 과도한 필터링 방지)
+                                if (audioLang && !expectedLangs.includes(audioLang)) {
+                                    // textLang도 있고 불일치하면 제외
+                                    if (textLang && !expectedLangs.includes(textLang)) {
+                                        return false;
+                                    }
+                                    // audioLang만 불일치, textLang 없음 → 관대하게 통과
+                                }
+
+                                return true;
+                            });
+                            if (beforeCount !== filtered.length) {
+                                console.log(`[해외인기] ${region} 언어필터: ${beforeCount}→${filtered.length}개 (${beforeCount - filtered.length}개 제거)`);
+                            }
+                        }
+
                         filtered.forEach(item => {
                             if (!allFilteredItems.find(x => x.id === item.id)) {
                                 allFilteredItems.push(item);
