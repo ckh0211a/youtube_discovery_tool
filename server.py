@@ -139,9 +139,44 @@ def set_file_hidden(path, hidden=True):
     except:
         pass
 
+@app.route('/api/debug/cookies')
+def debug_cookies():
+    """서버의 쿠키 파일 및 환경 상태를 진단하는 API"""
+    is_server_env = os.environ.get('RENDER') == 'true' or os.environ.get('SERVER_ENV') == 'true'
+    has_cookies_env = bool(os.environ.get('YOUTUBE_COOKIES', ''))
+    cookies_candidates = [
+        os.path.join(os.getcwd(), 'cookies.txt'),
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cookies.txt'),
+        '/app/cookies.txt',
+    ]
+    cookies_status = []
+    for c in cookies_candidates:
+        exists = os.path.exists(c)
+        valid = False
+        size = 0
+        if exists:
+            try:
+                size = os.path.getsize(c)
+                with open(c, 'r', encoding='utf-8', errors='ignore') as f:
+                    valid = 'youtube.com' in f.read()
+            except: pass
+        cookies_status.append({'path': c, 'exists': exists, 'valid_youtube': valid, 'size_bytes': size})
+    return jsonify({
+        'is_server_env': is_server_env,
+        'RENDER_env': os.environ.get('RENDER', 'not set'),
+        'has_YOUTUBE_COOKIES_env': has_cookies_env,
+        'YOUTUBE_COOKIES_env_length': len(os.environ.get('YOUTUBE_COOKIES', '')),
+        'cwd': os.getcwd(),
+        'file_dir': os.path.dirname(os.path.abspath(__file__)),
+        'cookies_files': cookies_status,
+        'python_version': __import__('sys').version,
+    })
+
 @app.route('/')
 def serve_index():
-    with open('debug.txt', 'a') as f: f.write('serve_index called!\n')
+    try:
+        with open('debug.txt', 'a') as f: f.write('serve_index called!\n')
+    except: pass
     html_path = resource_path('youtube_discovery_tool.html')
     print("DEBUG html_path:", html_path, "Exists:", os.path.exists(html_path))
     if os.path.exists(html_path):
@@ -641,30 +676,34 @@ def download_video_api():
         # 전략 목록 구성
         strategies = []
 
-        # 1순위: cookies.txt (서버/로컬 공통)
+        # 1순위: cookies.txt 파일 + 다양한 클라이언트 조합
         if has_valid_cookies_file:
+            strategies.append({'name': 'cookies.txt + web', 'cookies_file': cookies_file, 'cookies': None, 'client': ['web'], 'skip': []})
             strategies.append({'name': 'cookies.txt + android', 'cookies_file': cookies_file, 'cookies': None, 'client': ['android'], 'skip': []})
             strategies.append({'name': 'cookies.txt + ios', 'cookies_file': cookies_file, 'cookies': None, 'client': ['ios'], 'skip': []})
-            strategies.append({'name': 'cookies.txt + web', 'cookies_file': cookies_file, 'cookies': None, 'client': ['web'], 'skip': []})
+            strategies.append({'name': 'cookies.txt + web_creator', 'cookies_file': cookies_file, 'cookies': None, 'client': ['web_creator'], 'skip': []})
             strategies.append({'name': 'cookies.txt + tv_embedded', 'cookies_file': cookies_file, 'cookies': None, 'client': ['tv_embedded'], 'skip': ['webpage', 'config']})
 
         # 서버 환경: 브라우저 쿠키 전략 건너뜀 (브라우저 없음)
         if not is_server_env:
             strategies += [
-                {'name': '크롬 쿠키 + 모바일', 'cookies_file': None, 'cookies': 'chrome', 'client': ['android'], 'skip': []},
-                {'name': '엣지 쿠키 + 모바일', 'cookies_file': None, 'cookies': 'edge', 'client': ['android'], 'skip': []},
+                {'name': '크롬 쿠키 + android', 'cookies_file': None, 'cookies': 'chrome', 'client': ['android'], 'skip': []},
+                {'name': '엣지 쿠키 + android', 'cookies_file': None, 'cookies': 'edge', 'client': ['android'], 'skip': []},
                 {'name': '크롬 쿠키 + web', 'cookies_file': None, 'cookies': 'chrome', 'client': ['web'], 'skip': []},
                 {'name': '엣지 쿠키 + web', 'cookies_file': None, 'cookies': 'edge', 'client': ['web'], 'skip': []},
             ]
 
-        # 공통 우회 전략 (쿠키 없이 시도)
+        # 공통 우회 전략 (쿠키 없이 시도) - 2025년 이후 유효한 클라이언트 위주
         strategies += [
+            {'name': 'android VR 우회', 'cookies_file': None, 'cookies': None, 'client': ['android_vr'], 'skip': []},
+            {'name': 'ios 우회', 'cookies_file': None, 'cookies': None, 'client': ['ios'], 'skip': []},
+            {'name': 'android 우회', 'cookies_file': None, 'cookies': None, 'client': ['android'], 'skip': []},
             {'name': 'TV 임베드 우회', 'cookies_file': None, 'cookies': None, 'client': ['tv_embedded'], 'skip': ['webpage', 'config']},
-            {'name': '모바일 우회 (android)', 'cookies_file': None, 'cookies': None, 'client': ['android'], 'skip': []},
-            {'name': '모바일 우회 (ios)', 'cookies_file': None, 'cookies': None, 'client': ['ios'], 'skip': []},
             {'name': 'mweb 우회', 'cookies_file': None, 'cookies': None, 'client': ['mweb'], 'skip': ['webpage']},
+            {'name': 'web_creator 우회', 'cookies_file': None, 'cookies': None, 'client': ['web_creator'], 'skip': []},
             {'name': '일반 모드', 'cookies_file': None, 'cookies': None, 'client': ['web'], 'skip': []},
         ]
+
 
         # ffmpeg 경로: 로컬(Windows)은 번들 ffmpeg.exe, 서버는 시스템 PATH
         ffmpeg_loc = None
