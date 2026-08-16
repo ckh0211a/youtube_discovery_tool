@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 
 <head>
@@ -18,11 +18,19 @@
     <script>
         // API Base URL Interceptor for Web Deployment
         (function() {
+            const getBackendUrl = function(url) {
+                const targetBase = window.location.protocol === 'file:' ? 'http://127.0.0.1:5001' : window.location.origin;
+                if (url.startsWith('http://127.0.0.1:5001')) {
+                    return url.replace(/https?:\/\/127\.0\.0\.1:5001/, targetBase);
+                }
+                return targetBase + url;
+            };
+            window.getBackendUrl = getBackendUrl;
+
             const originalFetch = window.fetch;
             window.fetch = function(input, init) {
                 if (typeof input === 'string' && input.includes('127.0.0.1:5001')) {
-                    const targetBase = window.location.protocol === 'file:' ? 'http://127.0.0.1:5001' : window.location.origin;
-                    input = input.replace(/https?:\/\/127\.0\.0\.1:5001/, targetBase);
+                    input = getBackendUrl(input);
                 }
                 return originalFetch(input, init);
             };
@@ -37,7 +45,7 @@
         window.APP_VERSION = {
             major: 3,
             minor: 1,
-            patch: 3
+            patch: 4
         };
         window.PROGRAM_ID = "";
         // [SCORCHED EARTH] Persistent Seen IDs for Mode 3 NEW badge
@@ -6655,7 +6663,7 @@ ${newsContext}
                                 }
                                 showToast('영상 다운로드가 완료되었습니다!', 'success');
 
-                                window.location.href = `http://127.0.0.1:5001/api/download/file?video_id=${videoId}`;
+                                window.location.href = window.getBackendUrl(`http://127.0.0.1:5001/api/download/file?video_id=${videoId}`);
                                 setTimeout(() => progressArea?.classList.add('hidden'), 5000);
                             } else if (pData.status === 'error') {
                                 clearInterval(pollInterval);
@@ -6739,7 +6747,7 @@ ${newsContext}
                                 }
                                 showToast('MP3 음원 추출이 완료되었습니다!', 'success');
 
-                                window.location.href = `http://127.0.0.1:5001/api/download/file?video_id=${videoId}&type=audio`;
+                                window.location.href = window.getBackendUrl(`http://127.0.0.1:5001/api/download/file?video_id=${videoId}&type=audio`);
                                 setTimeout(() => progressArea?.classList.add('hidden'), 5000);
                             } else if (pData.status === 'error') {
                                 clearInterval(pollInterval);
@@ -6892,7 +6900,7 @@ ${newsContext}
                                 clearInterval(pollInterval);
                                 if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fab fa-tiktok"></i> 틱톡영상다운'; }
                                 showToast('틱톡 영상 다운로드가 완료되었습니다!', 'success');
-                                window.location.href = `http://127.0.0.1:5001/api/download/file?video_id=${encodeURIComponent(url)}`;
+                                window.location.href = window.getBackendUrl(`http://127.0.0.1:5001/api/download/file?video_id=${encodeURIComponent(url)}`);
                                 setTimeout(() => progressArea?.classList.add('hidden'), 5000);
                             } else if (pData.status === 'error') {
                                 clearInterval(pollInterval);
@@ -9468,7 +9476,7 @@ ${newsContext}
                             clearInterval(poll);
                             // 3. 브라우저로 실제 파일 전송
                             const a = document.createElement('a');
-                            a.href = `http://127.0.0.1:5001/api/download/file?video_id=${videoId}`;
+                            a.href = window.getBackendUrl(`http://127.0.0.1:5001/api/download/file?video_id=${videoId}`);
                             a.download = '';
                             document.body.appendChild(a);
                             a.click();
@@ -14045,7 +14053,7 @@ ${newsContext}
                                 // 파일 다운로드 실행
                                 setTimeout(() => {
                                     const a = document.createElement('a');
-                                    a.href = `http://127.0.0.1:5001/api/download/file?video_id=${videoId}`;
+                                    a.href = window.getBackendUrl(`http://127.0.0.1:5001/api/download/file?video_id=${videoId}`);
                                     a.download = '';
                                     document.body.appendChild(a);
                                     a.click();
