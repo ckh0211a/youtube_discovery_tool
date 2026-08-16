@@ -2543,17 +2543,7 @@
                                         <option value="under100000">100,000 이하</option>
                                         <option value="over100000">100,000 이상</option>
                                     </select>
-                                    <select id="foreignViewsSelect" onchange="applyViewMode(true)"
-                                        class="bg-transparent text-sm font-bold text-gray-800 focus:outline-none h-full px-4 border-r border-orange-500 cursor-pointer appearance-none outline-none">
-                                        <option value="0" selected>전체 조회수</option>
-                                        <option value="10000">1만+</option>
-                                        <option value="30000">3만+</option>
-                                        <option value="50000">5만+</option>
-                                        <option value="100000">10만+</option>
-                                        <option value="300000">30만+</option>
-                                        <option value="500000">50만+</option>
-                                        <option value="1000000">100만+</option>
-                                    </select>
+
                                     <select id="foreignDurationSelect" onchange="applyViewMode(true)"
                                         class="bg-transparent text-sm font-bold text-gray-800 focus:outline-none h-full px-4 border-r border-orange-500 cursor-pointer appearance-none outline-none">
                                         <option value="any" selected>전체 길이</option>
@@ -12834,7 +12824,7 @@ ${newsContext}
             const minViewsFilter = document.getElementById('minViewsFilter');
             let minViews;
             if (isMode11) minViews = 0;
-            else if (currentSearchMode === 9) minViews = parseInt(document.getElementById('foreignViewsSelect').value) || 0;
+            else if (currentSearchMode === 9) minViews = 0; // 조회수 필터 제거 (chart=mostPopular로 이미 인기 영상만 가져옴)
             else minViews = (minViewsFilter ? parseInt(minViewsFilter.value) : 0);
 
             let durationType;
@@ -12928,8 +12918,7 @@ ${newsContext}
                             if (fromSubs > 0) return false;
                         }
                     }
-                    // 2. Video View Count (minViews is already set from foreignViewsSelect)
-                    if (minViews > 0 && video.views < minViews) return false;
+                    // 2. Video View Count - 조회수 필터 제거됨 (chart=mostPopular 특성상 불필요)
                     // 3. Duration (durationType is already set from foreignDurationSelect)
                     if (durationType === 'short' && video.durationSec >= 180) return false;
                     if (durationType === 'long' && video.durationSec < 180) return false;
