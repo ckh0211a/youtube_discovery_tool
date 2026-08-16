@@ -12837,11 +12837,6 @@ ${newsContext}
             else if (currentSearchMode === 9) minViews = parseInt(document.getElementById('foreignViewsSelect').value) || 0;
             else minViews = (minViewsFilter ? parseInt(minViewsFilter.value) : 0);
 
-            // [ADD] 강제로 모든 모드(즐겨찾기 제외)에서 최소 30만 조회수 필터 적용
-            if (!isMode11) {
-                minViews = Math.max(minViews, 300000);
-            }
-
             let durationType;
             const durationFilter = document.getElementById('durationFilter');
             if (isMode7) durationType = document.getElementById('durationTrending')?.value || 'any';
@@ -14988,10 +14983,6 @@ ${commentsText}
                                 return item.snippet.categoryId === categoryId;
                             });
                         }
-
-                        // [ADD] 조회수 30만 이상 필터
-                        filtered = filtered.filter(item => parseInt(item.statistics?.viewCount || 0, 10) >= 300000);
-
                         filtered.forEach(item => {
                             if (!allFilteredItems.find(x => x.id === item.id)) {
                                 allFilteredItems.push(item);
