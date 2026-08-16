@@ -767,6 +767,7 @@ def download_video_api():
 
         # 1순위: cookies.txt 파일 + 다양한 클라이언트 조합
         if has_valid_cookies_file:
+            strategies.append({'name': 'cookies.txt + all', 'cookies_file': cookies_file, 'cookies': None, 'client': ['web', 'web_creator', 'android', 'ios', 'tv_embedded'], 'skip': []})
             strategies.append({'name': 'cookies.txt + web', 'cookies_file': cookies_file, 'cookies': None, 'client': ['web'], 'skip': []})
             strategies.append({'name': 'cookies.txt + android', 'cookies_file': cookies_file, 'cookies': None, 'client': ['android'], 'skip': []})
             strategies.append({'name': 'cookies.txt + ios', 'cookies_file': cookies_file, 'cookies': None, 'client': ['ios'], 'skip': []})
@@ -802,6 +803,8 @@ def download_video_api():
 
         last_err = ""
         success = False
+        db_locked_error = False
+        auth_error = False
         
         for strategy in strategies:
             try:
@@ -828,14 +831,14 @@ def download_video_api():
                     ydl_opts['ffmpeg_location'] = ffmpeg_loc
 
                 if d_type == 'audio':
-                    ydl_opts['format'] = 'bestaudio/best'
+                    ydl_opts['format'] = 'bestaudio/best/b'
                     ydl_opts['postprocessors'] = [{
                         'key': 'FFmpegExtractAudio',
                         'preferredcodec': 'mp3',
                         'preferredquality': '192',
                     }]
                 else:
-                    ydl_opts['format'] = 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best'
+                    ydl_opts['format'] = 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best/b'
                 
                 # 쿠키 설정: cookies.txt 파일 우선, 그 다음 브라우저 쿠키
                 if strategy.get('cookies_file') and os.path.exists(strategy['cookies_file']):
@@ -868,14 +871,23 @@ def download_video_api():
                     print(f"[다운로드] 성공! 전략: {strategy['name']}")
                     break
             except Exception as e:
-                last_err = str(e)
-                print(f"[다운로드] {strategy['name']} 실패: {last_err[:200]}")
-                # 브라우저 DB가 잠겨있는 경우
-                if "NoneType" in last_err or "database" in last_err.lower():
-                    last_err = "브라우저(크롬/엣지)가 열려 있어 쿠키를 읽을 수 없습니다. 브라우저를 닫고 다시 시도해 주세요."
+                err_str = str(e)
+                print(f"[다운로드] {strategy['name']} 실패: {err_str[:200]}")
+                if "NoneType" in err_str or "database" in err_str.lower() or "locked" in err_str.lower():
+                    db_locked_error = True
+                if "browser or --cookies" in err_str.lower() or "sign in" in err_str.lower():
+                    auth_error = True
+                last_err = err_str
                 continue
         
         if not success:
+            if db_locked_error:
+                last_err = "브라우저(크롬/엣지)가 현재 실행 중이어서 쿠키를 가져올 수 없습니다. 브라우저를 완전히 종료한 후 다시 시도해주세요."
+            elif auth_error:
+                last_err = "YouTube에서 로그인을 요구하여 차단되었습니다. 프로그램 폴더에 cookies.txt를 넣거나, 브라우저를 모두 닫고 다시 시도하세요."
+            elif not last_err:
+                last_err = "알 수 없는 오류가 발생했습니다."
+                
             download_tasks[t_key]['status'] = 'error'
             download_tasks[t_key]['error'] = last_err
 

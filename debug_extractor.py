@@ -9,6 +9,9 @@ r = requests.get(url, headers=headers)
 html_content = r.text
 
 print(f"HTML Length: {len(html_content)}")
+print("--- HTML 상단 500자 미리보기 ---")
+print(html_content[:500])
+print("--------------------------------")
 
 # Try multiple patterns
 match = re.search(r'ytInitialPlayerResponse\s*=\s*({.+?});', html_content)
