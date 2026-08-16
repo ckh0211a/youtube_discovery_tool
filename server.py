@@ -61,6 +61,36 @@ app = Flask(__name__)
 app.secret_key = 'youtube-discovery-tool-secure-session-key-98127391'
 CORS(app)
 
+# ── 서버 시작 시 환경변수(YOUTUBE_COOKIES)에서 cookies.txt 자동 생성 ──────────────
+# Render/Docker 등 서버 환경에서 쿠키를 안전하게 주입하려면:
+#   환경변수 YOUTUBE_COOKIES 에 cookies.txt 파일 전체 내용을 붙여넣기하세요.
+def _write_cookies_from_env():
+    cookies_env = os.environ.get('YOUTUBE_COOKIES', '')
+    if not cookies_env:
+        return
+    cookies_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cookies.txt')
+    # 이미 유효한 파일이 있으면 덮어쓰지 않음
+    if os.path.exists(cookies_path):
+        try:
+            with open(cookies_path, 'r', encoding='utf-8') as f:
+                if 'youtube.com' in f.read():
+                    print("[서버] cookies.txt 이미 존재 - 환경변수 덮어쓰기 건너뜀")
+                    return
+        except:
+            pass
+    try:
+        # 환경변수에서 \\n 이스케이프를 실제 줄바꿈으로 변환
+        content = cookies_env.replace('\\n', '\n')
+        with open(cookies_path, 'w', encoding='utf-8') as f:
+            f.write(content)
+        print(f"[서버] YOUTUBE_COOKIES 환경변수에서 cookies.txt 생성 완료: {cookies_path}")
+    except Exception as e:
+        print(f"[서버] cookies.txt 생성 실패: {e}")
+
+_write_cookies_from_env()
+# ────────────────────────────────────────────────────────────────────────────────────
+
+
 # Google OAuth 2.0 Client ID (구글 클라우드 콘솔에서 발급받은 ID를 기입해주세요)
 GOOGLE_CLIENT_ID = "588331118283-t89f64a8js9bmcakd2i8vnbvehvoiofo.apps.googleusercontent.com"
 
@@ -578,16 +608,70 @@ def download_video_api():
             elif d['status'] == 'finished':
                 download_tasks[t_key]['progress'] = 100
 
-        # Try multiple strategies to bypass YouTube authentication blocks
-        strategies = [
-            {'name': 'TV 임베드 우회', 'cookies': None, 'client': ['tv_embedded'], 'skip': ['webpage', 'config']},
-            {'name': '모바일 우회', 'cookies': None, 'client': ['android', 'ios'], 'skip': []},
-            {'name': 'mweb 우회', 'cookies': None, 'client': ['mweb'], 'skip': ['webpage']},
-            {'name': '크롬 쿠키', 'cookies': 'chrome', 'client': ['web'], 'skip': []},
-            {'name': '엣지 쿠키', 'cookies': 'edge', 'client': ['web'], 'skip': []},
-            {'name': '일반 모드', 'cookies': None, 'client': ['web'], 'skip': []},
+        # 서버(RENDER/Docker) 환경인지 확인
+        is_server_env = os.environ.get('RENDER') == 'true' or os.environ.get('SERVER_ENV') == 'true'
+
+        # cookies.txt에 실제 YouTube 쿠키가 있는지 확인
+        # 서버 환경: /app/cookies.txt (Docker WORKDIR), 로컬: 현재 디렉토리
+        cookies_file_candidates = [
+            os.path.join(os.getcwd(), 'cookies.txt'),
+            os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cookies.txt'),
+            '/app/cookies.txt',
         ]
-        
+        cookies_file = None
+        has_valid_cookies_file = False
+        for candidate in cookies_file_candidates:
+            if os.path.exists(candidate):
+                try:
+                    with open(candidate, 'r', encoding='utf-8', errors='ignore') as cf:
+                        content = cf.read()
+                        if '.youtube.com' in content or 'youtube.com' in content:
+                            cookies_file = candidate
+                            has_valid_cookies_file = True
+                            print(f"[다운로드] cookies.txt에서 YouTube 쿠키 확인됨: {candidate}")
+                            break
+                        else:
+                            print(f"[다운로드] cookies.txt에 YouTube 쿠키 없음: {candidate}")
+                except:
+                    pass
+
+        if not has_valid_cookies_file:
+            print("[다운로드] 유효한 cookies.txt를 찾지 못했습니다.")
+
+        # 전략 목록 구성
+        strategies = []
+
+        # 1순위: cookies.txt (서버/로컬 공통)
+        if has_valid_cookies_file:
+            strategies.append({'name': 'cookies.txt + android', 'cookies_file': cookies_file, 'cookies': None, 'client': ['android'], 'skip': []})
+            strategies.append({'name': 'cookies.txt + ios', 'cookies_file': cookies_file, 'cookies': None, 'client': ['ios'], 'skip': []})
+            strategies.append({'name': 'cookies.txt + web', 'cookies_file': cookies_file, 'cookies': None, 'client': ['web'], 'skip': []})
+            strategies.append({'name': 'cookies.txt + tv_embedded', 'cookies_file': cookies_file, 'cookies': None, 'client': ['tv_embedded'], 'skip': ['webpage', 'config']})
+
+        # 서버 환경: 브라우저 쿠키 전략 건너뜀 (브라우저 없음)
+        if not is_server_env:
+            strategies += [
+                {'name': '크롬 쿠키 + 모바일', 'cookies_file': None, 'cookies': 'chrome', 'client': ['android'], 'skip': []},
+                {'name': '엣지 쿠키 + 모바일', 'cookies_file': None, 'cookies': 'edge', 'client': ['android'], 'skip': []},
+                {'name': '크롬 쿠키 + web', 'cookies_file': None, 'cookies': 'chrome', 'client': ['web'], 'skip': []},
+                {'name': '엣지 쿠키 + web', 'cookies_file': None, 'cookies': 'edge', 'client': ['web'], 'skip': []},
+            ]
+
+        # 공통 우회 전략 (쿠키 없이 시도)
+        strategies += [
+            {'name': 'TV 임베드 우회', 'cookies_file': None, 'cookies': None, 'client': ['tv_embedded'], 'skip': ['webpage', 'config']},
+            {'name': '모바일 우회 (android)', 'cookies_file': None, 'cookies': None, 'client': ['android'], 'skip': []},
+            {'name': '모바일 우회 (ios)', 'cookies_file': None, 'cookies': None, 'client': ['ios'], 'skip': []},
+            {'name': 'mweb 우회', 'cookies_file': None, 'cookies': None, 'client': ['mweb'], 'skip': ['webpage']},
+            {'name': '일반 모드', 'cookies_file': None, 'cookies': None, 'client': ['web'], 'skip': []},
+        ]
+
+        # ffmpeg 경로: 로컬(Windows)은 번들 ffmpeg.exe, 서버는 시스템 PATH
+        ffmpeg_loc = None
+        if os.path.exists(FFMPEG_PATH):
+            ffmpeg_loc = FFMPEG_PATH
+        # 서버 환경에서는 None으로 두면 yt-dlp가 PATH에서 ffmpeg를 자동 탐색
+
         last_err = ""
         success = False
         
@@ -611,8 +695,9 @@ def download_video_api():
                         'User-Agent': 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.119 Mobile Safari/537.36',
                         'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
                     },
-                    'ffmpeg_location': FFMPEG_PATH if os.path.exists(FFMPEG_PATH) else None,
                 }
+                if ffmpeg_loc:
+                    ydl_opts['ffmpeg_location'] = ffmpeg_loc
 
                 if d_type == 'audio':
                     ydl_opts['format'] = 'bestaudio/best'
@@ -624,14 +709,14 @@ def download_video_api():
                 else:
                     ydl_opts['format'] = 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'
                 
-                # cookies.txt 파일이 있으면 우선 사용 (서버 배포 시 가장 안정적)
-                cookies_file = os.path.join(os.getcwd(), 'cookies.txt')
-                if os.path.exists(cookies_file):
-                    ydl_opts['cookiefile'] = cookies_file
-                elif strategy['cookies']:
+                # 쿠키 설정: cookies.txt 파일 우선, 그 다음 브라우저 쿠키
+                if strategy.get('cookies_file') and os.path.exists(strategy['cookies_file']):
+                    ydl_opts['cookiefile'] = strategy['cookies_file']
+                elif strategy.get('cookies') and not is_server_env:
                     try:
                         ydl_opts['cookiesfrombrowser'] = (strategy['cookies'],)
-                    except:
+                    except Exception as cookie_err:
+                        print(f"[다운로드] 브라우저 쿠키 로드 실패 ({strategy['cookies']}): {cookie_err}")
                         continue  # 해당 브라우저 쿠키를 읽을 수 없으면 다음 전략으로
 
                 with yt_dlp.YoutubeDL(ydl_opts) as ydl:
@@ -656,9 +741,9 @@ def download_video_api():
                     break
             except Exception as e:
                 last_err = str(e)
-                print(f"[다운로드] {strategy['name']} 실패: {last_err}")
-                # If we encounter the infamous NoneType error, it's usually a locked browser db
-                if "NoneType" in last_err:
+                print(f"[다운로드] {strategy['name']} 실패: {last_err[:200]}")
+                # 브라우저 DB가 잠겨있는 경우
+                if "NoneType" in last_err or "database" in last_err.lower():
                     last_err = "브라우저(크롬/엣지)가 열려 있어 쿠키를 읽을 수 없습니다. 브라우저를 닫고 다시 시도해 주세요."
                 continue
         
@@ -669,6 +754,7 @@ def download_video_api():
     # 쓰레드 시작
     threading.Thread(target=download_thread, args=(video_id, download_type)).start()
     return jsonify({"success": True, "message": "Download started", "status": "downloading"})
+
 
 @app.route('/api/download/file', methods=['GET'])
 def get_downloaded_file():

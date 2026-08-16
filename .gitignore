@@ -53,3 +53,7 @@ Thumbs.db
 
 # 백업 폴더
 versions/
+
+# 쿠키 파일 (민감한 인증 정보 포함 - 절대 git에 올리지 않음)
+cookies.txt
+

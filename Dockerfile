@@ -18,7 +18,11 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY server.py .
 COPY youtube_extractor.py .
 COPY youtube_discovery_tool.html .
+COPY admin.html .
 COPY yt-dlp.conf .
+# cookies.txt는 보안상 git에 포함하지 않음
+# 서버 시작 시 YOUTUBE_COOKIES 환경변수에서 자동 생성됨 (server.py 참조)
+
 
 # 다운로드 디렉토리 생성
 RUN mkdir -p downloads
