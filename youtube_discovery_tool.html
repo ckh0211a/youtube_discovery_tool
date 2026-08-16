@@ -11668,7 +11668,7 @@ ${newsContext}
 
                 // [UPDATE] Collect up to 50 items, excluding Music (10) and Gaming (20)
                 // If the general trending list (cat '0') is small, we fallback to specific categories (Ent, People, News, etc.)
-                while (allFilteredItems.length < 50 && catIndex < safeCategories.length && loopCount < 10) {
+                while (allFilteredItems.length < 50 && catIndex < safeCategories.length && loopCount < 40) {
                     loopCount++;
                     const targetCat = safeCategories[catIndex];
                     let popularUrl = `http://127.0.0.1:5001/api/proxy/google/youtube/v3/videos?part=snippet,statistics,contentDetails&chart=mostPopular&regionCode=${region || 'KR'}&maxResults=50&key=${ytKey}`;
