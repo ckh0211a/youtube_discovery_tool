@@ -154,13 +154,48 @@ def debug_cookies():
         exists = os.path.exists(c)
         valid = False
         size = 0
+        tab_count = 0
+        space_count = 0
+        line_count = 0
+        preview = []
         if exists:
             try:
                 size = os.path.getsize(c)
                 with open(c, 'r', encoding='utf-8', errors='ignore') as f:
-                    valid = 'youtube.com' in f.read()
-            except: pass
-        cookies_status.append({'path': c, 'exists': exists, 'valid_youtube': valid, 'size_bytes': size})
+                    content = f.read()
+                    valid = 'youtube.com' in content
+                    tab_count = content.count('\t')
+                    space_count = content.count(' ')
+                    lines = content.splitlines()
+                    line_count = len(lines)
+                    # 민감 정보 마스킹하여 프리뷰 생성
+                    for idx, line in enumerate(lines[:10]):
+                        if not line.strip() or line.startswith('#'):
+                            preview.append(line)
+                            continue
+                        parts = line.split('\t')
+                        if len(parts) < 7:
+                            # 탭으로 분리가 안 된 경우 공백으로 분해 시도
+                            parts = line.split()
+                        masked_parts = []
+                        for part in parts:
+                            if len(part) > 10:
+                                masked_parts.append(part[:4] + '***' + part[-4:])
+                            else:
+                                masked_parts.append(part)
+                        preview.append(" | ".join(masked_parts))
+            except Exception as e:
+                preview = [f"Error reading file: {str(e)}"]
+        cookies_status.append({
+            'path': c, 
+            'exists': exists, 
+            'valid_youtube': valid, 
+            'size_bytes': size,
+            'tab_count': tab_count,
+            'space_count': space_count,
+            'line_count': line_count,
+            'preview': preview
+        })
     return jsonify({
         'is_server_env': is_server_env,
         'RENDER_env': os.environ.get('RENDER', 'not set'),
