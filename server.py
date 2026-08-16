@@ -69,19 +69,21 @@ def _write_cookies_from_env():
     if not cookies_env:
         return
     cookies_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cookies.txt')
-    # 이미 유효한 파일이 있으면 덮어쓰지 않음
-    if os.path.exists(cookies_path):
-        try:
-            with open(cookies_path, 'r', encoding='utf-8') as f:
-                if 'youtube.com' in f.read():
-                    print("[서버] cookies.txt 이미 존재 - 환경변수 덮어쓰기 건너뜀")
-                    return
-        except:
-            pass
     try:
+        # UTF-8 BOM 및 양끝 공백 전처리 제거
+        content = cookies_env.strip()
+        if content.startswith('\ufeff'):
+            content = content[1:]
+        elif content.startswith('\xef\xbb\xbf'):
+            content = content[3:]
+            
         # 환경변수에서 \\n 이스케이프를 실제 줄바꿈으로 변환
-        content = cookies_env.replace('\\n', '\n')
-        with open(cookies_path, 'w', encoding='utf-8') as f:
+        content = content.replace('\\n', '\n').replace('\r\n', '\n')
+        
+        # 다시 한번 양끝 공백 제거
+        content = content.strip()
+        
+        with open(cookies_path, 'w', encoding='utf-8', newline='\n') as f:
             f.write(content)
         print(f"[서버] YOUTUBE_COOKIES 환경변수에서 cookies.txt 생성 완료: {cookies_path}")
     except Exception as e:
@@ -833,7 +835,7 @@ def download_video_api():
                         'preferredquality': '192',
                     }]
                 else:
-                    ydl_opts['format'] = 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'
+                    ydl_opts['format'] = 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/bestvideo+bestaudio/best'
                 
                 # 쿠키 설정: cookies.txt 파일 우선, 그 다음 브라우저 쿠키
                 if strategy.get('cookies_file') and os.path.exists(strategy['cookies_file']):
