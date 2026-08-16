@@ -207,6 +207,58 @@ def debug_cookies():
         'python_version': __import__('sys').version,
     })
 
+@app.route('/api/debug/download')
+def debug_download_test():
+    video_id = request.args.get('video_id', 'L_pAOpQNmgA')
+    import yt_dlp
+    
+    # 전략 정의
+    cookies_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cookies.txt')
+    has_cookies = os.path.exists(cookies_path)
+    
+    strategies = []
+    if has_cookies:
+        strategies.append({'name': 'cookies.txt + web', 'cookies_file': cookies_path, 'client': ['web'], 'skip': []})
+        strategies.append({'name': 'cookies.txt + android', 'cookies_file': cookies_path, 'client': ['android'], 'skip': []})
+        strategies.append({'name': 'cookies.txt + ios', 'cookies_file': cookies_path, 'client': ['ios'], 'skip': []})
+        strategies.append({'name': 'cookies.txt + web_creator', 'cookies_file': cookies_path, 'client': ['web_creator'], 'skip': []})
+        strategies.append({'name': 'cookies.txt + tv_embedded', 'cookies_file': cookies_path, 'client': ['tv_embedded'], 'skip': ['webpage', 'config']})
+        
+    strategies += [
+        {'name': 'no_cookies + android_vr', 'cookies_file': None, 'client': ['android_vr'], 'skip': []},
+        {'name': 'no_cookies + ios', 'cookies_file': None, 'client': ['ios'], 'skip': []},
+        {'name': 'no_cookies + tv_embedded', 'cookies_file': None, 'client': ['tv_embedded'], 'skip': ['webpage', 'config']},
+    ]
+    
+    results = []
+    for s in strategies:
+        try:
+            extractor_args = {'youtube': {'player_client': s['client']}}
+            if s.get('skip'):
+                extractor_args['youtube']['player_skip'] = s['skip']
+                
+            ydl_opts = {
+                'skip_download': True,
+                'quiet': True,
+                'no_warnings': True,
+                'nocheckcertificate': True,
+                'extractor_args': extractor_args,
+            }
+            if s.get('cookies_file'):
+                ydl_opts['cookiefile'] = s['cookies_file']
+                
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(video_id, download=False)
+                formats = len(info.get('formats', []))
+                results.append({'strategy': s['name'], 'success': True, 'formats_found': formats})
+        except Exception as e:
+            results.append({'strategy': s['name'], 'success': False, 'error': str(e)[:250]})
+            
+    return jsonify({
+        'video_id': video_id,
+        'results': results
+    })
+
 @app.route('/')
 def serve_index():
     try:
