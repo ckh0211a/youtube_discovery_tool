@@ -1,9 +1,10 @@
 # Python 3.10 기반 이미지
 FROM python:3.10-slim
 
-# 필요한 시스템 패키지 및 ffmpeg 설치
+# 필요한 시스템 패키지 및 ffmpeg, nodejs(JS 런타임) 설치
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
+    nodejs \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
