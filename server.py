@@ -765,35 +765,17 @@ def download_video_api():
         # 전략 목록 구성
         strategies = []
 
-        # 1순위: cookies.txt 파일 + 다양한 클라이언트 조합
+        # 1순위: cookies.txt 파일
         if has_valid_cookies_file:
-            strategies.append({'name': 'cookies.txt + all', 'cookies_file': cookies_file, 'cookies': None, 'client': ['web', 'web_creator', 'android', 'ios', 'tv_embedded'], 'skip': []})
-            strategies.append({'name': 'cookies.txt + web', 'cookies_file': cookies_file, 'cookies': None, 'client': ['web'], 'skip': []})
-            strategies.append({'name': 'cookies.txt + android', 'cookies_file': cookies_file, 'cookies': None, 'client': ['android'], 'skip': []})
-            strategies.append({'name': 'cookies.txt + ios', 'cookies_file': cookies_file, 'cookies': None, 'client': ['ios'], 'skip': []})
-            strategies.append({'name': 'cookies.txt + web_creator', 'cookies_file': cookies_file, 'cookies': None, 'client': ['web_creator'], 'skip': []})
-            strategies.append({'name': 'cookies.txt + tv_embedded', 'cookies_file': cookies_file, 'cookies': None, 'client': ['tv_embedded'], 'skip': ['webpage', 'config']})
+            strategies.append({'name': 'cookies.txt', 'cookies_file': cookies_file, 'cookies': None})
 
-        # 서버 환경: 브라우저 쿠키 전략 건너뜀 (브라우저 없음)
+        # 2순위: 브라우저 쿠키
         if not is_server_env:
-            strategies += [
-                {'name': '크롬 쿠키 + android', 'cookies_file': None, 'cookies': 'chrome', 'client': ['android'], 'skip': []},
-                {'name': '엣지 쿠키 + android', 'cookies_file': None, 'cookies': 'edge', 'client': ['android'], 'skip': []},
-                {'name': '크롬 쿠키 + web', 'cookies_file': None, 'cookies': 'chrome', 'client': ['web'], 'skip': []},
-                {'name': '엣지 쿠키 + web', 'cookies_file': None, 'cookies': 'edge', 'client': ['web'], 'skip': []},
-            ]
+            strategies.append({'name': '크롬 쿠키', 'cookies_file': None, 'cookies': 'chrome'})
+            strategies.append({'name': '엣지 쿠키', 'cookies_file': None, 'cookies': 'edge'})
 
-        # 공통 우회 전략 (쿠키 없이 시도) - 2025년 이후 유효한 클라이언트 위주
-        strategies += [
-            {'name': 'android VR 우회', 'cookies_file': None, 'cookies': None, 'client': ['android_vr'], 'skip': []},
-            {'name': 'ios 우회', 'cookies_file': None, 'cookies': None, 'client': ['ios'], 'skip': []},
-            {'name': 'android 우회', 'cookies_file': None, 'cookies': None, 'client': ['android'], 'skip': []},
-            {'name': 'TV 임베드 우회', 'cookies_file': None, 'cookies': None, 'client': ['tv_embedded'], 'skip': ['webpage', 'config']},
-            {'name': 'mweb 우회', 'cookies_file': None, 'cookies': None, 'client': ['mweb'], 'skip': ['webpage']},
-            {'name': 'web_creator 우회', 'cookies_file': None, 'cookies': None, 'client': ['web_creator'], 'skip': []},
-            {'name': '일반 모드', 'cookies_file': None, 'cookies': None, 'client': ['web'], 'skip': []},
-        ]
-
+        # 3순위: 기본 (쿠키 없음)
+        strategies.append({'name': '기본 모드', 'cookies_file': None, 'cookies': None})
 
         # ffmpeg 경로: 로컬(Windows)은 번들 ffmpeg.exe, 서버는 시스템 PATH
         ffmpeg_loc = None
@@ -809,10 +791,6 @@ def download_video_api():
         for strategy in strategies:
             try:
                 print(f"[다운로드] 전략 시도: {strategy['name']} (타입: {d_type})")
-                
-                extractor_args = {'youtube': {'player_client': strategy['client']}}
-                if strategy.get('skip'):
-                    extractor_args['youtube']['player_skip'] = strategy['skip']
 
                 ydl_opts = {
                     'outtmpl': os.path.join(download_dir, '%(title)s.%(ext)s'),
@@ -821,11 +799,6 @@ def download_video_api():
                     'nocheckcertificate': True,
                     'noplaylist': True,
                     'progress_hooks': [progress_hook],
-                    'extractor_args': extractor_args,
-                    'http_headers': {
-                        'User-Agent': 'Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.6261.119 Mobile Safari/537.36',
-                        'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
-                    },
                 }
                 if ffmpeg_loc:
                     ydl_opts['ffmpeg_location'] = ffmpeg_loc

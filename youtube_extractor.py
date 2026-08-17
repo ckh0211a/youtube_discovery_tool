@@ -244,9 +244,9 @@ def get_transcript_via_ytdlp(video_id):
 
     # 시도 전략: (browser_cookie, player_clients) 순서
     strategies = [
-        {'name': 'Chrome 쿠키 + 모바일',  'browser': 'chrome', 'clients': ['android', 'ios', 'web']},
-        {'name': 'Edge 쿠키 + 모바일',    'browser': 'edge',   'clients': ['android', 'ios', 'web']},
-        {'name': '직접 연결 (모바일)',     'browser': None,     'clients': ['android', 'ios', 'web']},
+        {'name': 'Chrome 쿠키 + 모바일',  'browser': 'chrome', },
+        {'name': 'Edge 쿠키 + 모바일',    'browser': 'edge',   },
+        {'name': '직접 연결 (모바일)',     'browser': None,     },
     ]
 
     for strategy in strategies:
@@ -261,7 +261,7 @@ def get_transcript_via_ytdlp(video_id):
                 'outtmpl': os.path.join(tmpdir, 'yt_sub'),
                 'quiet': True,
                 'no_warnings': True,
-                'extractor_args': {'youtube': {'player_client': strategy['clients']}},
+                ,
             }
             if ffmpeg_loc:
                 ydl_opts['ffmpeg_location'] = ffmpeg_loc
