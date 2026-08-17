@@ -741,6 +741,7 @@ def download_video_api():
             os.path.join(os.getcwd(), 'cookies.txt'),
             os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cookies.txt'),
             '/app/cookies.txt',
+            '/etc/secrets/cookies.txt',
         ]
         cookies_file = None
         has_valid_cookies_file = False
