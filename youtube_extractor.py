@@ -261,7 +261,6 @@ def get_transcript_via_ytdlp(video_id):
                 'outtmpl': os.path.join(tmpdir, 'yt_sub'),
                 'quiet': True,
                 'no_warnings': True,
-                ,
             }
             if ffmpeg_loc:
                 ydl_opts['ffmpeg_location'] = ffmpeg_loc
