@@ -224,11 +224,37 @@ def get_transcript_via_html(video_id):
     
     return None
 
+def _is_server_env():
+    """클라우드/서버 환경 여부를 감지합니다 (브라우저 쿠키 사용 불가 환경)."""
+    import os
+    return (
+        os.environ.get('RENDER') == 'true' or
+        os.environ.get('SERVER_ENV') == 'true' or
+        os.environ.get('RAILWAY_ENVIRONMENT') is not None or
+        os.environ.get('HEROKU_APP_NAME') is not None or
+        os.environ.get('FLY_APP_NAME') is not None or
+        not os.path.exists('/dev/tty') if os.name != 'nt' else False
+    )
+
+def _find_cookies_file():
+    """사용 가능한 cookies.txt 파일 경로를 반환합니다."""
+    import os
+    candidates = [
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cookies.txt'),
+        '/app/cookies.txt',
+        '/etc/secrets/cookies.txt',
+        'cookies.txt',
+    ]
+    for c in candidates:
+        if os.path.exists(c) and os.path.getsize(c) > 100:
+            return c
+    return None
+
 def get_transcript_via_ytdlp(video_id):
     """
     yt-dlp Python API를 직접 사용하여 자막을 추출합니다.
-    subprocess 방식 대신 API를 사용하므로 PyInstaller EXE 환경에서도 동작합니다.
-    안티블록: Chrome 쿠키 → Edge 쿠키 → 직접(모바일 클라이언트) 순으로 시도합니다.
+    - 로컬 환경: Chrome 쿠키 → Edge 쿠키 → cookies.txt → 직접 연결 순으로 시도
+    - 서버 환경: cookies.txt → 직접 연결 순으로 시도 (브라우저 없으므로 쿠키 스킵)
     """
     import os
     import tempfile
@@ -241,13 +267,28 @@ def get_transcript_via_ytdlp(video_id):
 
     ffmpeg_loc = _get_ffmpeg_path()
     target_url = f"https://www.youtube.com/watch?v={video_id}"
+    cookies_file = _find_cookies_file()
+    is_server = _is_server_env()
 
-    # 시도 전략: (browser_cookie, player_clients) 순서
-    strategies = [
-        {'name': 'Chrome 쿠키 + 모바일',  'browser': 'chrome', },
-        {'name': 'Edge 쿠키 + 모바일',    'browser': 'edge',   },
-        {'name': '직접 연결 (모바일)',     'browser': None,     },
-    ]
+    print(f"[Script] 환경: {'서버(클라우드)' if is_server else '로컬'}, cookies.txt: {'있음' if cookies_file else '없음'}")
+
+    # 전략 구성 - 서버 환경에선 브라우저 쿠키 시도 제외
+    strategies = []
+
+    if not is_server:
+        # 로컬: 브라우저 쿠키 우선
+        strategies.append({'name': 'Chrome 쿠키', 'browser': 'chrome', 'cookiefile': None})
+        strategies.append({'name': 'Edge 쿠키',   'browser': 'edge',   'cookiefile': None})
+
+    if cookies_file:
+        strategies.append({'name': f'cookies.txt ({os.path.basename(cookies_file)})', 'browser': None, 'cookiefile': cookies_file})
+
+    strategies.append({'name': '직접 연결 (ios 클라이언트)', 'browser': None, 'cookiefile': None,
+                       'extractor_args': {'youtube': {'player_client': ['ios']}}})
+    strategies.append({'name': '직접 연결 (android_vr)', 'browser': None, 'cookiefile': None,
+                       'extractor_args': {'youtube': {'player_client': ['android_vr']}}})
+    strategies.append({'name': '직접 연결 (tv_embedded)', 'browser': None, 'cookiefile': None,
+                       'extractor_args': {'youtube': {'player_client': ['tv_embedded'], 'player_skip': ['webpage', 'config']}}})
 
     for strategy in strategies:
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -264,29 +305,38 @@ def get_transcript_via_ytdlp(video_id):
             }
             if ffmpeg_loc:
                 ydl_opts['ffmpeg_location'] = ffmpeg_loc
-            if strategy['browser']:
+            if strategy.get('browser'):
                 ydl_opts['cookiesfrombrowser'] = (strategy['browser'],)
+            if strategy.get('cookiefile'):
+                ydl_opts['cookiefile'] = strategy['cookiefile']
+            if strategy.get('extractor_args'):
+                ydl_opts['extractor_args'] = strategy['extractor_args']
 
+            download_ok = True
             try:
                 print(f"[Script] ANTI-BLOCK: {strategy['name']} 전략 시도...")
                 with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                     ydl.download([target_url])
             except Exception as e:
-                print(f"[Script] {strategy['name']} 실패: {e}")
-                continue
+                print(f"[Script] {strategy['name']} 다운로드 예외: {e}")
+                download_ok = False
+                # 예외가 발생해도 VTT 파일이 생성됐을 수 있으므로 탐색 계속
 
             # VTT 파일 찾기 (ko 우선, 다음 en)
             vtt_file = None
-            found_files = [f for f in os.listdir(tmpdir) if f.endswith('.vtt')]
-            for priority in ['.ko', '.en']:
-                for f in found_files:
-                    if priority in f.lower():
-                        vtt_file = os.path.join(tmpdir, f)
+            try:
+                found_files = [f for f in os.listdir(tmpdir) if f.endswith('.vtt')]
+                for priority in ['.ko', '.en']:
+                    for f in found_files:
+                        if priority in f.lower():
+                            vtt_file = os.path.join(tmpdir, f)
+                            break
+                    if vtt_file:
                         break
-                if vtt_file:
-                    break
-            if not vtt_file and found_files:
-                vtt_file = os.path.join(tmpdir, found_files[0])
+                if not vtt_file and found_files:
+                    vtt_file = os.path.join(tmpdir, found_files[0])
+            except Exception:
+                pass
 
             if vtt_file and os.path.exists(vtt_file):
                 with open(vtt_file, 'r', encoding='utf-8') as f:
@@ -295,6 +345,8 @@ def get_transcript_via_ytdlp(video_id):
                 if structured:
                     print(f"[Script] {strategy['name']}: SUCCESS ({len(structured)} lines)")
                     return structured
+            elif not download_ok:
+                continue  # 실패하고 VTT도 없으면 다음 전략
 
     print("[Script] 모든 yt-dlp 전략 실패")
     return None
@@ -302,17 +354,32 @@ def get_transcript_via_ytdlp(video_id):
 def fetch_transcript_structured(video_id):
     """
     Super-robust main entry point.
-    Sequence: TikTok Check -> yt-dlp -> Library List -> Scraper.
+    순서: TikTok 확인 → HTML 직접 파싱 → yt-dlp → youtube_transcript_api
+    서버 환경에서도 동작하도록 각 엔진이 cookies.txt를 활용합니다.
     """
     if not video_id: return "ERROR: video_id_invalid"
     
-    # [NEW] TikTok Redirection
+    # TikTok 처리
     if 'tiktok.com' in video_id:
         return fetch_tiktok_transcript(video_id)
         
     print(f"\n[Script] [진행] Deep search starting for: {video_id}")
     
-    # 1. yt-dlp (Strongest, handles auto-subs best when libraries are blocked)
+    # 1. HTML 직접 파싱 (가장 가볍고 서버에서도 동작 가능)
+    try:
+        print(f"[Script] [시도] Try HTML Scraper engine...")
+        res = get_transcript_via_html(video_id)
+        if isinstance(res, list) and res:
+            return deduplicate_transcript(res)
+        elif isinstance(res, str) and res.startswith("ERROR:"):
+            print(f"[Script] HTML Scraper 특수 오류: {res}")
+            # YT_PROCESSING은 다른 엔진도 실패하므로 바로 반환
+            if "YT_PROCESSING" in res:
+                return res
+    except Exception as e:
+        print(f"[Script] HTML Scraper engine failed: {e}")
+
+    # 2. yt-dlp (서버 환경에서도 cookies.txt + 모바일 클라이언트로 시도)
     try:
         print(f"[Script] [시도] Try yt-dlp engine...")
         res = get_transcript_via_ytdlp(video_id)
@@ -320,14 +387,14 @@ def fetch_transcript_structured(video_id):
     except Exception as e:
         print(f"[Script] yt-dlp engine failed: {e}")
 
-    # 2. YouTubeTranscriptApi (Instance based)
+    # 3. YouTubeTranscriptApi
     try:
         from youtube_transcript_api import YouTubeTranscriptApi
         print(f"[Script] [시도] Try YouTubeTranscriptApi (List method)...")
         api = YouTubeTranscriptApi()
         t_list = api.list(video_id)
         
-        # Priority: Manual KO -> Manual EN -> Auto KO -> Auto EN -> Any Translated to KO
+        # 우선순위: 수동 KO → 수동 EN → 자동 KO → 자동 EN → 번역
         try:
             transcript = t_list.find_transcript(['ko', 'en'])
             data = transcript.fetch()
@@ -339,7 +406,7 @@ def fetch_transcript_structured(video_id):
                 data = transcript.fetch()
                 return convert_to_structured(data)
             except:
-                # Any first one
+                # 아무거나 첫 번째
                 transcript = next(iter(t_list))
                 data = transcript.fetch()
                 return convert_to_structured(data)
