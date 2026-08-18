@@ -6617,8 +6617,65 @@ ${newsContext}
             }
         }
 
+        // ── cobalt.tools 공통 다운로드 유틸 ──────────────────────────────────
+        // 서버 IP 차단 우회: 브라우저가 cobalt.tools API를 통해 직접 다운로드
+        async function downloadViaCobalt(targetUrl, audioOnly = false) {
+            const COBALT_API = 'https://api.cobalt.tools/';
+            const body = {
+                url: targetUrl,
+                downloadMode: audioOnly ? 'audio' : 'auto',
+                filenameStyle: 'pretty',
+                videoQuality: '1080'
+            };
+            if (audioOnly) body.audioFormat = 'mp3';
+
+            const res = await fetch(COBALT_API, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(body)
+            });
+
+            if (!res.ok) {
+                const errData = await res.json().catch(() => ({}));
+                throw new Error(errData?.error?.code || `cobalt API 오류 (${res.status})`);
+            }
+
+            const data = await res.json();
+
+            if (data.status === 'redirect' || data.status === 'stream' || data.status === 'tunnel') {
+                const a = document.createElement('a');
+                a.href = data.url;
+                a.download = data.filename || (audioOnly ? 'audio.mp3' : 'video.mp4');
+                a.target = '_blank';
+                a.rel = 'noopener';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                return true;
+            } else if (data.status === 'picker') {
+                // 다중 스트림인 경우 첫 번째 항목 다운로드
+                const first = data.picker?.[0];
+                if (first?.url) {
+                    const a = document.createElement('a');
+                    a.href = first.url;
+                    a.download = data.filename || (audioOnly ? 'audio.mp3' : 'video.mp4');
+                    a.target = '_blank';
+                    a.rel = 'noopener';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    return true;
+                }
+            }
+            throw new Error(data?.error?.code || '다운로드 링크를 가져오지 못했습니다.');
+        }
+        // ─────────────────────────────────────────────────────────────────────
+
         async function runVideoDownloader() {
-            console.log('Starting Video Downloader...');
+            console.log('Starting Video Downloader (cobalt.tools)...');
             const urlInput = document.getElementById('videoDownloadInput');
             if (!urlInput) return;
             
@@ -6642,67 +6699,34 @@ ${newsContext}
             try {
                 if (btn) {
                     btn.disabled = true;
-                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 분석 중';
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 다운로드 중';
                 }
-                
                 if (progressArea) progressArea.classList.remove('hidden');
-                if (progressBar) progressBar.style.width = '0%';
-                if (progressPercent) progressPercent.innerText = '0%';
+                if (progressBar) progressBar.style.width = '50%';
+                if (progressPercent) progressPercent.innerText = '처리 중...';
 
-                const res = await fetch(`http://127.0.0.1:5001/api/download?video_id=${videoId}`);
-                const data = await res.json();
+                const ytUrl = `https://www.youtube.com/watch?v=${videoId}`;
+                await downloadViaCobalt(ytUrl, false);
 
-                if (!data.success) {
-                    throw new Error(data.error || '서버 다운로드 엔진 오류');
-                }
-
-                const pollInterval = setInterval(async () => {
-                    try {
-                        const pRes = await fetch(`http://127.0.0.1:5001/api/download/progress?video_id=${videoId}`);
-                        const pData = await pRes.json();
-
-                        if (pData.success) {
-                            const progress = pData.progress || 0;
-                            if (progressBar) progressBar.style.width = `${progress}%`;
-                            if (progressPercent) progressPercent.innerText = `${Math.floor(progress)}%`;
-
-                            if (pData.status === 'completed') {
-                                clearInterval(pollInterval);
-                                if (btn) {
-                                    btn.disabled = false;
-                                    btn.innerHTML = '<i class="fas fa-film"></i> 영상 다운';
-                                }
-                                showToast('영상 다운로드가 완료되었습니다!', 'success');
-
-                                window.location.href = window.getBackendUrl(`http://127.0.0.1:5001/api/download/file?video_id=${videoId}`);
-                                setTimeout(() => progressArea?.classList.add('hidden'), 5000);
-                            } else if (pData.status === 'error') {
-                                clearInterval(pollInterval);
-                                throw new Error(pData.error || '다운로드 중 오류가 발생했습니다.');
-                            }
-                        }
-                    } catch (e) {
-                        clearInterval(pollInterval);
-                        if (btn) {
-                            btn.disabled = false;
-                            btn.innerHTML = '<i class="fas fa-film"></i> 영상 다운';
-                        }
-                        showToast(e.message, 'error');
-                    }
-                }, 1000);
+                if (progressBar) progressBar.style.width = '100%';
+                if (progressPercent) progressPercent.innerText = '완료!';
+                showToast('영상 다운로드가 시작되었습니다!', 'success');
+                setTimeout(() => progressArea?.classList.add('hidden'), 3000);
 
             } catch (err) {
                 console.error('Video Download Error:', err);
+                showToast('다운로드 실패: ' + err.message, 'error');
+                if (progressArea) progressArea.classList.add('hidden');
+            } finally {
                 if (btn) {
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fas fa-film"></i> 영상 다운';
                 }
-                showToast(err.message, 'error');
             }
         }
 
         async function runAudioDownloader() {
-            console.log('Starting Audio Downloader...');
+            console.log('Starting Audio Downloader (cobalt.tools)...');
             const urlInput = document.getElementById('audioDownloadInput');
             if (!urlInput) return;
             
@@ -6726,62 +6750,29 @@ ${newsContext}
             try {
                 if (btn) {
                     btn.disabled = true;
-                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 분석 중';
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 추출 중';
                 }
-                
                 if (progressArea) progressArea.classList.remove('hidden');
-                if (progressBar) progressBar.style.width = '0%';
-                if (progressPercent) progressPercent.innerText = '0%';
+                if (progressBar) progressBar.style.width = '50%';
+                if (progressPercent) progressPercent.innerText = '처리 중...';
 
-                const res = await fetch(`http://127.0.0.1:5001/api/download?video_id=${videoId}&type=audio`);
-                const data = await res.json();
+                const ytUrl = `https://www.youtube.com/watch?v=${videoId}`;
+                await downloadViaCobalt(ytUrl, true);
 
-                if (!data.success) {
-                    throw new Error(data.error || '서버 다운로드 엔진 오류');
-                }
-
-                const pollInterval = setInterval(async () => {
-                    try {
-                        const pRes = await fetch(`http://127.0.0.1:5001/api/download/progress?video_id=${videoId}&type=audio`);
-                        const pData = await pRes.json();
-
-                        if (pData.success) {
-                            const progress = pData.progress || 0;
-                            if (progressBar) progressBar.style.width = `${progress}%`;
-                            if (progressPercent) progressPercent.innerText = `${Math.floor(progress)}%`;
-
-                            if (pData.status === 'completed') {
-                                clearInterval(pollInterval);
-                                if (btn) {
-                                    btn.disabled = false;
-                                    btn.innerHTML = '<i class="fas fa-music"></i> MP3 추출';
-                                }
-                                showToast('MP3 음원 추출이 완료되었습니다!', 'success');
-
-                                window.location.href = window.getBackendUrl(`http://127.0.0.1:5001/api/download/file?video_id=${videoId}&type=audio`);
-                                setTimeout(() => progressArea?.classList.add('hidden'), 5000);
-                            } else if (pData.status === 'error') {
-                                clearInterval(pollInterval);
-                                throw new Error(pData.error || '다운로드 중 오류가 발생했습니다.');
-                            }
-                        }
-                    } catch (e) {
-                        clearInterval(pollInterval);
-                        if (btn) {
-                            btn.disabled = false;
-                            btn.innerHTML = '<i class="fas fa-music"></i> MP3 추출';
-                        }
-                        showToast(e.message, 'error');
-                    }
-                }, 1000);
+                if (progressBar) progressBar.style.width = '100%';
+                if (progressPercent) progressPercent.innerText = '완료!';
+                showToast('MP3 음원 다운로드가 시작되었습니다!', 'success');
+                setTimeout(() => progressArea?.classList.add('hidden'), 3000);
 
             } catch (err) {
                 console.error('Audio Download Error:', err);
+                showToast('다운로드 실패: ' + err.message, 'error');
+                if (progressArea) progressArea.classList.add('hidden');
+            } finally {
                 if (btn) {
                     btn.disabled = false;
                     btn.innerHTML = '<i class="fas fa-music"></i> MP3 추출';
                 }
-                showToast(err.message, 'error');
             }
         }
 
@@ -6891,42 +6882,22 @@ ${newsContext}
             const progressPercent = document.getElementById('videoDownloadPercent');
 
             try {
-                if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 분석 중'; }
+                if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 다운로드 중'; }
                 if (progressArea) progressArea.classList.remove('hidden');
-                
-                const res = await fetch(`http://127.0.0.1:5001/api/download?video_id=${encodeURIComponent(url)}`);
-                const data = await res.json();
-                if (!data.success) throw new Error(data.error || '서버 오류');
+                if (progressBar) progressBar.style.width = '50%';
+                if (progressPercent) progressPercent.innerText = '처리 중...';
 
-                const pollInterval = setInterval(async () => {
-                    try {
-                        const pRes = await fetch(`http://127.0.0.1:5001/api/download/progress?video_id=${encodeURIComponent(url)}`);
-                        const pData = await pRes.json();
-                        if (pData.success) {
-                            const progress = pData.progress || 0;
-                            if (progressBar) progressBar.style.width = `${progress}%`;
-                            if (progressPercent) progressPercent.innerText = `${Math.floor(progress)}%`;
+                await downloadViaCobalt(url, false);
 
-                            if (pData.status === 'completed') {
-                                clearInterval(pollInterval);
-                                if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fab fa-tiktok"></i> 틱톡영상다운'; }
-                                showToast('틱톡 영상 다운로드가 완료되었습니다!', 'success');
-                                window.location.href = window.getBackendUrl(`http://127.0.0.1:5001/api/download/file?video_id=${encodeURIComponent(url)}`);
-                                setTimeout(() => progressArea?.classList.add('hidden'), 5000);
-                            } else if (pData.status === 'error') {
-                                clearInterval(pollInterval);
-                                throw new Error(pData.error || '다운로드 실패');
-                            }
-                        }
-                    } catch (e) {
-                        clearInterval(pollInterval);
-                        if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fab fa-tiktok"></i> 틱톡영상다운'; }
-                        showToast(e.message, 'error');
-                    }
-                }, 1000);
+                if (progressBar) progressBar.style.width = '100%';
+                if (progressPercent) progressPercent.innerText = '완료!';
+                showToast('틱톡 영상 다운로드가 시작되었습니다!', 'success');
+                setTimeout(() => progressArea?.classList.add('hidden'), 3000);
             } catch (err) {
+                showToast('다운로드 실패: ' + err.message, 'error');
+                if (progressArea) progressArea.classList.add('hidden');
+            } finally {
                 if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fab fa-tiktok"></i> 틱톡영상다운'; }
-                showToast(err.message, 'error');
             }
         }
 
@@ -9470,41 +9441,14 @@ ${newsContext}
 
         async function downloadVideoSilent(videoId, title, callback) {
             try {
-                // 1. 서버 다운로드 요청
-                const res = await fetch(`http://127.0.0.1:5001/api/download?video_id=${videoId}`);
-                const data = await res.json();
-                if (!data.success) {
-                    if (callback) callback();
-                    return;
-                }
-
-                // 2. 서버 다운로드 완료 폴링
-                const poll = setInterval(async () => {
-                    try {
-                        const prRes = await fetch(`http://127.0.0.1:5001/api/download/progress?video_id=${videoId}`);
-                        const prData = await prRes.json();
-                        if (prData.success && prData.status === 'completed') {
-                            clearInterval(poll);
-                            // 3. 브라우저로 실제 파일 전송
-                            const a = document.createElement('a');
-                            a.href = window.getBackendUrl(`http://127.0.0.1:5001/api/download/file?video_id=${videoId}`);
-                            a.download = '';
-                            document.body.appendChild(a);
-                            a.click();
-                            document.body.removeChild(a);
-                            showToast(`다운로드 완료: ${title.substring(0, 20)}...`, 'success');
-                            if (callback) callback();
-                        } else if (prData.status === 'error') {
-                            clearInterval(poll);
-                            console.error(`[다운로드 오류] ${videoId}: ${prData.error}`);
-                            if (callback) callback();
-                        }
-                    } catch (e) {
-                        clearInterval(poll);
-                        if (callback) callback();
-                    }
-                }, 3000);
+                // cobalt.tools를 통해 클라이언트 직접 다운로드
+                const ytUrl = `https://www.youtube.com/watch?v=${videoId}`;
+                await downloadViaCobalt(ytUrl, false);
+                showToast(`다운로드 시작: ${title ? title.substring(0, 20) + '...' : videoId}`, 'success');
             } catch (e) {
+                console.error(`[다운로드 오류] ${videoId}: ${e.message}`);
+                showToast(`다운로드 실패: ${e.message}`, 'error');
+            } finally {
                 if (callback) callback();
             }
         }
@@ -14010,7 +13954,7 @@ ${newsContext}
             }
         }
 
-        // 자동 다운로드: 외부 사이트 대신 로컬 서버(/api/download)를 이용합니다.
+        // 자동 다운로드: cobalt.tools API를 통해 브라우저에서 직접 다운로드합니다.
         async function downloadVideoRapid(videoId) {
             const ytLink = `https://www.youtube.com/watch?v=${videoId}`;
 
@@ -14021,77 +13965,32 @@ ${newsContext}
             const statusText = document.getElementById('downloadStatusText');
 
             // 모달 표시
-            modal.classList.remove('hidden');
-            progressBar.style.width = '0%';
-            progressText.innerText = '0%';
-            statusText.innerText = '서버에 다운로드 요청 중...';
+            if (modal) modal.classList.remove('hidden');
+            if (progressBar) progressBar.style.width = '30%';
+            if (progressText) progressText.innerText = '처리 중...';
+            if (statusText) statusText.innerText = '다운로드 링크를 가져오는 중...';
+
+            window.isDownloadCancelled = false;
 
             try {
-                // 1. 다운로드 시작 요청
-                const startRes = await fetch(`http://127.0.0.1:5001/api/download?video_id=${videoId}`);
-                const startData = await startRes.json();
+                if (progressBar) progressBar.style.width = '60%';
+                if (statusText) statusText.innerText = '영상 다운로드를 시작합니다...';
 
-                if (!startData.success) {
-                    throw new Error(startData.error || '다운로드 시작 실패');
-                }
+                await downloadViaCobalt(ytLink, false);
 
-                // 2. 폴링 시작
-                window.isDownloadCancelled = false; // 플래그 초기화
-                const pollInterval = setInterval(async () => {
-                    // 중단 요청 확인
-                    if (window.isDownloadCancelled) {
-                        clearInterval(pollInterval);
-                        statusText.innerText = '다운로드가 수동 중단되었습니다.';
-                        setTimeout(() => { modal.classList.add('hidden'); }, 1500);
-                        return;
-                    }
+                if (progressBar) progressBar.style.width = '100%';
+                if (progressText) progressText.innerText = '100%';
+                if (statusText) statusText.innerText = '다운로드가 시작되었습니다!';
 
-                    try {
-                        const progRes = await fetch(`http://127.0.0.1:5001/api/download/progress?video_id=${videoId}`);
-                        const progData = await progRes.json();
-
-                        if (progData.success) {
-                            if (progData.status === 'downloading') {
-                                const p = progData.progress || 0;
-                                progressBar.style.width = p + '%';
-                                progressText.innerText = Math.round(p) + '%';
-                                statusText.innerText = '유튜브 서버에서 영상 데이터를 수집 중입니다...';
-                            } else if (progData.status === 'completed') {
-                                clearInterval(pollInterval);
-                                progressBar.style.width = '100%';
-                                progressText.innerText = '100%';
-                                statusText.innerText = '다운로드 완료! 파일을 전송합니다.';
-
-                                // 파일 다운로드 실행
-                                setTimeout(() => {
-                                    const a = document.createElement('a');
-                                    a.href = window.getBackendUrl(`http://127.0.0.1:5001/api/download/file?video_id=${videoId}`);
-                                    a.download = '';
-                                    document.body.appendChild(a);
-                                    a.click();
-                                    document.body.removeChild(a);
-
-                                    // 2초 후 모달 닫기
-                                    setTimeout(() => {
-                                        modal.classList.add('hidden');
-                                    }, 2000);
-                                }, 500);
-
-                            } else if (progData.status === 'error') {
-                                clearInterval(pollInterval);
-                                throw new Error(progData.error || '다운로드 중 오류 발생');
-                            }
-                        }
-                    } catch (pollErr) {
-                        console.error('Polling error:', pollErr);
-                    }
-                }, 1000); // 1초마다 확인
+                setTimeout(() => {
+                    if (modal) modal.classList.add('hidden');
+                }, 2000);
 
             } catch (err) {
                 console.error(err);
-                statusText.innerText = '오류: ' + err.message;
+                if (statusText) statusText.innerText = '오류: ' + err.message;
                 setTimeout(() => {
-                    modal.classList.add('hidden');
+                    if (modal) modal.classList.add('hidden');
                 }, 3000);
                 showToast('다운로드 실패: ' + err.message, 'error');
             }
