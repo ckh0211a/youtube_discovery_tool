@@ -672,61 +672,124 @@ def proxy_google():
 
 @app.route('/api/cobalt', methods=['POST'])
 def cobalt_proxy():
-    """cobalt.tools API 프록시: 브라우저 JWT 인증 문제를 서버 경유로 해결"""
+    """Invidious API를 통해 YouTube 스트림 URL 추출 (cobalt.tools 대체)"""
     try:
         body = request.get_json()
         if not body or not body.get('url'):
             return jsonify({"success": False, "error": "url missing"}), 400
 
-        # cobalt.tools 공개 API 목록 (순서대로 시도)
-        COBALT_INSTANCES = [
-            'https://api.cobalt.tools/',
-            'https://cobalt.api.timot.in/',
-            'https://cobalt.drgon.moe/',
+        target_url = body.get('url', '')
+        audio_only = body.get('downloadMode') == 'audio'
+
+        # YouTube video ID 추출
+        import re
+        yt_id_match = re.search(
+            r'(?:youtube\.com/(?:watch\?v=|shorts/)|youtu\.be/)([A-Za-z0-9_-]{11})',
+            target_url
+        )
+        if not yt_id_match:
+            # TikTok 등 YouTube가 아닌 URL은 fallback
+            return jsonify({
+                "status": "fallback",
+                "fallback_url": f"https://cobalt.tools/#{target_url}",
+                "error": "YouTube URL이 아닙니다."
+            }), 200
+
+        video_id = yt_id_match.group(1)
+        print(f"[invidious] video_id={video_id}, audio_only={audio_only}")
+
+        # Invidious 공개 인스턴스 목록 (순서대로 시도)
+        INVIDIOUS_INSTANCES = [
+            'https://inv.nadeko.net',
+            'https://invidious.nerdvpn.de',
+            'https://invidious.flokinet.to',
+            'https://y.com.sb',
+            'https://vid.puffyan.us',
+            'https://invidious.tiekoetter.com',
         ]
 
         headers = {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Accept': 'application/json',
         }
 
         last_err = None
-        for instance in COBALT_INSTANCES:
+        for instance in INVIDIOUS_INSTANCES:
             try:
-                resp = requests.post(
-                    instance,
-                    json=body,
-                    headers=headers,
-                    timeout=20,
-                    verify=False
-                )
-                data = resp.json()
-                # JWT 오류 또는 인증 오류면 다음 인스턴스 시도
-                err_code = (data.get('error') or {}).get('code', '')
-                if 'auth' in err_code.lower() or 'jwt' in err_code.lower():
-                    last_err = f"{instance}: {err_code}"
-                    print(f"[cobalt] {instance} 인증 필요, 다음 시도...")
+                api_url = f"{instance}/api/v1/videos/{video_id}?fields=title,formatStreams,adaptiveFormats"
+                resp = requests.get(api_url, headers=headers, timeout=12, verify=False)
+                if resp.status_code != 200:
+                    print(f"[invidious] {instance} HTTP {resp.status_code}")
                     continue
-                print(f"[cobalt] {instance} 성공: status={data.get('status')}")
-                return jsonify(data), resp.status_code
+
+                data = resp.json()
+                if 'error' in data:
+                    print(f"[invidious] {instance} 에러: {data['error']}")
+                    continue
+
+                title = data.get('title', video_id)
+                fmt_streams = data.get('formatStreams', [])   # 비디오+오디오 합본
+                adaptive = data.get('adaptiveFormats', [])   # 비디오/오디오 분리
+
+                if audio_only:
+                    # 오디오 스트림 선택 (m4a > webm 순)
+                    audio_fmts = [f for f in adaptive if f.get('type', '').startswith('audio')]
+                    audio_fmts.sort(key=lambda f: int(f.get('bitrate', 0)), reverse=True)
+                    if not audio_fmts:
+                        last_err = f"{instance}: 오디오 포맷 없음"
+                        continue
+                    chosen = audio_fmts[0]
+                    ext = 'mp3' if 'mp4' in chosen.get('type','') else 'webm'
+                    filename = f"{title}.{ext}"
+                else:
+                    # 비디오+오디오 합본 선택 (720p > 360p)
+                    if fmt_streams:
+                        fmt_streams.sort(
+                            key=lambda f: int(f.get('resolution', '0p').replace('p', '') or 0),
+                            reverse=True
+                        )
+                        chosen = fmt_streams[0]
+                    else:
+                        # 합본 없으면 최고 품질 adaptive 비디오
+                        video_fmts = [f for f in adaptive if f.get('type', '').startswith('video')]
+                        video_fmts.sort(
+                            key=lambda f: int(f.get('resolution', '0p').replace('p', '') or 0),
+                            reverse=True
+                        )
+                        if not video_fmts:
+                            last_err = f"{instance}: 비디오 포맷 없음"
+                            continue
+                        chosen = video_fmts[0]
+                    filename = f"{title}.mp4"
+
+                stream_url = chosen.get('url', '')
+                if not stream_url:
+                    last_err = f"{instance}: URL 없음"
+                    continue
+
+                print(f"[invidious] {instance} 성공: {filename}")
+                return jsonify({
+                    "status": "redirect",
+                    "url": stream_url,
+                    "filename": filename,
+                })
+
             except Exception as e:
                 last_err = str(e)
-                print(f"[cobalt] {instance} 실패: {e}")
+                print(f"[invidious] {instance} 예외: {e}")
                 continue
 
-        # 모든 인스턴스 실패 시 fallback URL 반환 (웹사이트 직접 방문)
-        target_url = body.get('url', '')
-        cobalt_web_url = f"https://cobalt.tools/#{target_url}"
+        # 모든 인스턴스 실패 → fallback (새 탭으로 외부 서비스 열기)
+        fallback = f"https://ssyoutube.com/watch?v={video_id}"
         return jsonify({
             "status": "fallback",
-            "fallback_url": cobalt_web_url,
-            "error": last_err or "모든 cobalt 인스턴스 실패"
+            "fallback_url": fallback,
+            "error": last_err or "모든 Invidious 인스턴스 실패"
         }), 200
 
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
-    
+
 # --- YouTube API Usage Tracking ---
 def get_usage_file_path():
     appdata = os.environ.get('APPDATA') or os.path.expanduser('~')

@@ -6638,11 +6638,11 @@ ${newsContext}
 
             const data = await res.json();
 
-            // 모든 인스턴스 실패 → cobalt.tools 웹사이트 새 탭으로 열기 (fallback)
+            // 모든 인스턴스 실패 → 외부 다운로드 서비스 새 탭으로 열기 (fallback)
             if (data.status === 'fallback') {
-                const fallbackUrl = data.fallback_url || `https://cobalt.tools/#${encodeURIComponent(targetUrl)}`;
+                const fallbackUrl = data.fallback_url || `https://ssyoutube.com`;
                 window.open(fallbackUrl, '_blank', 'noopener');
-                throw new Error('자동 다운로드를 사용할 수 없습니다.\ncobalt.tools 웹사이트가 열렸습니다. 거기서 직접 다운로드해주세요.');
+                throw new Error('자동 다운로드 서비스 일시 불가.\n새 탭(ssyoutube.com)에서 직접 다운로드해주세요.');
             }
 
             if (data.status === 'redirect' || data.status === 'stream' || data.status === 'tunnel') {
