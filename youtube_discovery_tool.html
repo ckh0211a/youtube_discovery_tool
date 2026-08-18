@@ -6617,10 +6617,9 @@ ${newsContext}
             }
         }
 
-        // ── cobalt.tools 공통 다운로드 유틸 ──────────────────────────────────
-        // 서버 IP 차단 우회: 브라우저가 cobalt.tools API를 통해 직접 다운로드
+        // ── 다운로드 공통 유틸 ────────────────────────────────────────────────
+        // 서버(/api/cobalt)를 프록시로 사용해 cobalt.tools JWT 인증 문제 우회
         async function downloadViaCobalt(targetUrl, audioOnly = false) {
-            const COBALT_API = 'https://api.cobalt.tools/';
             const body = {
                 url: targetUrl,
                 downloadMode: audioOnly ? 'audio' : 'auto',
@@ -6629,21 +6628,22 @@ ${newsContext}
             };
             if (audioOnly) body.audioFormat = 'mp3';
 
-            const res = await fetch(COBALT_API, {
+            // 서버 프록시를 통해 cobalt.tools 호출 (JWT 인증 우회)
+            const proxyUrl = window.getBackendUrl('http://127.0.0.1:5001/api/cobalt');
+            const res = await fetch(proxyUrl, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
                 body: JSON.stringify(body)
             });
 
-            if (!res.ok) {
-                const errData = await res.json().catch(() => ({}));
-                throw new Error(errData?.error?.code || `cobalt API 오류 (${res.status})`);
-            }
-
             const data = await res.json();
+
+            // 모든 인스턴스 실패 → cobalt.tools 웹사이트 새 탭으로 열기 (fallback)
+            if (data.status === 'fallback') {
+                const fallbackUrl = data.fallback_url || `https://cobalt.tools/#${encodeURIComponent(targetUrl)}`;
+                window.open(fallbackUrl, '_blank', 'noopener');
+                throw new Error('자동 다운로드를 사용할 수 없습니다.\ncobalt.tools 웹사이트가 열렸습니다. 거기서 직접 다운로드해주세요.');
+            }
 
             if (data.status === 'redirect' || data.status === 'stream' || data.status === 'tunnel') {
                 const a = document.createElement('a');
@@ -6656,7 +6656,6 @@ ${newsContext}
                 document.body.removeChild(a);
                 return true;
             } else if (data.status === 'picker') {
-                // 다중 스트림인 경우 첫 번째 항목 다운로드
                 const first = data.picker?.[0];
                 if (first?.url) {
                     const a = document.createElement('a');
@@ -6670,9 +6669,11 @@ ${newsContext}
                     return true;
                 }
             }
-            throw new Error(data?.error?.code || '다운로드 링크를 가져오지 못했습니다.');
+            const errCode = data?.error?.code || data?.error || '다운로드 링크를 가져오지 못했습니다.';
+            throw new Error(errCode);
         }
         // ─────────────────────────────────────────────────────────────────────
+
 
         async function runVideoDownloader() {
             console.log('Starting Video Downloader (cobalt.tools)...');

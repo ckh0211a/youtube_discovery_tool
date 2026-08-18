@@ -669,6 +669,63 @@ def proxy_google():
         return jsonify({"success": False, "error": "URL parameter missing"}), 400
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
+
+@app.route('/api/cobalt', methods=['POST'])
+def cobalt_proxy():
+    """cobalt.tools API 프록시: 브라우저 JWT 인증 문제를 서버 경유로 해결"""
+    try:
+        body = request.get_json()
+        if not body or not body.get('url'):
+            return jsonify({"success": False, "error": "url missing"}), 400
+
+        # cobalt.tools 공개 API 목록 (순서대로 시도)
+        COBALT_INSTANCES = [
+            'https://api.cobalt.tools/',
+            'https://cobalt.api.timot.in/',
+            'https://cobalt.drgon.moe/',
+        ]
+
+        headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        }
+
+        last_err = None
+        for instance in COBALT_INSTANCES:
+            try:
+                resp = requests.post(
+                    instance,
+                    json=body,
+                    headers=headers,
+                    timeout=20,
+                    verify=False
+                )
+                data = resp.json()
+                # JWT 오류 또는 인증 오류면 다음 인스턴스 시도
+                err_code = (data.get('error') or {}).get('code', '')
+                if 'auth' in err_code.lower() or 'jwt' in err_code.lower():
+                    last_err = f"{instance}: {err_code}"
+                    print(f"[cobalt] {instance} 인증 필요, 다음 시도...")
+                    continue
+                print(f"[cobalt] {instance} 성공: status={data.get('status')}")
+                return jsonify(data), resp.status_code
+            except Exception as e:
+                last_err = str(e)
+                print(f"[cobalt] {instance} 실패: {e}")
+                continue
+
+        # 모든 인스턴스 실패 시 fallback URL 반환 (웹사이트 직접 방문)
+        target_url = body.get('url', '')
+        cobalt_web_url = f"https://cobalt.tools/#{target_url}"
+        return jsonify({
+            "status": "fallback",
+            "fallback_url": cobalt_web_url,
+            "error": last_err or "모든 cobalt 인스턴스 실패"
+        }), 200
+
+    except Exception as e:
+        return jsonify({"success": False, "error": str(e)}), 500
     
 # --- YouTube API Usage Tracking ---
 def get_usage_file_path():
