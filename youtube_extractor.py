@@ -391,7 +391,24 @@ def fetch_transcript_structured(video_id):
     try:
         from youtube_transcript_api import YouTubeTranscriptApi
         print(f"[Script] [시도] Try YouTubeTranscriptApi (List method)...")
-        api = YouTubeTranscriptApi()
+        cookies_file = _find_cookies_file()
+        session = None
+        if cookies_file:
+            try:
+                import http.cookiejar, requests
+                cj = http.cookiejar.MozillaCookieJar(cookies_file)
+                cj.load(ignore_discard=True, ignore_expires=True)
+                session = requests.Session()
+                session.cookies = cj
+                print(f"[Script] YouTubeTranscriptApi에 쿠키 적용 완료: {cookies_file}")
+            except Exception as e:
+                print(f"[Script] YouTubeTranscriptApi 쿠키 로드 실패: {e}")
+                session = None
+
+        if session:
+            api = YouTubeTranscriptApi(http_client=session)
+        else:
+            api = YouTubeTranscriptApi()
         t_list = api.list(video_id)
         
         # 우선순위: 수동 KO → 수동 EN → 자동 KO → 자동 EN → 번역
