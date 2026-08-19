@@ -313,8 +313,6 @@ def serve_index():
 
 @app.route('/admin')
 def serve_admin():
-    if 'user' not in session:
-        return "<script>alert('로그인이 필요합니다. 메인 페이지에서 로그인해주세요.'); window.close();</script>", 401
     html_path = resource_path('admin.html')
     if os.path.exists(html_path):
         from flask import send_file
