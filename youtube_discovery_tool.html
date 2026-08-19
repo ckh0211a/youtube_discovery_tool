@@ -2298,25 +2298,6 @@
                                     </button>
                                 </div>
 
-                                <!-- 2. Script Downloader Bar -->
-                                <div
-                                    class="flex shadow-xl rounded-2xl overflow-hidden border-2 border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/20 transition-all duration-300 bg-white">
-                                    <div class="flex-grow relative group/input">
-                                        <i class="fas fa-file-alt absolute left-5 top-1/2 -translate-y-1/2 text-blue-400 group-focus-within/input:text-blue-600 transition-colors"></i>
-                                        <input type="text" id="scriptInput" placeholder="대본 받을 영상 링크 입력"
-                                            class="w-full bg-transparent pl-12 pr-10 py-4 text-sm font-bold text-gray-800 placeholder-gray-400 focus:outline-none"
-                                            onkeypress="if(event.key === 'Enter') runScriptDownloader()">
-                                        <button onclick="document.getElementById('scriptInput').value=''; document.getElementById('scriptInput').focus();"
-                                            class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-600 transition-opacity opacity-0 group-focus-within/input:opacity-100">
-                                            <i class="fas fa-times-circle"></i>
-                                        </button>
-                                    </div>
-                                    <button onclick="runScriptDownloader()"
-                                        class="shrink-0 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white px-8 py-4 font-black transition-all duration-200 flex items-center justify-center gap-2 whitespace-nowrap text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]">
-                                        <i class="fas fa-file-alt"></i> 대본 다운
-                                    </button>
-                                </div>
-
                                 <!-- 3. Video Downloader Bar -->
                                 <div
                                     class="flex shadow-xl rounded-2xl overflow-hidden border-2 border-red-500 focus-within:ring-4 focus-within:ring-red-500/20 transition-all duration-300 bg-white">
@@ -2355,25 +2336,6 @@
                                     </button>
                                 </div>
 
-                                <!-- 3.5. MP3 Audio Downloader Bar -->
-                                <div
-                                    class="flex shadow-xl rounded-2xl overflow-hidden border-2 border-orange-500 focus-within:ring-4 focus-within:ring-orange-500/20 transition-all duration-300 bg-white">
-                                    <div class="flex-grow relative group/input">
-                                        <i class="fas fa-file-audio absolute left-5 top-1/2 -translate-y-1/2 text-orange-400 group-focus-within/input:text-orange-600 transition-colors"></i>
-                                        <input type="text" id="audioDownloadInput" placeholder="음원 파일(MP3) 추출할 링크 입력"
-                                            class="w-full bg-transparent pl-12 pr-10 py-4 text-sm font-bold text-gray-800 placeholder-gray-400 focus:outline-none"
-                                            onkeypress="if(event.key === 'Enter') runAudioDownloader()">
-                                        <button onclick="document.getElementById('audioDownloadInput').value=''; document.getElementById('audioDownloadInput').focus();"
-                                            class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-600 transition-opacity opacity-0 group-focus-within/input:opacity-100">
-                                            <i class="fas fa-times-circle"></i>
-                                        </button>
-                                    </div>
-                                    <button onclick="runAudioDownloader()" id="btnRunAudioDownload"
-                                        class="shrink-0 bg-orange-600 hover:bg-orange-700 active:bg-orange-800 text-white px-8 py-4 font-black transition-all duration-200 flex items-center justify-center gap-2 whitespace-nowrap text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]">
-                                        <i class="fas fa-music"></i> MP3 추출
-                                    </button>
-                                </div>
-
                                 <!-- 4. Tag Downloader Bar -->
                                 <div
                                     class="flex shadow-xl rounded-2xl overflow-hidden border-2 border-emerald-500 focus-within:ring-4 focus-within:ring-emerald-500/20 transition-all duration-300 bg-white">
@@ -2391,59 +2353,6 @@
                                         class="shrink-0 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white px-8 py-4 font-black transition-all duration-200 flex items-center justify-center gap-2 whitespace-nowrap text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]">
                                         <i class="fas fa-tags"></i> 태그 다운
                                     </button>
-                                </div>
-
-                                <!-- 5. TikTok Video Downloader Bar -->
-                                <div
-                                    class="flex shadow-xl rounded-2xl overflow-hidden border-2 border-pink-500 focus-within:ring-4 focus-within:ring-pink-500/20 transition-all duration-300 bg-white">
-                                    <div class="flex-grow relative group/input">
-                                        <i class="fab fa-tiktok absolute left-5 top-1/2 -translate-y-1/2 text-pink-400 group-focus-within/input:text-pink-600 transition-colors"></i>
-                                        <input type="text" id="tiktokVideoInput" placeholder="틱톡 영상 링크 입력 (영상 다운)"
-                                            class="w-full bg-transparent pl-12 pr-10 py-4 text-sm font-bold text-gray-800 placeholder-gray-400 focus:outline-none"
-                                            onkeypress="if(event.key === 'Enter') runTikTokVideoDownloader()">
-                                        <button onclick="document.getElementById('tiktokVideoInput').value=''; document.getElementById('tiktokVideoInput').focus();"
-                                            class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-600 transition-opacity opacity-0 group-focus-within/input:opacity-100">
-                                            <i class="fas fa-times-circle"></i>
-                                        </button>
-                                    </div>
-                                    <button onclick="runTikTokVideoDownloader()" id="btnRunTikTokVideoDownload"
-                                        class="shrink-0 bg-pink-600 hover:bg-pink-700 active:bg-pink-800 text-white px-8 py-4 font-black transition-all duration-200 flex items-center justify-center gap-2 whitespace-nowrap text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]">
-                                        <i class="fab fa-tiktok"></i> 틱톡영상다운
-                                    </button>
-                                </div>
-
-                                <!-- 6. TikTok Script Downloader Bar -->
-                                <div
-                                    class="flex shadow-xl rounded-2xl overflow-hidden border-2 border-pink-500 focus-within:ring-4 focus-within:ring-pink-500/20 transition-all duration-300 bg-white">
-                                    <div class="flex-grow relative group/input">
-                                        <i class="fab fa-tiktok absolute left-5 top-1/2 -translate-y-1/2 text-pink-400 group-focus-within/input:text-pink-600 transition-colors"></i>
-                                        <input type="text" id="tiktokScriptInput" placeholder="틱톡 영상 링크 입력 (대본 다운)"
-                                            class="w-full bg-transparent pl-12 pr-10 py-4 text-sm font-bold text-gray-800 placeholder-gray-400 focus:outline-none"
-                                            onkeypress="if(event.key === 'Enter') runTikTokScriptDownloader()">
-                                        <button onclick="document.getElementById('tiktokScriptInput').value=''; document.getElementById('tiktokScriptInput').focus();"
-                                            class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-300 hover:text-gray-600 transition-opacity opacity-0 group-focus-within/input:opacity-100">
-                                            <i class="fas fa-times-circle"></i>
-                                        </button>
-                                    </div>
-                                    <button onclick="runTikTokScriptDownloader()" id="btnRunTikTokScriptDownload"
-                                        class="shrink-0 bg-pink-600 hover:bg-pink-700 active:bg-pink-800 text-white px-8 py-4 font-black transition-all duration-200 flex items-center justify-center gap-2 whitespace-nowrap text-sm shadow-[inset_0_1px_0_rgba(255,255,255,0.2)]">
-                                        <i class="fab fa-tiktok"></i> 틱톡대본다운
-                                    </button>
-                                </div>
-
-                                <!-- Audio Download Progress Area -->
-                                <div id="audioDownloadProgressArea" class="hidden px-4 py-3 bg-orange-50 rounded-2xl border border-orange-100 animate-fade-in mt-2">
-                                    <div class="flex justify-between items-center mb-2">
-                                        <div class="flex items-center gap-2">
-                                            <i class="fas fa-spinner fa-spin text-orange-500"></i>
-                                            <span class="text-[10px] font-black text-orange-700 uppercase tracking-tight">MP3 음원 추출 중...</span>
-                                        </div>
-                                        <span id="audioDownloadPercent" class="text-[10px] font-black text-orange-700">0%</span>
-                                    </div>
-                                    <div class="w-full bg-orange-200/50 rounded-full h-1.5 overflow-hidden">
-                                        <div id="audioDownloadProgressBar" class="bg-orange-600 h-full rounded-full transition-all duration-300" style="width: 0%"></div>
-                                    </div>
-                                    <p class="text-[8px] text-orange-400 font-bold mt-2 text-center">변환 작업(MP3)으로 인해 완료 후 잠시 대기가 필요할 수 있습니다.</p>
                                 </div>
 
                                 <!-- Video Download Progress Area (Missing UI restored) -->
