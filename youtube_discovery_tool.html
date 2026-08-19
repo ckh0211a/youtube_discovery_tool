@@ -29,6 +29,10 @@
 
             const originalFetch = window.fetch;
             window.fetch = function(input, init) {
+                if (typeof input === 'string' && input.includes('force_local=true')) {
+                    // PC 다운 모드: 강제로 127.0.0.1 (로컬 백엔드)로 요청
+                    return originalFetch(input, init);
+                }
                 if (typeof input === 'string' && input.includes('127.0.0.1:5001')) {
                     input = getBackendUrl(input);
                 }
@@ -45,7 +49,7 @@
         window.APP_VERSION = {
             major: 3,
             minor: 1,
-            patch: 5
+            patch: 6
         };
         window.PROGRAM_ID = "";
         // [SCORCHED EARTH] Persistent Seen IDs for Mode 3 NEW badge
@@ -6401,7 +6405,7 @@ ${newsContext}
 
             showLoading(true, '대본을 추출 중입니다...');
             try {
-                const res = await fetch(`http://127.0.0.1:5001/api/transcript?video_id=${videoId}`);
+                const res = await fetch(`http://127.0.0.1:5001/api/transcript?video_id=${videoId}&force_local=true`);
                 const data = await res.json();
                 if (data.success && data.transcript) {
                     const text = data.transcript.map(line => line.text).join(' ');
@@ -6913,7 +6917,7 @@ ${newsContext}
                 if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 추출 중'; }
                 showToast('틱톡 대본 추출을 시작합니다. 잠시만 기다려주세요...', 'info');
 
-                const res = await fetch(`http://127.0.0.1:5001/api/tiktok/transcript?url=${encodeURIComponent(url)}`);
+                const res = await fetch(`http://127.0.0.1:5001/api/tiktok/transcript?url=${encodeURIComponent(url)}&force_local=true`);
                 const data = await res.json();
 
                 if (data.success) {
@@ -9033,7 +9037,7 @@ ${newsContext}
 
             for (const v of videos) {
                 try {
-                    const res = await fetch(`http://127.0.0.1:5001/api/transcript?video_id=${v.id}`);
+                    const res = await fetch(`http://127.0.0.1:5001/api/transcript?video_id=${v.id}&force_local=true`);
                     const data = await res.json();
                     if (data.success && data.transcript) {
                         const text = data.transcript.map(line => line.text).join(' ');
@@ -14037,7 +14041,7 @@ ${newsContext}
 
                 const videoUrl = `http://127.0.0.1:5001/api/proxy/google/youtube/v3/videos?part=snippet,statistics,contentDetails&id=${videoId}&key=${ytKey}`;
                 const commentsUrl = `http://127.0.0.1:5001/api/proxy/google/youtube/v3/commentThreads?part=snippet&videoId=${videoId}&maxResults=100&order=relevance&key=${ytKey}`;
-                const transcriptUrl = `http://127.0.0.1:5001/api/transcript?video_id=${videoId}`;
+                const transcriptUrl = `http://127.0.0.1:5001/api/transcript?video_id=${videoId}&force_local=true`;
 
                 const [vRes, cRes, tRes] = await Promise.all([
                     fetch(videoUrl).then(r => { recordUsage(1); return r; }),
@@ -14225,7 +14229,7 @@ ${commentsStr}
                 let mode = 'ai'; // Default to ai until original is proven
                 try {
                     console.log(`[Script] Requesting transcript for ${videoId} from local server...`);
-                    const response = await fetch(`http://127.0.0.1:5001/api/transcript?video_id=${videoId}`);
+                    const response = await fetch(`http://127.0.0.1:5001/api/transcript?video_id=${videoId}&force_local=true`);
                     if (response.ok) {
                         const data = await response.json();
                         if (data.success && data.transcript) {
@@ -14450,7 +14454,7 @@ ${commentsStr}
 
                 let scriptText = "대본을 가져오지 못했습니다.";
                 try {
-                    const tRes = await fetch(`http://127.0.0.1:5001/api/transcript?video_id=${videoId}`);
+                    const tRes = await fetch(`http://127.0.0.1:5001/api/transcript?video_id=${videoId}&force_local=true`);
                     const tData = await tRes.json();
                     if (tData.success && tData.transcript) {
                         scriptText = tData.transcript.map(l => l.text).join(' ').substring(0, 15000); // Max 15k chars for prompt
@@ -15127,7 +15131,7 @@ ${commentsText}
                 }
 
                 try {
-                    const scriptRes = await fetch(`http://127.0.0.1:5001/api/transcript?video_id=${videoId}`);
+                    const scriptRes = await fetch(`http://127.0.0.1:5001/api/transcript?video_id=${videoId}&force_local=true`);
                     const scriptData = await scriptRes.json();
 
                     if (scriptData.success) {
