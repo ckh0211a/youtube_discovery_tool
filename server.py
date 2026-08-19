@@ -426,6 +426,66 @@ def get_transcript():
             return jsonify({"success": False, "video_id": video_id, "error": script_data}), 400
     except Exception as e: return jsonify({"success": False, "error": f"서버 처리 오류: {str(e)}"}), 500
 
+@app.route('/api/debug/transcript', methods=['GET'])
+def debug_transcript():
+    """각 엔진별로 대본 추출을 시도하고 결과를 상세히 반환하는 진단 엔드포인트"""
+    import traceback
+    video_id_raw = request.args.get('video_id', 'ZeeCrWqQj3Y')
+    video_id = extract_video_id(video_id_raw)
+    results = {
+        "video_id": video_id,
+        "is_server_env": os.environ.get('RENDER') == 'true',
+        "python_env": os.environ.get('RENDER', 'not_set'),
+        "engines": {}
+    }
+
+    # Engine 1: HTML 직접 파싱
+    try:
+        from youtube_extractor import get_transcript_via_html
+        res = get_transcript_via_html(video_id)
+        if isinstance(res, list):
+            results["engines"]["html_scraper"] = {"success": True, "lines": len(res), "sample": res[:2]}
+        else:
+            results["engines"]["html_scraper"] = {"success": False, "error": str(res)}
+    except Exception as e:
+        results["engines"]["html_scraper"] = {"success": False, "error": str(e), "traceback": traceback.format_exc()[-500:]}
+
+    # Engine 2: youtube_transcript_api
+    try:
+        from youtube_transcript_api import YouTubeTranscriptApi
+        api = YouTubeTranscriptApi()
+        t_list = api.list(video_id)
+        transcripts_available = [{"lang": t.language_code, "auto": t.is_generated} for t in t_list]
+        results["engines"]["yt_transcript_api"] = {"success": True, "available_transcripts": transcripts_available}
+    except Exception as e:
+        results["engines"]["yt_transcript_api"] = {"success": False, "error": str(e)}
+
+    # Engine 3: yt-dlp 정보 확인 (자막 목록만)
+    try:
+        import yt_dlp
+        ydl_opts = {'skip_download': True, 'quiet': True, 'no_warnings': True, 'nocheckcertificate': True}
+        cookies_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cookies.txt')
+        if os.path.exists(cookies_path):
+            ydl_opts['cookiefile'] = cookies_path
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(f"https://www.youtube.com/watch?v={video_id}", download=False)
+            subs = list(info.get('subtitles', {}).keys())
+            auto_subs = list(info.get('automatic_captions', {}).keys())
+            results["engines"]["yt_dlp_info"] = {"success": True, "subtitles": subs, "auto_captions": auto_subs[:10]}
+    except Exception as e:
+        results["engines"]["yt_dlp_info"] = {"success": False, "error": str(e)[-300:]}
+
+    # cookies.txt 상태
+    cookies_candidates = [
+        os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cookies.txt'),
+        '/app/cookies.txt',
+    ]
+    results["cookies"] = {}
+    for c in cookies_candidates:
+        results["cookies"][c] = {"exists": os.path.exists(c), "size": os.path.getsize(c) if os.path.exists(c) else 0}
+
+    return jsonify(results)
+
 @app.route('/api/tiktok/transcript', methods=['GET'])
 def get_tiktok_transcript():
     url = request.args.get('url')
