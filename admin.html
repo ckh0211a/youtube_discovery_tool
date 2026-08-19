@@ -3,163 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Discovery - 관리자 대시보드</title>
+    <title>관리자 대시보드 - YouTube Discovery</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Supabase JS SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
-        }
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #f8fafc; }
         .glass-panel {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
     </style>
 </head>
-<body class="text-gray-800 antialiased min-h-screen flex flex-col">
+<body class="antialiased min-h-screen flex flex-col items-center justify-center" id="loadingScreen">
+    <div class="text-center">
+        <i class="fas fa-spinner fa-spin text-4xl text-blue-500 mb-4"></i>
+        <p class="text-gray-400">관리자 권한 확인 중...</p>
+    </div>
 
-    <!-- Navbar -->
-    <nav class="glass-panel sticky top-0 z-50 px-6 py-4 flex justify-between items-center mb-8">
-        <div class="flex items-center gap-3">
-            <i class="fab fa-youtube text-red-600 text-3xl"></i>
-            <span class="text-xl font-bold tracking-tight">Admin<span class="text-blue-600">Dash</span></span>
-        </div>
-        <div class="flex items-center gap-4">
-            <div class="flex items-center gap-2 text-sm font-medium text-gray-600 bg-gray-100 px-3 py-1.5 rounded-full">
-                <i class="fas fa-user-shield text-blue-500"></i>
-                <span id="adminName">관리자님 환영합니다</span>
+    <!-- Main Content (Hidden by default) -->
+    <div id="adminContent" class="hidden w-full max-w-5xl mx-auto px-4 py-8">
+        <!-- Navbar -->
+        <nav class="glass-panel rounded-2xl px-6 py-4 flex justify-between items-center mb-8">
+            <div class="flex items-center gap-3">
+                <i class="fab fa-youtube text-red-500 text-3xl"></i>
+                <span class="text-xl font-bold tracking-tight text-white">Admin<span class="text-blue-500">Dash</span></span>
             </div>
-            <button onclick="window.close()" class="text-gray-500 hover:text-red-500 transition-colors">
-                <i class="fas fa-times text-xl"></i>
-            </button>
-        </div>
-    </nav>
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 text-sm font-medium text-gray-300 bg-gray-800 px-3 py-1.5 rounded-full border border-gray-700">
+                    <i class="fas fa-user-shield text-blue-400"></i>
+                    <span id="adminName">관리자 계정</span>
+                </div>
+                <button onclick="window.close()" class="text-gray-400 hover:text-red-400 transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+        </nav>
 
-    <!-- Main Content -->
-    <main class="flex-grow container mx-auto px-4 max-w-6xl">
         <div class="mb-8">
-            <h1 class="text-3xl font-bold text-gray-900 mb-2">대시보드</h1>
-            <p class="text-gray-500">유튜브 소재 채굴기 시스템 상태 및 사용자 관리를 위한 간단한 관리자 페이지입니다.</p>
+            <h1 class="text-3xl font-bold text-white mb-2">시스템 컨트롤 패널</h1>
+            <p class="text-gray-400">서버 상태 관리 및 유지보수를 위한 전용 대시보드입니다.</p>
         </div>
 
-        <!-- Stats Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <!-- Stat Card 1 -->
-            <div class="glass-panel rounded-2xl p-6 transition-transform hover:-translate-y-1 duration-300">
-                <div class="flex justify-between items-start mb-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            
+            <!-- 1. Cookie Upload Panel -->
+            <div class="glass-panel rounded-2xl p-6 relative overflow-hidden group">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+                <div class="flex justify-between items-start mb-6">
                     <div>
-                        <p class="text-sm font-medium text-gray-500 mb-1">총 가입자 수</p>
-                        <h3 class="text-3xl font-bold text-gray-900">128<span class="text-sm font-normal text-gray-500 ml-1">명</span></h3>
-                    </div>
-                    <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-                        <i class="fas fa-users"></i>
+                        <h2 class="text-xl font-bold text-white mb-1"><i class="fas fa-cookie-bite text-orange-400 mr-2"></i>쿠키(Cookies) 업데이트</h2>
+                        <p class="text-sm text-gray-400">유튜브 IP 차단을 우회하기 위해 최신 cookies.txt 파일을 업로드하세요.</p>
                     </div>
                 </div>
-                <div class="text-sm text-green-600 flex items-center gap-1 font-medium">
-                    <i class="fas fa-arrow-up"></i>
-                    <span>전주 대비 12% 증가</span>
+                
+                <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-4 mb-4">
+                    <input type="file" id="cookieFileInput" accept=".txt" class="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-500/10 file:text-blue-400 hover:file:bg-blue-500/20 cursor-pointer">
                 </div>
+                <button onclick="uploadCookies()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2">
+                    <i class="fas fa-upload"></i> 서버에 쿠키 적용하기
+                </button>
+                <p id="cookieStatusMsg" class="text-xs text-center mt-3 hidden"></p>
             </div>
 
-            <!-- Stat Card 2 -->
-            <div class="glass-panel rounded-2xl p-6 transition-transform hover:-translate-y-1 duration-300">
-                <div class="flex justify-between items-start mb-4">
+            <!-- 2. System Cache Panel -->
+            <div class="glass-panel rounded-2xl p-6 relative overflow-hidden group">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full -mr-16 -mt-16 blur-2xl"></div>
+                <div class="flex justify-between items-start mb-6">
                     <div>
-                        <p class="text-sm font-medium text-gray-500 mb-1">오늘의 API 호출</p>
-                        <h3 class="text-3xl font-bold text-gray-900">4,392<span class="text-sm font-normal text-gray-500 ml-1">건</span></h3>
-                    </div>
-                    <div class="w-10 h-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600">
-                        <i class="fas fa-server"></i>
+                        <h2 class="text-xl font-bold text-white mb-1"><i class="fas fa-broom text-emerald-400 mr-2"></i>서버 캐시 초기화</h2>
+                        <p class="text-sm text-gray-400">대본이나 데이터가 꼬였을 때 강제로 서버 데이터를 비웁니다.</p>
                     </div>
                 </div>
-                <div class="text-sm text-green-600 flex items-center gap-1 font-medium">
-                    <i class="fas fa-arrow-up"></i>
-                    <span>정상 작동 중</span>
+                
+                <div class="bg-gray-800/50 border border-gray-700 rounded-xl p-4 mb-4 text-sm text-gray-300">
+                    <ul class="list-disc pl-5 space-y-1">
+                        <li>유튜브 메타데이터 임시 저장소 비우기</li>
+                        <li>대본 추출 오류 기록 초기화</li>
+                        <li>(서버 재부팅 없이 즉시 적용)</li>
+                    </ul>
                 </div>
+                <button onclick="clearCache()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl transition-all flex items-center justify-center gap-2">
+                    <i class="fas fa-trash-alt"></i> 캐시 초기화 실행
+                </button>
+                <p id="cacheStatusMsg" class="text-xs text-center mt-3 hidden"></p>
             </div>
-
-            <!-- Stat Card 3 -->
-            <div class="glass-panel rounded-2xl p-6 transition-transform hover:-translate-y-1 duration-300">
-                <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <p class="text-sm font-medium text-gray-500 mb-1">시스템 버전</p>
-                        <h3 class="text-3xl font-bold text-gray-900">v3.1.2</h3>
-                    </div>
-                    <div class="w-10 h-10 rounded-full bg-orange-100 flex items-center justify-center text-orange-600">
-                        <i class="fas fa-code-branch"></i>
-                    </div>
-                </div>
-                <div class="text-sm text-gray-500 flex items-center gap-1 font-medium">
-                    <i class="fas fa-check-circle text-green-500"></i>
-                    <span>최신 버전 유지됨</span>
-                </div>
-            </div>
+            
         </div>
-
-        <!-- Recent Activity Table -->
-        <div class="glass-panel rounded-2xl overflow-hidden mb-8">
-            <div class="px-6 py-5 border-b border-gray-100 flex justify-between items-center bg-white/50">
-                <h2 class="text-lg font-bold text-gray-800">최근 시스템 알림 (Mock Data)</h2>
-                <button class="text-sm text-blue-600 font-medium hover:text-blue-800">모두 보기</button>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="bg-gray-50/50 text-gray-500 text-xs uppercase tracking-wider">
-                            <th class="px-6 py-4 font-semibold">상태</th>
-                            <th class="px-6 py-4 font-semibold">이벤트 내용</th>
-                            <th class="px-6 py-4 font-semibold">발생 시간</th>
-                        </tr>
-                    </thead>
-                    <tbody class="text-sm text-gray-700 divide-y divide-gray-100">
-                        <tr class="hover:bg-gray-50/50 transition-colors">
-                            <td class="px-6 py-4"><span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">Success</span></td>
-                            <td class="px-6 py-4 font-medium">사용자 'admin' 로그인 성공</td>
-                            <td class="px-6 py-4 text-gray-500">방금 전</td>
-                        </tr>
-                        <tr class="hover:bg-gray-50/50 transition-colors">
-                            <td class="px-6 py-4"><span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700">Info</span></td>
-                            <td class="px-6 py-4 font-medium">수파베이스 DB 동기화 완료</td>
-                            <td class="px-6 py-4 text-gray-500">10분 전</td>
-                        </tr>
-                        <tr class="hover:bg-gray-50/50 transition-colors">
-                            <td class="px-6 py-4"><span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-700">Warning</span></td>
-                            <td class="px-6 py-4 font-medium">유튜브 API 할당량 80% 도달</td>
-                            <td class="px-6 py-4 text-gray-500">1시간 전</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-    </main>
-
-    <footer class="text-center py-6 text-sm text-gray-400 mt-auto">
-        &copy; 2026 YouTube Discovery Tool. All rights reserved.
-    </footer>
+        
+    </div>
 
     <script>
-        // Fetch session data to personalize admin page
-        async function loadAdminData() {
+        const SUPABASE_URL = 'https://lpsqagujuhblpthvrqdn.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_TyGy0J574dfCo3JFJVDeSg_KnD5TRNr';
+        const supabaseLib = window.supabase || globalThis.supabase;
+        const supabaseClient = supabaseLib.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Get Backend URL to support local testing and Render production
+        const getBackendUrl = () => {
+            const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+            return isLocal ? 'http://127.0.0.1:5001' : 'https://youtube-discovery-tool-1.onrender.com';
+        };
+
+        async function verifyAdmin() {
             try {
-                const res = await fetch('/api/auth/session');
-                const data = await res.json();
-                if (data.logged_in && data.user) {
-                    document.getElementById('adminName').innerText = data.user.name + " (관리자)";
-                } else {
-                    alert("세션이 만료되었습니다.");
-                    window.close();
+                const { data: { session }, error } = await supabaseClient.auth.getSession();
+                if (error || !session) {
+                    alert('로그인이 필요합니다.');
+                    window.location.href = '/';
+                    return;
                 }
+
+                if (session.user.email !== 'imomsschool@gmail.com') {
+                    alert('접근 권한이 없습니다. 관리자 계정으로 로그인해주세요.');
+                    window.location.href = '/';
+                    return;
+                }
+
+                // Authorized
+                document.getElementById('loadingScreen').classList.remove('min-h-screen', 'flex');
+                document.getElementById('loadingScreen').style.display = 'none';
+                
+                const content = document.getElementById('adminContent');
+                content.classList.remove('hidden');
+                document.getElementById('adminName').innerText = session.user.email;
+                
             } catch (err) {
-                console.error(err);
+                console.error('Auth Error:', err);
+                alert('인증 중 오류가 발생했습니다.');
+                window.location.href = '/';
             }
         }
-        
-        document.addEventListener('DOMContentLoaded', loadAdminData);
+
+        async function uploadCookies() {
+            const fileInput = document.getElementById('cookieFileInput');
+            const file = fileInput.files[0];
+            const msgEl = document.getElementById('cookieStatusMsg');
+            
+            if (!file) {
+                msgEl.innerText = "쿠키 파일을 먼저 선택해주세요.";
+                msgEl.className = "text-xs text-center mt-3 text-red-400 block";
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            msgEl.innerText = "업로드 중...";
+            msgEl.className = "text-xs text-center mt-3 text-blue-400 block";
+
+            try {
+                // We send a secret header to bypass the Flask session check for APIs, 
+                // but wait, server.py requires Flask session or we can implement a secret API key.
+                // It's better to pass the Supabase token in the header and verify it in server.py,
+                // OR we can rely on the fact that if they reached here, the frontend verified them.
+                // Let's pass the supabase access token.
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                
+                const res = await fetch(`${getBackendUrl()}/api/admin/upload-cookie`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${session.access_token}` },
+                    body: formData
+                });
+                
+                const result = await res.json();
+                if (result.status === 'success') {
+                    msgEl.innerHTML = `<i class="fas fa-check-circle"></i> 쿠키 파일이 성공적으로 적용되었습니다!`;
+                    msgEl.className = "text-xs text-center mt-3 text-emerald-400 block";
+                } else {
+                    msgEl.innerText = `업로드 실패: ${result.message}`;
+                    msgEl.className = "text-xs text-center mt-3 text-red-400 block";
+                }
+            } catch (error) {
+                msgEl.innerText = `서버 통신 오류: ${error.message}`;
+                msgEl.className = "text-xs text-center mt-3 text-red-400 block";
+            }
+        }
+
+        async function clearCache() {
+            const msgEl = document.getElementById('cacheStatusMsg');
+            msgEl.innerText = "초기화 중...";
+            msgEl.className = "text-xs text-center mt-3 text-blue-400 block";
+
+            try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                const res = await fetch(`${getBackendUrl()}/api/admin/clear-cache`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${session.access_token}` }
+                });
+                
+                const result = await res.json();
+                if (result.status === 'success') {
+                    msgEl.innerHTML = `<i class="fas fa-check-circle"></i> 서버 캐시가 정리되었습니다!`;
+                    msgEl.className = "text-xs text-center mt-3 text-emerald-400 block";
+                } else {
+                    msgEl.innerText = `초기화 실패: ${result.message}`;
+                    msgEl.className = "text-xs text-center mt-3 text-red-400 block";
+                }
+            } catch (error) {
+                msgEl.innerText = `서버 통신 오류: ${error.message}`;
+                msgEl.className = "text-xs text-center mt-3 text-red-400 block";
+            }
+        }
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', verifyAdmin);
     </script>
 </body>
 </html>

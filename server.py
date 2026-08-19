@@ -1338,6 +1338,59 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 
+# ------------------ ADMIN APIs ------------------
+import jwt
+from functools import wraps
+
+def admin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        auth_header = request.headers.get('Authorization')
+        if not auth_header or not auth_header.startswith('Bearer '):
+            return jsonify({'status': 'fail', 'message': 'Missing token'}), 401
+        
+        token = auth_header.split(' ')[1]
+        try:
+            payload = jwt.decode(token, options={'verify_signature': False})
+            email = payload.get('email')
+            if email != 'imomsschool@gmail.com':
+                return jsonify({'status': 'fail', 'message': 'Unauthorized email'}), 403
+        except Exception as e:
+            return jsonify({'status': 'fail', 'message': 'Invalid token'}), 401
+            
+        return f(*args, **kwargs)
+    return decorated_function
+
+@app.route('/api/admin/upload-cookie', methods=['POST'])
+@admin_required
+def admin_upload_cookie():
+    if 'file' not in request.files:
+        return jsonify({'status': 'fail', 'message': 'No file part'}), 400
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({'status': 'fail', 'message': 'No selected file'}), 400
+    if file:
+        try:
+            import os
+            # Save to root directory where youtube_extractor.py looks for it
+            save_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cookies.txt')
+            file.save(save_path)
+            return jsonify({'status': 'success', 'message': 'Cookies updated successfully'})
+        except Exception as e:
+            return jsonify({'status': 'fail', 'message': str(e)}), 500
+
+@app.route('/api/admin/clear-cache', methods=['POST'])
+@admin_required
+def admin_clear_cache():
+    try:
+        # Clear yt-dlp cache by executing command
+        import subprocess
+        subprocess.run(['yt-dlp', '--rm-cache-dir'], capture_output=True)
+        return jsonify({'status': 'success', 'message': 'Cache cleared successfully'})
+    except Exception as e:
+        return jsonify({'status': 'fail', 'message': str(e)}), 500
+# ------------------------------------------------
+
 if __name__ == '__main__':
     # Render와 같은 서버 환경이 아닐 때만 인증 창 및 웹 브라우저 실행
     if not os.environ.get('RENDER'):
