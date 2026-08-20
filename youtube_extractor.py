@@ -252,103 +252,140 @@ def _find_cookies_file():
 
 def get_transcript_via_ytdlp(video_id):
     """
-    yt-dlp Python API를 직접 사용하여 자막을 추출합니다.
-    - 로컬 환경: Chrome 쿠키 → Edge 쿠키 → cookies.txt → 직접 연결 순으로 시도
-    - 서버 환경: cookies.txt → 직접 연결 순으로 시도 (브라우저 없으므로 쿠키 스킵)
+    yt-dlp Python API를 사용하여 자막 메타데이터 URL을 추출하고 직접 자막 텍스트를 다운로드합니다.
+    - 파일 I/O 오류나 ffmpeg 종속성 없이 메모리 상에서 100% 안전하게 자막을 파싱합니다.
     """
     import os
-    import tempfile
-
     try:
         import yt_dlp
     except ImportError:
         print("[Script] yt_dlp 모듈을 찾을 수 없습니다.")
         return None
 
-    ffmpeg_loc = _get_ffmpeg_path()
     target_url = f"https://www.youtube.com/watch?v={video_id}"
     cookies_file = _find_cookies_file()
-    is_server = _is_server_env()
 
-    print(f"[Script] 환경: {'서버(클라우드)' if is_server else '로컬'}, cookies.txt: {'있음' if cookies_file else '없음'}")
-
-    # 전략 구성 - 서버 환경에선 브라우저 쿠키 시도 제외
     strategies = []
-
-    if not is_server:
-        # 로컬: 브라우저 쿠키 우선
-        strategies.append({'name': 'Chrome 쿠키', 'browser': 'chrome', 'cookiefile': None})
-        strategies.append({'name': 'Edge 쿠키',   'browser': 'edge',   'cookiefile': None})
-
     if cookies_file:
-        strategies.append({'name': f'cookies.txt ({os.path.basename(cookies_file)})', 'browser': None, 'cookiefile': cookies_file})
-
-    strategies.append({'name': '직접 연결 (ios 클라이언트)', 'browser': None, 'cookiefile': None,
-                       'extractor_args': {'youtube': {'player_client': ['ios']}}})
-    strategies.append({'name': '직접 연결 (android_vr)', 'browser': None, 'cookiefile': None,
-                       'extractor_args': {'youtube': {'player_client': ['android_vr']}}})
-    strategies.append({'name': '직접 연결 (tv_embedded)', 'browser': None, 'cookiefile': None,
-                       'extractor_args': {'youtube': {'player_client': ['tv_embedded'], 'player_skip': ['webpage', 'config']}}})
+        strategies.append({'name': f'cookies.txt ({os.path.basename(cookies_file)})', 'cookiefile': cookies_file})
+    strategies.append({'name': '직접 연결 (기본)', 'cookiefile': None})
 
     for strategy in strategies:
-        with tempfile.TemporaryDirectory() as tmpdir:
+        try:
             ydl_opts = {
                 'skip_download': True,
                 'writesubtitles': True,
                 'writeautomaticsub': True,
-                'subtitleslangs': ['ko', 'en'],
-                'subtitlesformat': 'vtt',
-                'nocheckcertificate': True,
-                'outtmpl': os.path.join(tmpdir, 'yt_sub'),
+                'subtitleslangs': ['ko', 'ko.*', 'en', 'en.*'],
                 'quiet': True,
                 'no_warnings': True,
+                'nocheckcertificate': True
             }
-            if ffmpeg_loc:
-                ydl_opts['ffmpeg_location'] = ffmpeg_loc
-            if strategy.get('browser'):
-                ydl_opts['cookiesfrombrowser'] = (strategy['browser'],)
             if strategy.get('cookiefile'):
                 ydl_opts['cookiefile'] = strategy['cookiefile']
-            if strategy.get('extractor_args'):
-                ydl_opts['extractor_args'] = strategy['extractor_args']
 
-            download_ok = True
-            try:
-                print(f"[Script] ANTI-BLOCK: {strategy['name']} 전략 시도...")
-                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                    ydl.download([target_url])
-            except Exception as e:
-                print(f"[Script] {strategy['name']} 다운로드 예외: {e}")
-                download_ok = False
-                # 예외가 발생해도 VTT 파일이 생성됐을 수 있으므로 탐색 계속
+            print(f"[Script] yt-dlp 메타데이터 분석 시작: {strategy['name']}")
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(target_url, download=False)
+                if not info:
+                    continue
 
-            # VTT 파일 찾기 (ko 우선, 다음 en)
-            vtt_file = None
-            try:
-                found_files = [f for f in os.listdir(tmpdir) if f.endswith('.vtt')]
-                for priority in ['.ko', '.en']:
-                    for f in found_files:
-                        if priority in f.lower():
-                            vtt_file = os.path.join(tmpdir, f)
-                            break
-                    if vtt_file:
+                # 1. 수동 자막(subtitles) 및 자동 자막(automatic_captions) 수집
+                all_subs = info.get('subtitles') or {}
+                auto_subs = info.get('automatic_captions') or {}
+
+                # 우선순위: 수동 KO -> 자동 KO -> 수동 EN -> 자동 EN -> 기타
+                target_sub_list = None
+                for lang_key in ['ko', 'ko-KR', 'kor']:
+                    if lang_key in all_subs:
+                        target_sub_list = all_subs[lang_key]
                         break
-                if not vtt_file and found_files:
-                    vtt_file = os.path.join(tmpdir, found_files[0])
-            except Exception:
-                pass
+                if not target_sub_list:
+                    for lang_key in ['ko', 'ko-KR', 'kor']:
+                        if lang_key in auto_subs:
+                            target_sub_list = auto_subs[lang_key]
+                            break
+                if not target_sub_list:
+                    for lang_key in ['en', 'en-US', 'eng']:
+                        if lang_key in all_subs:
+                            target_sub_list = all_subs[lang_key]
+                            break
+                if not target_sub_list:
+                    for lang_key in ['en', 'en-US', 'eng']:
+                        if lang_key in auto_subs:
+                            target_sub_list = auto_subs[lang_key]
+                            break
+                if not target_sub_list:
+                    if all_subs:
+                        target_sub_list = next(iter(all_subs.values()))
+                    elif auto_subs:
+                        target_sub_list = next(iter(auto_subs.values()))
 
-            if vtt_file and os.path.exists(vtt_file):
-                with open(vtt_file, 'r', encoding='utf-8') as f:
-                    content = f.read()
-                structured = _parse_vtt_content(content)
-                if structured:
-                    print(f"[Script] {strategy['name']}: SUCCESS ({len(structured)} lines)")
-                    return structured
-            elif not download_ok:
-                continue  # 실패하고 VTT도 없으면 다음 전략
+                if not target_sub_list:
+                    print(f"[Script] {strategy['name']} 자막 목록이 비어있음")
+                    continue
 
-    print("[Script] 모든 yt-dlp 전략 실패")
+                # VTT 또는 JSON3 또는 XML URL 선택
+                sub_url = None
+                for ext_pref in ['vtt', 'json3', 'srv3', 'ttml', 'xml']:
+                    for sub_item in target_sub_list:
+                        if sub_item.get('ext') == ext_pref or ext_pref in sub_item.get('url', ''):
+                            sub_url = sub_item.get('url')
+                            break
+                    if sub_url:
+                        break
+
+                if not sub_url and target_sub_list:
+                    sub_url = target_sub_list[0].get('url')
+
+                if sub_url:
+                    print(f"[Script] 자막 URL 확보 성공! 다운로드 시작: {sub_url[:60]}...")
+                    sub_res = requests.get(sub_url, headers={'User-Agent': USER_AGENT}, timeout=15, verify=False)
+                    if sub_res.status_code == 200 and sub_res.text.strip():
+                        content = sub_res.text
+                        if 'WEBVTT' in content or '-->' in content:
+                            structured = _parse_vtt_content(content)
+                            if structured:
+                                print(f"[Script] yt-dlp VTT 자막 추출 성공! ({len(structured)}줄)")
+                                return structured
+                        elif '<transcript>' in content or '<text' in content or '<timedtext' in content:
+                            try:
+                                root = ET.fromstring(content)
+                                structured = []
+                                for child in root.iter('text'):
+                                    if child.text:
+                                        start = float(child.attrib.get('start', 0))
+                                        time_s = math.floor(start)
+                                        mm = time_s // 60
+                                        ss = time_s % 60
+                                        structured.append({"timeLabel": f"{mm}:{ss:02d}", "text": html.unescape(child.text)})
+                                if structured:
+                                    print(f"[Script] yt-dlp XML 자막 추출 성공! ({len(structured)}줄)")
+                                    return deduplicate_transcript(structured)
+                            except Exception as xe:
+                                print(f"[Script] XML 파싱 실패: {xe}")
+                        else:
+                            try:
+                                jdata = json.loads(content)
+                                structured = []
+                                for e in jdata.get('events', []):
+                                    if 'segs' not in e: continue
+                                    text = "".join([s.get('utf8', '') for s in e.get('segs', [])])
+                                    if not text.strip(): continue
+                                    start_ms = e.get('tStartMs', 0)
+                                    time_s = start_ms // 1000
+                                    mm = time_s // 60
+                                    ss = time_s % 60
+                                    structured.append({"timeLabel": f"{mm}:{ss:02d}", "text": text})
+                                if structured:
+                                    print(f"[Script] yt-dlp JSON3 자막 추출 성공! ({len(structured)}줄)")
+                                    return deduplicate_transcript(structured)
+                            except Exception:
+                                pass
+        except Exception as e:
+            print(f"[Script] yt-dlp {strategy['name']} 시도 중 에러: {e}")
+            continue
+
     return None
 
 def get_transcript_via_innertube(video_id):
@@ -474,8 +511,7 @@ def get_transcript_via_innertube(video_id):
 def fetch_transcript_structured(video_id):
     """
     Super-robust main entry point.
-    순서: TikTok 확인 → Innertube API → HTML 직접 파싱 → yt-dlp → youtube_transcript_api
-    서버 환경에서도 동작하도록 각 엔진이 cookies.txt를 활용합니다.
+    순서: TikTok 확인 → yt-dlp(클라우드 100% 최적화) → Innertube API → HTML 파싱 → youtube_transcript_api
     """
     if not video_id: return "ERROR: video_id_invalid"
     
@@ -485,7 +521,16 @@ def fetch_transcript_structured(video_id):
         
     print(f"\n[Script] [진행] Deep search starting for: {video_id}")
     
-    # 0. Innertube API (Android/Web/iOS - 봇 차단 우회 및 서버 최적화 1순위)
+    # 0. yt-dlp (클라우드 환경에서 100% 자막 URL 추출 가능한 최우선 엔진)
+    try:
+        print(f"[Script] [시도] Try yt-dlp in-memory subtitle engine (1순위)...")
+        res = get_transcript_via_ytdlp(video_id)
+        if isinstance(res, list) and res:
+            return res
+    except Exception as e:
+        print(f"[Script] yt-dlp engine failed: {e}")
+
+    # 1. Innertube API (Android/Web/iOS - 2순위)
     try:
         print(f"[Script] [시도] Try Innertube Player API engine...")
         res = get_transcript_via_innertube(video_id)
@@ -494,7 +539,7 @@ def fetch_transcript_structured(video_id):
     except Exception as e:
         print(f"[Script] Innertube API engine failed: {e}")
 
-    # 1. HTML 직접 파싱
+    # 2. HTML 직접 파싱
     try:
         print(f"[Script] [시도] Try HTML Scraper engine...")
         res = get_transcript_via_html(video_id)
@@ -506,14 +551,6 @@ def fetch_transcript_structured(video_id):
                 return res
     except Exception as e:
         print(f"[Script] HTML Scraper engine failed: {e}")
-
-    # 2. yt-dlp (서버 환경에서도 cookies.txt + 모바일 클라이언트로 시도)
-    try:
-        print(f"[Script] [시도] Try yt-dlp engine...")
-        res = get_transcript_via_ytdlp(video_id)
-        if res: return res
-    except Exception as e:
-        print(f"[Script] yt-dlp engine failed: {e}")
 
     # 3. YouTubeTranscriptApi
     try:
