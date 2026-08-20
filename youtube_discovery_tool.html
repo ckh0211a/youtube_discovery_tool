@@ -54,7 +54,7 @@
         window.APP_VERSION = {
             major: 3,
             minor: 2,
-            patch: 6
+            patch: 7
         };
         window.PROGRAM_ID = "";
         // [SCORCHED EARTH] Persistent Seen IDs for Mode 3 NEW badge
@@ -1418,24 +1418,22 @@
                     </div>
                 </div>
 
-                <!-- Clock & User Header Display (Top-Right - Hidden for Clean Minimalist Top) -->
-                <div class="hidden w-full justify-end items-center gap-2 z-[600] mb-2 pr-2">
-                    <div id="userInfoHeader" class="hidden items-center gap-2 bg-white border border-gray-200 p-2 px-3 rounded-xl shadow-md text-[13px] font-bold text-gray-700 h-[42px]">
-                        <i class="fas fa-user-circle text-gray-400 text-lg"></i>
+                <!-- User Header Display (Top-Right Login Button) -->
+                <div class="w-full flex justify-end items-center gap-2 z-[600] mb-1 pr-3">
+                    <div id="userInfoHeader" class="hidden items-center gap-2 bg-white border border-slate-200/80 px-3 py-1.5 rounded-full shadow-xs text-[12px] font-bold text-slate-700">
+                        <i class="fas fa-user-circle text-slate-400 text-base"></i>
                         <span id="userNameSpan"></span>
-                        <a href="/admin" target="_blank" id="adminLinkBtn" class="hidden ml-2 px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg text-xs font-black transition-all border border-blue-100 items-center gap-1">
+                        <a href="/admin" target="_blank" id="adminLinkBtn" class="hidden ml-1 px-2 py-0.5 bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-full text-[11px] font-black transition-all border border-blue-100 items-center gap-1">
                             <i class="fas fa-cog"></i> 관리자
                         </a>
-                        <button onclick="handleLogout()" class="ml-1 px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg text-xs font-black transition-all border border-red-100 flex items-center gap-1">
+                        <button onclick="handleLogout()" class="ml-1 px-2 py-0.5 bg-red-50 hover:bg-red-100 text-red-600 rounded-full text-[11px] font-black transition-all border border-red-100 flex items-center gap-1">
                             <i class="fas fa-sign-out-alt"></i> 로그아웃
                         </button>
                     </div>
-                    <button id="headerLoginBtn" onclick="document.getElementById('loginOverlay').style.display='flex'" class="flex items-center gap-2 bg-white hover:bg-gray-50 border border-gray-200 p-2 px-4 rounded-xl shadow-md text-[13px] font-bold text-gray-700 h-[42px] transition-all">
-                        <i class="fas fa-sign-in-alt text-blue-500"></i> 로그인
+                    <button id="headerLoginBtn" onclick="document.getElementById('loginOverlay').style.display='flex'" class="flex items-center gap-1.5 bg-white hover:bg-slate-50 border border-slate-200/80 px-3.5 py-1.5 rounded-full shadow-xs hover:shadow-sm text-[12px] font-bold text-slate-700 transition-all hover:scale-105 active:scale-95">
+                        <i class="fas fa-sign-in-alt text-blue-500 text-xs"></i> 로그인
                     </button>
-                    <div id="clockDisplay"
-                        class="flex items-center gap-2 bg-white border border-gray-200 p-2 px-4 rounded-xl shadow-md text-[13px] font-mono font-black text-gray-600 h-[42px]">
-                        <i class="far fa-clock text-blue-500"></i>
+                    <div id="clockDisplay" class="hidden">
                         <span></span>
                     </div>
                 </div>
