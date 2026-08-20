@@ -49,7 +49,7 @@
         window.APP_VERSION = {
             major: 3,
             minor: 2,
-            patch: 3
+            patch: 4
         };
         window.PROGRAM_ID = "";
         // [SCORCHED EARTH] Persistent Seen IDs for Mode 3 NEW badge
@@ -9474,23 +9474,29 @@ ${newsContext}
         function getYouTubeKey() {
             const el = document.getElementById('youtubeApiKey');
             const val = el ? el.value : (localStorage.getItem(YOUTUBE_API_STORAGE_KEY) || YOUTUBE_API_KEY);
-            return (val || "").trim();
+            const trimmed = (val || "").trim();
+            // 로컬에 등록된 키가 없으면 서버 기본 키(SERVER_DEFAULT)로 동작
+            return trimmed || "SERVER_DEFAULT";
         }
 
         function getGeminiKey() {
             const el = document.getElementById('geminiApiKey');
             const val = el ? el.value : (localStorage.getItem(GEMINI_API_STORAGE_KEY) || GEMINI_API_KEY);
-            return (val || "").trim();
+            const trimmed = (val || "").trim();
+            // 로컬에 등록된 키가 없으면 서버 기본 키(SERVER_DEFAULT)로 동작
+            return trimmed || "SERVER_DEFAULT";
         }
 
         // Utility: Save Keys
         function saveKeys() {
-            const ytRaw = getYouTubeKey();
-            const gemRaw = getGeminiKey();
+            const elYt = document.getElementById('youtubeApiKey');
+            const elGem = document.getElementById('geminiApiKey');
+            const ytRaw = elYt ? elYt.value.trim() : "";
+            const gemRaw = elGem ? elGem.value.trim() : "";
 
             // [NEW] 키가 바뀌었는지 확인하여 쿼터 리셋
-            const oldYtKey = localStorage.getItem(YOUTUBE_API_STORAGE_KEY);
-            const newYtKey = ytRaw ? ytRaw.trim() : "";
+            const oldYtKey = localStorage.getItem(YOUTUBE_API_STORAGE_KEY) || "";
+            const newYtKey = (ytRaw === "SERVER_DEFAULT") ? "" : ytRaw;
 
             if (newYtKey && oldYtKey !== newYtKey) {
                 console.log("[Quota] API Key changed -> Resetting local quota counter to 0");
@@ -9500,8 +9506,11 @@ ${newsContext}
                 if (typeof updateQuotaDisplay === 'function') updateQuotaDisplay();
             }
 
-            if (ytRaw) localStorage.setItem(YOUTUBE_API_STORAGE_KEY, newYtKey);
-            if (gemRaw) localStorage.setItem(GEMINI_API_STORAGE_KEY, gemRaw.trim());
+            if (newYtKey) localStorage.setItem(YOUTUBE_API_STORAGE_KEY, newYtKey);
+            else localStorage.removeItem(YOUTUBE_API_STORAGE_KEY);
+
+            if (gemRaw && gemRaw !== "SERVER_DEFAULT") localStorage.setItem(GEMINI_API_STORAGE_KEY, gemRaw);
+            else localStorage.removeItem(GEMINI_API_STORAGE_KEY);
         }
 
         function loadKeys() {

@@ -698,7 +698,8 @@ def proxy_youtube(subpath):
     # Construct the target YouTube API URL
     args = dict(request.args)
     server_yt_key = os.environ.get('YOUTUBE_API_KEY', '').strip()
-    if (not args.get('key') or args.get('key') == 'undefined') and server_yt_key:
+    current_key = str(args.get('key', '')).strip()
+    if (not current_key or current_key in ['undefined', 'null', 'SERVER_DEFAULT', 'default_server_key', 'none']) and server_yt_key:
         args['key'] = server_yt_key
     from urllib.parse import urlencode
     qs = urlencode(args)
@@ -712,7 +713,8 @@ def proxy_gemini(subpath):
     # Construct the target Gemini API URL
     args = dict(request.args)
     server_gem_key = os.environ.get('GEMINI_API_KEY', '').strip()
-    if (not args.get('key') or args.get('key') == 'undefined') and server_gem_key:
+    current_key = str(args.get('key', '')).strip()
+    if (not current_key or current_key in ['undefined', 'null', 'SERVER_DEFAULT', 'default_server_key', 'none']) and server_gem_key:
         args['key'] = server_gem_key
     from urllib.parse import urlencode
     qs = urlencode(args)
