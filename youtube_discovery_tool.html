@@ -49,7 +49,7 @@
         window.APP_VERSION = {
             major: 3,
             minor: 2,
-            patch: 4
+            patch: 5
         };
         window.PROGRAM_ID = "";
         // [SCORCHED EARTH] Persistent Seen IDs for Mode 3 NEW badge
@@ -1479,24 +1479,24 @@
                         </button>
                         <!-- Mode 1 -->
                         <button id="btnMode1" onclick="switchSearchMode(1)"
-                            title="[주제별 콘텐츠 검색 모드]&#10;특정 키워드를 기반으로 실시간 트렌드 영상과 연관 소재를 채굴하는 기본 분석 모드입니다."
+                            title="[주제별 콘텐츠]&#10;특정 키워드를 기반으로 실시간 트렌드 영상과 연관 소재를 채굴하는 기본 분석 모드입니다."
                             class="flex-1 flex flex-col items-center justify-center gap-1.5 py-4 transition-all hover:bg-orange-500 hover:text-white text-black font-black">
                             <i class="fas fa-search text-lg"></i>
-                            <span class="text-[13px] tracking-tighter">주제별 콘텐츠 검색</span>
+                            <span class="text-[13px] tracking-tighter">주제별 콘텐츠</span>
                         </button>
                         <!-- Mode 2 -->
                         <button id="btnMode2" onclick="switchSearchMode(2)"
-                            title="[채널 콘텐츠 정밀 분석]&#10;특정 채널 내의 모든 영상을 전수 조사하여 효자 소재와 성공 공식을 추출하는 모드입니다."
+                            title="[채널 콘텐츠]&#10;특정 채널 내의 모든 영상을 전수 조사하여 효자 소재와 성공 공식을 추출하는 모드입니다."
                             class="flex-1 flex flex-col items-center justify-center gap-1.5 py-4 transition-all hover:bg-orange-500 hover:text-white text-black font-black">
                             <i class="fas fa-id-card text-lg"></i>
-                            <span class="text-[13px] tracking-tighter">채널 콘텐츠 검색</span>
+                            <span class="text-[13px] tracking-tighter">채널 콘텐츠</span>
                         </button>
                         <!-- Mode 8 -->
                         <button id="btnMode8" onclick="switchSearchMode(8)"
-                            title="[채널 탐색 및 데이터 분석]&#10;구독자 규모와 성과 데이터를 바탕으로 벤치마킹할 라이벌 채널을 정밀 검색하는 모드입니다."
+                            title="[주제별 유튜버]&#10;구독자 규모와 성과 데이터를 바탕으로 벤치마킹할 라이벌 채널을 정밀 탐색하는 모드입니다."
                             class="flex-1 flex flex-col items-center justify-center gap-1.5 py-4 transition-all hover:bg-orange-500 hover:text-white text-black font-black">
                             <i class="fas fa-user-circle text-lg"></i>
-                            <span class="text-[13px] tracking-tighter">주제별 유튜버 검색</span>
+                            <span class="text-[13px] tracking-tighter">주제별 유튜버</span>
                         </button>
                         <!-- Mode 7 -->
                         <button id="btnTrendingNav" onclick="navToTrending()"
@@ -1556,39 +1556,39 @@
                                     <p class="text-gray-400 text-[11px] mt-1.5 font-black">라이벌 채널 및 관심 채널 모니터링</p>
                                 </button>
 
-                                <!-- Card 1: 주제별 콘텐츠 검색 (Mode 1) -->
+                                <!-- Card 1: 주제별 콘텐츠 (Mode 1) -->
                                 <button onclick="switchSearchMode(1)"
-                                    title="[주제별 콘텐츠 검색]&#10;발굴하고자 하는 키워드를 기반으로 실시간 유튜브 DB에서 관련성 높은 성과를 낸 영상을 탐색합니다.&#10;최신순/조회수순 분석을 통해 현재 시장에서 반응이 가장 뜨거운 '알고리즘 키워드'를 채굴하는 데 최적화되어 있습니다."
+                                    title="[주제별 콘텐츠]&#10;발굴하고자 하는 키워드를 기반으로 실시간 유튜브 DB에서 관련성 높은 성과를 낸 영상을 탐색합니다.&#10;최신순/조회수순 분석을 통해 현재 시장에서 반응이 가장 뜨거운 '알고리즘 키워드'를 채굴하는 데 최적화되어 있습니다."
                                     class="dashboard-btn-animate w-full group relative min-h-[140px] bg-white hover:bg-gray-50 rounded-[2rem] p-5 flex flex-col items-center justify-center text-center shadow-2xl transition-all duration-500 hover:scale-[1.03] hover:-translate-y-2 border border-gray-100 active:scale-95 overflow-hidden">
                                     <div
                                         class="bg-red-50 p-3 rounded-2xl mb-3 group-hover:scale-110 transition-all duration-500 shadow-sm">
                                         <i class="fas fa-search text-2xl text-red-600"></i>
                                     </div>
-                                    <span class="text-lg font-black text-gray-800 tracking-tight">주제별 콘텐츠 검색</span>
+                                    <span class="text-lg font-black text-gray-800 tracking-tight">주제별 콘텐츠</span>
                                     <p class="text-gray-400 text-[11px] mt-1.5 font-black">소재 채굴 및 알고리즘 분석</p>
                                 </button>
 
-                                <!-- Card 2: 채널콘텐츠검색 (Mode 2) -->
+                                <!-- Card 2: 채널 콘텐츠 (Mode 2) -->
                                 <button onclick="switchSearchMode(2)"
-                                    title="[채널콘텐츠검색]&#10;특정 채널의 전체 업로드 데이터를 분석하여 그 채널만의 '성공 방정식'을 추출합니다.&#10;구독자 대비 조회수가 압도적으로 높은 '효자 영상'을 분리하여, 어떤 소재와 썸네일이 채널 성장을 견인했는지 실질적인 근거를 제시합니다."
+                                    title="[채널 콘텐츠]&#10;특정 채널의 전체 업로드 데이터를 분석하여 그 채널만의 '성공 방정식'을 추출합니다.&#10;구독자 대비 조회수가 압도적으로 높은 '효자 영상'을 분리하여, 어떤 소재와 썸네일이 채널 성장을 견인했는지 실질적인 근거를 제시합니다."
                                     class="dashboard-btn-animate w-full group relative min-h-[140px] bg-white hover:bg-gray-50 rounded-[2rem] p-5 flex flex-col items-center justify-center text-center shadow-2xl transition-all duration-500 hover:scale-[1.03] hover:-translate-y-2 border border-gray-100 active:scale-95 overflow-hidden">
                                     <div
                                         class="bg-yellow-50 p-3 rounded-2xl mb-3 group-hover:scale-110 transition-all duration-500 shadow-sm">
                                         <i class="fas fa-id-card-clip text-2xl text-yellow-600"></i>
                                     </div>
-                                    <span class="text-lg font-black text-gray-800 tracking-tight">채널 콘텐츠 검색</span>
+                                    <span class="text-lg font-black text-gray-800 tracking-tight">채널 콘텐츠</span>
                                     <p class="text-gray-400 text-[11px] mt-1.5 font-black">성공 공식 및 소재 발굴 분석</p>
                                 </button>
 
-                                <!-- Card 3: 채널검색 (Mode 8) -->
+                                <!-- Card 3: 주제별 유튜버 (Mode 8) -->
                                 <button onclick="switchSearchMode(8)"
-                                    title="[채널 상세 검색]&#10;단순 영상이 아닌 '채널 자체'의 영향력을 분석하고 탐색합니다.&#10;구독자 증가 추이, 누계 조회수, 최근 업로드 빈도 등의 데이터를 종합하여 벤치마킹할 라이벌이나 협업 대상을 정교하게 필터링할 수 있습니다."
+                                    title="[주제별 유튜버]&#10;단순 영상이 아닌 '채널 자체'의 영향력을 분석하고 탐색합니다.&#10;구독자 증가 추이, 누계 조회수, 최근 업로드 빈도 등의 데이터를 종합하여 벤치마킹할 라이벌이나 협업 대상을 정교하게 필터링할 수 있습니다."
                                     class="dashboard-btn-animate w-full group relative min-h-[140px] bg-white hover:bg-gray-50 rounded-[2rem] p-5 flex flex-col items-center justify-center text-center shadow-2xl transition-all duration-500 hover:scale-[1.03] hover:-translate-y-2 border border-gray-100 active:scale-95 overflow-hidden">
                                     <div
                                         class="bg-yellow-50 p-3 rounded-2xl mb-3 group-hover:scale-110 transition-all duration-500 shadow-sm">
                                         <i class="fas fa-id-badge text-2xl text-yellow-600"></i>
                                     </div>
-                                    <span class="text-lg font-black text-gray-800 tracking-tight">주제별 유튜버 검색</span>
+                                    <span class="text-lg font-black text-gray-800 tracking-tight">주제별 유튜버</span>
                                     <p class="text-gray-400 text-[11px] mt-1.5 font-black">채널 기본 정보 및 데이터 분석</p>
                                 </button>
 
@@ -5010,7 +5010,7 @@
             saveModeState(currentSearchMode);
 
             // [ANALYTICS] 페이지뷰 트래킹
-            const modeNames = {0:'홈', 1:'주제별 콘텐츠 검색', 2:'채널 콘텐츠 검색', 3:'채널 추적', 4:'수익성 검사', 5:'소스 추출', 6:'주제별 유튜버 검색', 7:'실시간 떡상 TOP50', 8:'연관 검색', 9:'해외 인기 영상', 10:'환경 설정', 11:'즐겨찾기 관리', 12:'쇼츠관리', 13:'실시간 이슈', 14:'TTS 스튜디오', 15:'TubeTrend', 16:'GEMS 20종', 17:'다국어 번역기', 20:'쇼핑 쇼츠'};
+            const modeNames = {0:'홈', 1:'주제별 콘텐츠', 2:'채널 콘텐츠', 3:'채널 추적', 4:'수익성 검사', 5:'소스 추출', 6:'주제별 유튜버', 7:'실시간 떡상 TOP50', 8:'주제별 유튜버', 9:'해외 인기 영상', 10:'환경 설정', 11:'즐겨찾기 관리', 12:'쇼츠관리', 13:'실시간 이슈', 14:'TTS 스튜디오', 15:'TubeTrend', 16:'GEMS 20종', 17:'다국어 번역기', 20:'쇼핑 쇼츠'};
             try { trackPageView(modeNames[mode] || 'Mode_' + mode); } catch(e) {}
             // [NEW] 13번 모드(실시간 이슈) 진입 시 네비게이션바 노출 유지 및 큐레이션 렌더링 호출
             if (mode === 13) {
