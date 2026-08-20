@@ -49,7 +49,7 @@
         window.APP_VERSION = {
             major: 3,
             minor: 1,
-            patch: 8
+            patch: 9
         };
         window.PROGRAM_ID = "";
         // [SCORCHED EARTH] Persistent Seen IDs for Mode 3 NEW badge
@@ -1768,6 +1768,61 @@
                                     <p class="text-[11px] font-bold text-gray-700 leading-relaxed tracking-tight">
                                         너무 큰 범위의 조회나 단시간에 대사(스크립트), 영상다운 등을 많이 수행하면 유튜브 API 부하가 발생할 수 있습니다.
                                     </p>
+                                </div>
+                            </div>
+
+                            <!-- [Tube Trend Insights & Guides - SEO / AdSense Content Section] -->
+                            <div class="mt-14 mb-6 max-w-[1400px] mx-auto px-4 text-left">
+                                <div class="mb-8 text-center">
+                                    <span class="px-4 py-1.5 rounded-full bg-red-50 text-red-600 text-xs font-black uppercase tracking-wider border border-red-100">Discovery & Analytics Guide</span>
+                                    <h2 class="text-2xl md:text-3xl font-black text-slate-800 mt-2">Tube Trend 유튜브 트렌드 분석 & 알고리즘 가이드</h2>
+                                    <p class="text-sm text-slate-500 mt-1">유튜브 크리에이터와 마케터를 위한 정밀 데이터 분석 노하우</p>
+                                </div>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                                    <!-- Article 1 -->
+                                    <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all">
+                                        <div class="w-10 h-10 rounded-xl bg-red-50 text-red-500 flex items-center justify-center font-bold text-lg mb-4">
+                                            <i class="fas fa-chart-line"></i>
+                                        </div>
+                                        <h3 class="text-base font-bold text-slate-800 mb-2">실시간 떡상 알고리즘 분석</h3>
+                                        <p class="text-xs text-slate-500 leading-relaxed">
+                                            유튜브 알고리즘은 단순 조회수보다 <b>구독자 대비 조회수 비율</b>과 <b>초기 24시간 시청 지속 시간</b>을 중요하게 평가합니다. 급상승 떡상 영상을 역추적하여 현재 시청자들의 관심사 변화를 포착하세요.
+                                        </p>
+                                    </div>
+
+                                    <!-- Article 2 -->
+                                    <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all">
+                                        <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center font-bold text-lg mb-4">
+                                            <i class="fas fa-globe-americas"></i>
+                                        </div>
+                                        <h3 class="text-base font-bold text-slate-800 mb-2">해외 인기 소재 벤치마킹</h3>
+                                        <p class="text-xs text-slate-500 leading-relaxed">
+                                            글로벌 시장에서 이미 검증된 인기 콘텐츠 소재를 국내 시장에 맞게 현지화(Localization)하면 초기 채널 성장 속도를 3배 이상 단축시킬 수 있습니다.
+                                        </p>
+                                    </div>
+
+                                    <!-- Article 3 -->
+                                    <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all">
+                                        <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center font-bold text-lg mb-4">
+                                            <i class="fas fa-robot"></i>
+                                        </div>
+                                        <h3 class="text-base font-bold text-slate-800 mb-2">AI 기반 스크립트 구조화</h3>
+                                        <p class="text-xs text-slate-500 leading-relaxed">
+                                            인기 영상의 자막과 대사 스크립트를 추출하고 타임코드별 후킹(Hooking) 구조를 분석하여 내 영상의 초반 이탈률을 최소화하는 스토리라인을 기획할 수 있습니다.
+                                        </p>
+                                    </div>
+
+                                    <!-- Article 4 -->
+                                    <div class="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm hover:shadow-md transition-all">
+                                        <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center font-bold text-lg mb-4">
+                                            <i class="fas fa-coins"></i>
+                                        </div>
+                                        <h3 class="text-base font-bold text-slate-800 mb-2">수익성 검사 및 채널 최적화</h3>
+                                        <p class="text-xs text-slate-500 leading-relaxed">
+                                            채널의 카테고리별 예상 RPM(1,000회 조회당 수익)과 수익 창출 자격 요건을 진단하여 광고 수익 외에도 제휴 및 쇼핑 쇼츠를 통한 다각화 전략을 세워보세요.
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
 
@@ -4745,10 +4800,7 @@
         initQuota();
 
         function startProgram() {
-            if (!window.isUserLoggedIn && SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
-                document.getElementById('loginOverlay').style.display = 'flex';
-                return;
-            }
+            // [GUEST MODE] 구글 애드센스 심사 및 원활한 이용을 위해 로그인 없이 즉시 시작
             const landing = document.getElementById('landingPage');
             const app = document.getElementById('appInterface');
 
@@ -4970,11 +5022,7 @@
 
         // Search Mode Switcher (UI Only)
         function switchSearchMode(mode) {
-            // Check Auth for modes other than Dashboard(0)
-            if (mode !== 0 && !window.isUserLoggedIn && SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
-                document.getElementById('loginOverlay').style.display = 'flex';
-                return;
-            }
+            // [GUEST MODE] 구글 애드센스 심사 및 원활한 이용을 위해 모든 모드 비로그인 개방
             
             // [NEW] 현재 모드의 상태 저장
             saveModeState(currentSearchMode);
@@ -18624,10 +18672,7 @@ ${commentsText}
         }
 
         async function openTtsStudio() {
-            if (!window.isUserLoggedIn && SUPABASE_URL !== 'YOUR_SUPABASE_URL') {
-                document.getElementById('loginOverlay').style.display = 'flex';
-                return;
-            }
+            // [GUEST MODE] 비로그인 사용자도 모달 접근 허용
             const modal = document.getElementById('ttsStudioModal');
             modal.classList.remove('hidden');
             

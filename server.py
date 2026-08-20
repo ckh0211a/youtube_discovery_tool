@@ -696,19 +696,29 @@ def get_monetization_raw():
 @app.route('/api/proxy/google/youtube/<path:subpath>', methods=['GET', 'POST'])
 def proxy_youtube(subpath):
     # Construct the target YouTube API URL
-    query_string = request.query_string.decode('utf-8')
+    args = dict(request.args)
+    server_yt_key = os.environ.get('YOUTUBE_API_KEY', '').strip()
+    if (not args.get('key') or args.get('key') == 'undefined') and server_yt_key:
+        args['key'] = server_yt_key
+    from urllib.parse import urlencode
+    qs = urlencode(args)
     target_url = f"https://www.googleapis.com/youtube/{subpath}"
-    if query_string:
-        target_url += f"?{query_string}"
+    if qs:
+        target_url += f"?{qs}"
     return handle_google_request(target_url)
 
 @app.route('/api/proxy/google/gemini/<path:subpath>', methods=['GET', 'POST'])
 def proxy_gemini(subpath):
     # Construct the target Gemini API URL
-    query_string = request.query_string.decode('utf-8')
+    args = dict(request.args)
+    server_gem_key = os.environ.get('GEMINI_API_KEY', '').strip()
+    if (not args.get('key') or args.get('key') == 'undefined') and server_gem_key:
+        args['key'] = server_gem_key
+    from urllib.parse import urlencode
+    qs = urlencode(args)
     target_url = f"https://generativelanguage.googleapis.com/{subpath}"
-    if query_string:
-        target_url += f"?{query_string}"
+    if qs:
+        target_url += f"?{qs}"
     return handle_google_request(target_url)
 
 def handle_google_request(url):
