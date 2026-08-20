@@ -351,10 +351,130 @@ def get_transcript_via_ytdlp(video_id):
     print("[Script] 모든 yt-dlp 전략 실패")
     return None
 
+def get_transcript_via_innertube(video_id):
+    """
+    Innertube API (Android, Web, iOS Client)를 활용하여 캡션(자막) 메타데이터를 직접 조회하고 추출합니다.
+    서버(클라우드) 환경에서도 봇 차단을 우회하여 자막을 신속하고 정확하게 가져옵니다.
+    """
+    import http.cookiejar
+    cookies_file = _find_cookies_file()
+    session = requests.Session()
+    if cookies_file:
+        try:
+            cj = http.cookiejar.MozillaCookieJar(cookies_file)
+            cj.load(ignore_discard=True, ignore_expires=True)
+            session.cookies = cj
+            print(f"[Innertube] 쿠키 파일 장착: {cookies_file}")
+        except Exception as ce:
+            print(f"[Innertube] 쿠키 로드 실패: {ce}")
+
+    clients = [
+        {
+            "name": "ANDROID",
+            "context": {"client": {"clientName": "ANDROID", "clientVersion": "19.29.35", "hl": "ko", "gl": "KR"}},
+            "user_agent": "com.google.android.youtube/19.29.35 (Linux; U; Android 14; ko_KR)"
+        },
+        {
+            "name": "WEB",
+            "context": {"client": {"clientName": "WEB", "clientVersion": "2.20240801.01.00", "hl": "ko", "gl": "KR"}},
+            "user_agent": USER_AGENT
+        },
+        {
+            "name": "IOS",
+            "context": {"client": {"clientName": "IOS", "clientVersion": "19.29.1", "hl": "ko", "gl": "KR", "deviceModel": "iPhone16,2"}},
+            "user_agent": "com.google.ios.youtube/19.29.1 (iPhone16,2; U; CPU iOS 17_5_1 like Mac OS X; ko_KR)"
+        }
+    ]
+
+    for cl in clients:
+        try:
+            payload = {
+                "videoId": video_id,
+                "context": cl["context"]
+            }
+            headers = {
+                "User-Agent": cl["user_agent"],
+                "Content-Type": "application/json",
+                "Accept-Language": "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7"
+            }
+            res = session.post(
+                "https://www.youtube.com/youtubei/v1/player",
+                json=payload,
+                headers=headers,
+                timeout=12,
+                verify=False
+            )
+            if res.status_code != 200:
+                continue
+            data = res.json()
+            captions = data.get('captions', {}).get('playerCaptionsTracklistRenderer', {}).get('captionTracks', [])
+            if not captions:
+                continue
+
+            target_track = None
+            for lang_code in ['ko', 'en']:
+                target_track = next((t for t in captions if t.get('languageCode') == lang_code and 'kind' not in t), None)
+                if target_track: break
+                target_track = next((t for t in captions if t.get('languageCode') == lang_code), None)
+                if target_track: break
+            if not target_track:
+                target_track = captions[0]
+
+            base_url = target_track.get('baseUrl')
+            if not base_url:
+                continue
+
+            # JSON3 포맷 시도
+            try:
+                sub_res = session.get(base_url + "&fmt=json3", headers={"User-Agent": USER_AGENT}, timeout=10, verify=False)
+                if sub_res.status_code == 200:
+                    sub_data = sub_res.json()
+                    structured = []
+                    for e in sub_data.get('events', []):
+                        if 'segs' not in e: continue
+                        text = "".join([s.get('utf8', '') for s in e.get('segs', [])])
+                        if not text.strip(): continue
+                        start_ms = e.get('tStartMs', 0)
+                        time_s = start_ms // 1000
+                        mm = time_s // 60
+                        ss = time_s % 60
+                        time_label = f"{mm}:{ss:02d}"
+                        structured.append({"timeLabel": time_label, "text": text})
+                    if structured:
+                        print(f"[Innertube] {cl['name']} 클라이언트로 자막 {len(structured)}줄 추출 성공!")
+                        return deduplicate_transcript(structured)
+            except Exception:
+                pass
+
+            # XML 포맷 시도
+            try:
+                sub_res = session.get(base_url, headers={"User-Agent": USER_AGENT}, timeout=10, verify=False)
+                if sub_res.status_code == 200:
+                    root = ET.fromstring(sub_res.text)
+                    structured = []
+                    for child in root:
+                        if child.text:
+                            start = float(child.attrib.get('start', 0))
+                            time_s = math.floor(start)
+                            mm = time_s // 60
+                            ss = time_s % 60
+                            time_label = f"{mm}:{ss:02d}"
+                            structured.append({"timeLabel": time_label, "text": child.text})
+                    if structured:
+                        print(f"[Innertube] {cl['name']} XML로 자막 {len(structured)}줄 추출 성공!")
+                        return deduplicate_transcript(structured)
+            except Exception:
+                pass
+        except Exception as e:
+            print(f"[Innertube] {cl['name']} 시도 중 오류: {e}")
+            continue
+
+    return None
+
 def fetch_transcript_structured(video_id):
     """
     Super-robust main entry point.
-    순서: TikTok 확인 → HTML 직접 파싱 → yt-dlp → youtube_transcript_api
+    순서: TikTok 확인 → Innertube API → HTML 직접 파싱 → yt-dlp → youtube_transcript_api
     서버 환경에서도 동작하도록 각 엔진이 cookies.txt를 활용합니다.
     """
     if not video_id: return "ERROR: video_id_invalid"
@@ -365,7 +485,16 @@ def fetch_transcript_structured(video_id):
         
     print(f"\n[Script] [진행] Deep search starting for: {video_id}")
     
-    # 1. HTML 직접 파싱 (가장 가볍고 서버에서도 동작 가능)
+    # 0. Innertube API (Android/Web/iOS - 봇 차단 우회 및 서버 최적화 1순위)
+    try:
+        print(f"[Script] [시도] Try Innertube Player API engine...")
+        res = get_transcript_via_innertube(video_id)
+        if isinstance(res, list) and res:
+            return res
+    except Exception as e:
+        print(f"[Script] Innertube API engine failed: {e}")
+
+    # 1. HTML 직접 파싱
     try:
         print(f"[Script] [시도] Try HTML Scraper engine...")
         res = get_transcript_via_html(video_id)
@@ -373,7 +502,6 @@ def fetch_transcript_structured(video_id):
             return deduplicate_transcript(res)
         elif isinstance(res, str) and res.startswith("ERROR:"):
             print(f"[Script] HTML Scraper 특수 오류: {res}")
-            # YT_PROCESSING은 다른 엔진도 실패하므로 바로 반환
             if "YT_PROCESSING" in res:
                 return res
     except Exception as e:
