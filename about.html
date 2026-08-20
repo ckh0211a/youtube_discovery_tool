@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>서비스 소개 - YouTube Discovery Tool (TubeTrend)</title>
+    <meta name="description" content="TubeTrend(YouTube Discovery Tool)는 유튜브 트렌드 분석, 채널 추적, 소재 발굴을 위한 올인원 분석 도구입니다. 실시간 인기 영상 분석부터 AI 기반 콘텐츠 인사이트까지 제공합니다.">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            line-height: 1.8;
+            min-height: 100vh;
+        }
+        .header {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-inner {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo {
+            font-size: 1.3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #f43f5e, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+        .nav-links { display: flex; gap: 1.5rem; }
+        .nav-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover { color: #f1f5f9; }
+        .nav-links a.active { color: #f43f5e; }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 3rem 2rem 5rem;
+        }
+
+        /* Hero */
+        .hero {
+            text-align: center;
+            padding: 3rem 0 4rem;
+        }
+        .hero-badge {
+            display: inline-block;
+            padding: 0.3rem 1rem;
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 2rem;
+            color: #34d399;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            margin-bottom: 1.5rem;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 1rem;
+        }
+        .hero h1 .gradient {
+            background: linear-gradient(135deg, #f43f5e, #ec4899, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .hero p {
+            color: #64748b;
+            font-size: 1.15rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        .hero-cta {
+            margin-top: 2rem;
+            display: inline-block;
+            padding: 0.9rem 2.5rem;
+            background: linear-gradient(135deg, #f43f5e, #ec4899);
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+            border-radius: 2rem;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 20px rgba(244, 63, 94, 0.3);
+        }
+        .hero-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(244, 63, 94, 0.4);
+        }
+
+        /* Features */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0 3rem;
+        }
+        .feature-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 1rem;
+            padding: 2rem;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .feature-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(244, 63, 94, 0.3);
+        }
+        .feature-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .feature-card h3 {
+            color: #f1f5f9;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .feature-card p {
+            color: #64748b;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .icon-red { background: rgba(244, 63, 94, 0.15); }
+        .icon-blue { background: rgba(59, 130, 246, 0.15); }
+        .icon-green { background: rgba(16, 185, 129, 0.15); }
+        .icon-purple { background: rgba(139, 92, 246, 0.15); }
+        .icon-amber { background: rgba(245, 158, 11, 0.15); }
+        .icon-pink { background: rgba(236, 72, 153, 0.15); }
+
+        /* Section */
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #f1f5f9;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+        .section-subtitle {
+            color: #64748b;
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        /* Stats */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin: 3rem 0;
+        }
+        .stat-card {
+            text-align: center;
+            padding: 2rem 1rem;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 1rem;
+        }
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #f43f5e, #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .stat-label {
+            color: #64748b;
+            font-size: 0.9rem;
+            margin-top: 0.3rem;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: linear-gradient(135deg, rgba(244, 63, 94, 0.08), rgba(139, 92, 246, 0.08));
+            border-radius: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.06);
+            margin: 3rem 0;
+        }
+        .cta-section h2 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #f1f5f9;
+            margin-bottom: 1rem;
+            border: none;
+            padding: 0;
+        }
+        .cta-section h2::before { display: none; }
+        .cta-section p {
+            color: #94a3b8;
+            margin-bottom: 2rem;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .footer {
+            border-top: 1px solid rgba(255,255,255,0.06);
+            padding: 2rem;
+            text-align: center;
+        }
+        .footer-links { display: flex; gap: 2rem; justify-content: center; margin-bottom: 1rem; flex-wrap: wrap; }
+        .footer-links a { color: #64748b; text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+        .footer-links a:hover { color: #f1f5f9; }
+        .footer p { color: #475569; font-size: 0.8rem; text-align: center; }
+        @media (max-width: 640px) {
+            .hero h1 { font-size: 2rem; }
+            .container { padding: 2rem 1.2rem 3rem; }
+            .stats-row { grid-template-columns: 1fr; }
+            .nav-links { gap: 0.8rem; }
+            .nav-links a { font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-inner">
+            <a href="/" class="logo">TubeTrend</a>
+            <nav class="nav-links">
+                <a href="/about" class="active">소개</a>
+                <a href="/privacy">개인정보</a>
+                <a href="/terms">이용약관</a>
+                <a href="/contact">문의</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Hero -->
+        <div class="hero">
+            <span class="hero-badge">YOUTUBE DISCOVERY TOOL</span>
+            <h1>유튜브 트렌드를<br><span class="gradient">한눈에 분석하세요</span></h1>
+            <p>TubeTrend는 유튜브 크리에이터와 마케터를 위한 올인원 분석 도구입니다. 실시간 트렌드부터 AI 기반 인사이트까지, 콘텐츠 전략에 필요한 모든 것을 제공합니다.</p>
+            <a href="/" class="hero-cta">무료로 시작하기 →</a>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-number">12+</div>
+                <div class="stat-label">핵심 분석 기능</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">실시간</div>
+                <div class="stat-label">트렌드 데이터 업데이트</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">AI</div>
+                <div class="stat-label">Gemini 기반 분석</div>
+            </div>
+        </div>
+
+        <!-- Features -->
+        <h2 class="section-title">주요 기능</h2>
+        <p class="section-subtitle">크리에이터에게 필요한 모든 분석 도구를 한 곳에서</p>
+
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon icon-red">📡</div>
+                <h3>채널 추적</h3>
+                <p>라이벌 채널과 관심 채널을 실시간으로 모니터링하고, 새 영상 업로드 알림을 받으세요.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon icon-blue">🔍</div>
+                <h3>주제별 콘텐츠 검색</h3>
+                <p>키워드 기반으로 인기 콘텐츠를 검색하고 소재 아이디어와 알고리즘 트렌드를 분석합니다.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon icon-green">📊</div>
+                <h3>실시간 떡상 TOP 50</h3>
+                <p>지금 유튜브에서 가장 빠르게 성장하는 콘텐츠를 실시간으로 확인하세요.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon icon-purple">🌍</div>
+                <h3>해외 인기 영상</h3>
+                <p>글로벌 실시간 트렌드를 분석하고, 해외 인기 소재를 빠르게 발굴합니다.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon icon-amber">💰</div>
+                <h3>수익성 검사</h3>
+                <p>채널 및 영상의 예상 수익을 분석하고 수익 최적화 전략을 세워보세요.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon icon-pink">🤖</div>
+                <h3>AI 콘텐츠 분석</h3>
+                <p>Google Gemini AI를 활용한 스크립트 분석, 자동 번역, 인사이트 도출 기능을 제공합니다.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon icon-red">📝</div>
+                <h3>소스 추출</h3>
+                <p>영상의 자막과 스크립트를 자동으로 추출하여 콘텐츠 제작에 활용하세요.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon icon-blue">🌐</div>
+                <h3>다국어 번역</h3>
+                <p>12개국어 번역 및 타임코드 번역 기능으로 글로벌 콘텐츠 전략을 수립하세요.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon icon-green">🎙️</div>
+                <h3>TTS 스튜디오</h3>
+                <p>고품질 음성 변환(Typecast) 기능으로 나레이션을 쉽고 빠르게 제작합니다.</p>
+            </div>
+        </div>
+
+        <!-- CTA -->
+        <div class="cta-section">
+            <h2>지금 바로 시작하세요</h2>
+            <p>Google 계정으로 간편 로그인하고, 유튜브 트렌드 분석의 새로운 경험을 만나보세요.</p>
+            <a href="/" class="hero-cta">TubeTrend 시작하기 →</a>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="/">홈</a>
+            <a href="/about">소개</a>
+            <a href="/privacy">개인정보처리방침</a>
+            <a href="/terms">이용약관</a>
+            <a href="/contact">문의하기</a>
+        </div>
+        <p>&copy; 2026 TubeTrend (YouTube Discovery Tool). All rights reserved.</p>
+    </footer>
+</body>
+</html>

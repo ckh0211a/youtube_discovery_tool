@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>개인정보처리방침 - YouTube Discovery Tool (TubeTrend)</title>
+    <meta name="description" content="YouTube Discovery Tool (TubeTrend)의 개인정보처리방침입니다. 사용자의 개인정보 수집, 이용, 보관 및 보호에 관한 정책을 안내합니다.">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            line-height: 1.8;
+            min-height: 100vh;
+        }
+        /* Header */
+        .header {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-inner {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo {
+            font-size: 1.3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #f43f5e, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+        .nav-links { display: flex; gap: 1.5rem; }
+        .nav-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover { color: #f1f5f9; }
+        .nav-links a.active { color: #f43f5e; }
+
+        /* Main Content */
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 3rem 2rem 5rem;
+        }
+        .page-badge {
+            display: inline-block;
+            padding: 0.3rem 1rem;
+            background: rgba(244, 63, 94, 0.15);
+            border: 1px solid rgba(244, 63, 94, 0.3);
+            border-radius: 2rem;
+            color: #f43f5e;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+        }
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #f1f5f9;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+        .subtitle {
+            color: #64748b;
+            font-size: 1rem;
+            margin-bottom: 3rem;
+        }
+        h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        h2::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 1.2em;
+            background: linear-gradient(to bottom, #f43f5e, #ec4899);
+            border-radius: 2px;
+            margin-right: 0.7rem;
+            vertical-align: middle;
+        }
+        h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        p { margin-bottom: 1rem; color: #94a3b8; }
+        ul, ol {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+            color: #94a3b8;
+        }
+        li { margin-bottom: 0.4rem; }
+        .info-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+        th, td {
+            padding: 0.8rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            color: #94a3b8;
+            font-size: 0.95rem;
+        }
+        th {
+            color: #cbd5e1;
+            font-weight: 600;
+            background: rgba(255,255,255,0.03);
+        }
+
+        /* Footer */
+        .footer {
+            border-top: 1px solid rgba(255,255,255,0.06);
+            padding: 2rem;
+            text-align: center;
+        }
+        .footer-links { display: flex; gap: 2rem; justify-content: center; margin-bottom: 1rem; flex-wrap: wrap; }
+        .footer-links a { color: #64748b; text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+        .footer-links a:hover { color: #f1f5f9; }
+        .footer p { color: #475569; font-size: 0.8rem; text-align: center; }
+
+        @media (max-width: 640px) {
+            h1 { font-size: 1.8rem; }
+            .container { padding: 2rem 1.2rem 3rem; }
+            .nav-links { gap: 0.8rem; }
+            .nav-links a { font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-inner">
+            <a href="/" class="logo">TubeTrend</a>
+            <nav class="nav-links">
+                <a href="/about">소개</a>
+                <a href="/privacy" class="active">개인정보</a>
+                <a href="/terms">이용약관</a>
+                <a href="/contact">문의</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <span class="page-badge">PRIVACY POLICY</span>
+        <h1>개인정보처리방침</h1>
+        <p class="subtitle">최종 업데이트: 2026년 8월 20일</p>
+
+        <p>YouTube Discovery Tool(이하 "TubeTrend" 또는 "서비스")는 이용자의 개인정보를 중요시하며, 「개인정보 보호법」 등 관련 법령을 준수합니다. 본 개인정보처리방침은 서비스가 수집하는 개인정보의 항목, 수집 및 이용 목적, 보유 기간 등을 안내합니다.</p>
+
+        <h2>1. 수집하는 개인정보 항목</h2>
+        <div class="info-card">
+            <table>
+                <thead>
+                    <tr>
+                        <th>수집 항목</th>
+                        <th>수집 방법</th>
+                        <th>목적</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Google 계정 이메일, 이름</td>
+                        <td>Google OAuth 로그인</td>
+                        <td>회원 식별 및 서비스 제공</td>
+                    </tr>
+                    <tr>
+                        <td>서비스 이용 기록, 접속 로그</td>
+                        <td>자동 수집</td>
+                        <td>서비스 품질 개선 및 통계 분석</td>
+                    </tr>
+                    <tr>
+                        <td>쿠키(Cookie)</td>
+                        <td>자동 수집</td>
+                        <td>세션 유지 및 사용자 환경 설정</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <h2>2. 개인정보의 수집 및 이용 목적</h2>
+        <ul>
+            <li>회원 관리: 회원제 서비스 이용에 따른 본인 확인, 개인 식별</li>
+            <li>서비스 제공: YouTube 트렌드 분석, 콘텐츠 검색, 소재 발굴 기능 제공</li>
+            <li>서비스 개선: 이용 통계 분석, 신규 기능 개발 및 서비스 품질 향상</li>
+            <li>고객 지원: 이용자 문의 대응 및 공지사항 전달</li>
+        </ul>
+
+        <h2>3. 개인정보의 보유 및 이용 기간</h2>
+        <p>이용자의 개인정보는 서비스 이용 기간 동안 보유하며, 회원 탈퇴 시 또는 수집 목적이 달성된 후에는 해당 정보를 지체 없이 파기합니다. 단, 관련 법령에 의해 보존할 필요가 있는 경우 해당 법령에서 정한 기간 동안 보관합니다.</p>
+        <ul>
+            <li>전자상거래 등에서의 소비자보호에 관한 법률: 계약 또는 청약철회 기록 (5년)</li>
+            <li>통신비밀보호법: 서비스 이용 관련 로그 기록 (3개월)</li>
+        </ul>
+
+        <h2>4. 개인정보의 제3자 제공</h2>
+        <p>TubeTrend는 이용자의 동의 없이 개인정보를 제3자에게 제공하지 않습니다. 다만, 다음의 경우에는 예외로 합니다:</p>
+        <ul>
+            <li>이용자가 사전에 동의한 경우</li>
+            <li>법령의 규정에 의하거나, 수사 목적으로 법령에 정해진 절차와 방법에 따라 수사기관의 요구가 있는 경우</li>
+        </ul>
+
+        <h2>5. 쿠키(Cookie)의 사용</h2>
+        <p>TubeTrend는 이용자의 편의를 위해 쿠키를 사용합니다. 쿠키는 웹사이트를 운영하는데 이용되는 서버가 이용자의 브라우저에 보내는 소량의 정보이며, 이용자의 PC/모바일 저장장치에 저장됩니다.</p>
+        <ul>
+            <li>쿠키의 사용 목적: 로그인 세션 유지, 사용자 환경설정 저장</li>
+            <li>쿠키 거부 방법: 브라우저 설정에서 쿠키 저장을 거부할 수 있으나, 일부 서비스 이용에 제한이 있을 수 있습니다.</li>
+        </ul>
+
+        <h2>6. 개인정보의 파기 절차 및 방법</h2>
+        <p>개인정보는 목적 달성 후 별도의 DB에 옮겨져 내부 방침 및 관련 법령에 따라 일정 기간 저장된 후 파기됩니다. 전자적 파일 형태의 정보는 기록을 재생할 수 없는 기술적 방법을 사용하여 삭제합니다.</p>
+
+        <h2>7. 이용자 및 법정대리인의 권리</h2>
+        <ul>
+            <li>이용자는 언제든지 자신의 개인정보를 조회하거나 수정할 수 있습니다.</li>
+            <li>이용자는 개인정보의 수집 및 이용에 대한 동의를 철회할 수 있습니다.</li>
+            <li>개인정보 열람, 정정, 삭제, 처리 정지 요청은 아래 연락처로 문의해 주세요.</li>
+        </ul>
+
+        <h2>8. 개인정보 보호책임자</h2>
+        <div class="info-card">
+            <p><strong>담당자:</strong> TubeTrend 운영팀</p>
+            <p><strong>이메일:</strong> tubetrend.help@gmail.com</p>
+            <p>개인정보와 관련된 불만이나 문의사항은 위 연락처로 문의해 주시면 신속하게 처리하겠습니다.</p>
+        </div>
+
+        <h2>9. 개인정보처리방침 변경</h2>
+        <p>본 개인정보처리방침은 법률이나 서비스의 변경사항을 반영하기 위해 수정될 수 있으며, 변경 시 웹사이트를 통해 공지합니다.</p>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="/">홈</a>
+            <a href="/about">소개</a>
+            <a href="/privacy">개인정보처리방침</a>
+            <a href="/terms">이용약관</a>
+            <a href="/contact">문의하기</a>
+        </div>
+        <p>&copy; 2026 TubeTrend (YouTube Discovery Tool). All rights reserved.</p>
+    </footer>
+</body>
+</html>

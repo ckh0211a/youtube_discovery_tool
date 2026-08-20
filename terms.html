@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>이용약관 - YouTube Discovery Tool (TubeTrend)</title>
+    <meta name="description" content="YouTube Discovery Tool (TubeTrend)의 서비스 이용약관입니다. 서비스 이용 조건, 권리 및 의무, 면책사항 등을 안내합니다.">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            line-height: 1.8;
+            min-height: 100vh;
+        }
+        .header {
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header-inner {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .logo {
+            font-size: 1.3rem;
+            font-weight: 900;
+            background: linear-gradient(135deg, #f43f5e, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-decoration: none;
+        }
+        .nav-links { display: flex; gap: 1.5rem; }
+        .nav-links a {
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover { color: #f1f5f9; }
+        .nav-links a.active { color: #f43f5e; }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 3rem 2rem 5rem;
+        }
+        .page-badge {
+            display: inline-block;
+            padding: 0.3rem 1rem;
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 2rem;
+            color: #818cf8;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+        }
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: #f1f5f9;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+        .subtitle {
+            color: #64748b;
+            font-size: 1rem;
+            margin-bottom: 3rem;
+        }
+        h2 {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        h2::before {
+            content: '';
+            display: inline-block;
+            width: 4px;
+            height: 1.2em;
+            background: linear-gradient(to bottom, #6366f1, #8b5cf6);
+            border-radius: 2px;
+            margin-right: 0.7rem;
+            vertical-align: middle;
+        }
+        h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-top: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        p { margin-bottom: 1rem; color: #94a3b8; }
+        ul, ol {
+            margin-bottom: 1rem;
+            padding-left: 1.5rem;
+            color: #94a3b8;
+        }
+        li { margin-bottom: 0.4rem; }
+        .info-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+        }
+        .footer {
+            border-top: 1px solid rgba(255,255,255,0.06);
+            padding: 2rem;
+            text-align: center;
+        }
+        .footer-links { display: flex; gap: 2rem; justify-content: center; margin-bottom: 1rem; flex-wrap: wrap; }
+        .footer-links a { color: #64748b; text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
+        .footer-links a:hover { color: #f1f5f9; }
+        .footer p { color: #475569; font-size: 0.8rem; text-align: center; }
+        @media (max-width: 640px) {
+            h1 { font-size: 1.8rem; }
+            .container { padding: 2rem 1.2rem 3rem; }
+            .nav-links { gap: 0.8rem; }
+            .nav-links a { font-size: 0.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-inner">
+            <a href="/" class="logo">TubeTrend</a>
+            <nav class="nav-links">
+                <a href="/about">소개</a>
+                <a href="/privacy">개인정보</a>
+                <a href="/terms" class="active">이용약관</a>
+                <a href="/contact">문의</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <span class="page-badge">TERMS OF SERVICE</span>
+        <h1>이용약관</h1>
+        <p class="subtitle">최종 업데이트: 2026년 8월 20일</p>
+
+        <p>본 약관은 YouTube Discovery Tool(이하 "TubeTrend" 또는 "서비스")의 이용조건 및 절차, 이용자와 서비스 제공자의 권리, 의무 및 책임사항을 규정함을 목적으로 합니다.</p>
+
+        <h2>제1조 (목적)</h2>
+        <p>본 약관은 TubeTrend가 제공하는 YouTube 트렌드 분석, 콘텐츠 검색, 소재 발굴 등 관련 서비스의 이용에 관한 조건을 규정하는 것을 목적으로 합니다.</p>
+
+        <h2>제2조 (용어의 정의)</h2>
+        <ul>
+            <li><strong>"서비스"</strong>란 TubeTrend가 제공하는 YouTube 트렌드 분석, 채널 추적, 콘텐츠 검색, 수익성 검사, 소스 추출, 다국어 번역 등 일체의 서비스를 말합니다.</li>
+            <li><strong>"이용자"</strong>란 본 약관에 따라 서비스를 이용하는 모든 사용자를 말합니다.</li>
+            <li><strong>"회원"</strong>이란 서비스에 Google 계정으로 로그인하여 서비스를 이용하는 자를 말합니다.</li>
+        </ul>
+
+        <h2>제3조 (약관의 효력 및 변경)</h2>
+        <ul>
+            <li>본 약관은 서비스 화면에 게시하거나 기타의 방법으로 이용자에게 공지함으로써 효력이 발생합니다.</li>
+            <li>TubeTrend는 합리적인 사유가 발생할 경우 약관을 변경할 수 있으며, 변경된 약관은 서비스 내 공지를 통해 적용됩니다.</li>
+        </ul>
+
+        <h2>제4조 (서비스의 제공 및 변경)</h2>
+        <p>TubeTrend는 다음과 같은 서비스를 제공합니다:</p>
+        <ul>
+            <li>YouTube 실시간 트렌드 분석 및 인기 콘텐츠 분석</li>
+            <li>채널별 콘텐츠 검색 및 채널 추적 기능</li>
+            <li>주제별 유튜버 검색 및 수익성 분석</li>
+            <li>영상 소스 추출 및 다국어 번역 기능</li>
+            <li>AI 기반 콘텐츠 분석 (Gemini API 연동)</li>
+            <li>TTS 스튜디오 및 쇼츠 관리 기능</li>
+            <li>기타 TubeTrend가 추가 개발하거나 제휴를 통해 제공하는 서비스</li>
+        </ul>
+        <p>TubeTrend는 서비스의 품질 향상을 위해 서비스의 내용을 변경할 수 있으며, 이 경우 변경 내용을 공지합니다.</p>
+
+        <h2>제5조 (서비스의 중단)</h2>
+        <p>TubeTrend는 다음과 같은 경우 서비스 제공을 일시적으로 중단할 수 있습니다:</p>
+        <ul>
+            <li>시스템 정기점검, 증설 및 교체</li>
+            <li>천재지변, 비상사태 등 불가항력적 사유가 있는 경우</li>
+            <li>YouTube API 정책 변경 등 외부 서비스의 변경으로 인한 경우</li>
+        </ul>
+
+        <h2>제6조 (이용자의 의무)</h2>
+        <p>이용자는 다음 행위를 하여서는 안 됩니다:</p>
+        <ul>
+            <li>타인의 정보를 도용하는 행위</li>
+            <li>서비스를 이용하여 법령 또는 공서양속에 반하는 행위</li>
+            <li>서비스의 운영을 방해하는 행위 (과도한 API 요청, 크롤링 등)</li>
+            <li>다른 이용자의 개인정보를 수집하는 행위</li>
+            <li>서비스를 상업적 목적으로 무단 복제, 배포하는 행위</li>
+        </ul>
+
+        <h2>제7조 (저작권 및 지적재산권)</h2>
+        <p>서비스에 의해 분석되는 YouTube 콘텐츠의 저작권은 해당 콘텐츠 제작자에게 있습니다. TubeTrend는 YouTube 데이터를 분석 및 표시하는 도구를 제공할 뿐이며, 콘텐츠 자체에 대한 권리를 주장하지 않습니다.</p>
+        <p>TubeTrend 서비스의 소프트웨어, 디자인, 로고 등에 대한 지적재산권은 TubeTrend에 귀속됩니다.</p>
+
+        <h2>제8조 (면책조항)</h2>
+        <div class="info-card">
+            <ul>
+                <li>TubeTrend는 YouTube API를 통해 제공되는 데이터의 정확성을 보증하지 않습니다.</li>
+                <li>이용자가 서비스를 통해 얻은 정보를 바탕으로 한 판단이나 행위에 대해 TubeTrend는 책임을 지지 않습니다.</li>
+                <li>천재지변 또는 이에 준하는 불가항력으로 인해 서비스를 제공할 수 없는 경우에는 책임이 면제됩니다.</li>
+                <li>이용자의 귀책사유로 인한 서비스 이용의 장애에 대해 TubeTrend는 책임을 지지 않습니다.</li>
+            </ul>
+        </div>
+
+        <h2>제9조 (분쟁 해결)</h2>
+        <p>서비스 이용과 관련하여 분쟁이 발생한 경우, 양 당사자는 원만한 해결을 위해 성실히 협의합니다. 협의가 이루어지지 않을 경우 관할 법원에 소를 제기할 수 있습니다.</p>
+
+        <h2>제10조 (기타)</h2>
+        <p>본 약관에서 정하지 않은 사항은 관련 법령 및 상관례에 따릅니다.</p>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="/">홈</a>
+            <a href="/about">소개</a>
+            <a href="/privacy">개인정보처리방침</a>
+            <a href="/terms">이용약관</a>
+            <a href="/contact">문의하기</a>
+        </div>
+        <p>&copy; 2026 TubeTrend (YouTube Discovery Tool). All rights reserved.</p>
+    </footer>
+</body>
+</html>

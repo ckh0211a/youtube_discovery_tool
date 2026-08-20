@@ -319,6 +319,38 @@ def serve_ads_txt():
         return send_file(ads_txt_path, mimetype='text/plain')
     return "ads.txt not found", 404
 
+@app.route('/privacy')
+def serve_privacy():
+    html_path = resource_path('privacy.html')
+    if os.path.exists(html_path):
+        from flask import send_file
+        return send_file(html_path)
+    return "privacy.html not found", 404
+
+@app.route('/terms')
+def serve_terms():
+    html_path = resource_path('terms.html')
+    if os.path.exists(html_path):
+        from flask import send_file
+        return send_file(html_path)
+    return "terms.html not found", 404
+
+@app.route('/about')
+def serve_about():
+    html_path = resource_path('about.html')
+    if os.path.exists(html_path):
+        from flask import send_file
+        return send_file(html_path)
+    return "about.html not found", 404
+
+@app.route('/contact')
+def serve_contact():
+    html_path = resource_path('contact.html')
+    if os.path.exists(html_path):
+        from flask import send_file
+        return send_file(html_path)
+    return "contact.html not found", 404
+
 @app.route('/admin')
 def serve_admin():
     html_path = resource_path('admin.html')
@@ -326,6 +358,7 @@ def serve_admin():
         from flask import send_file
         return send_file(html_path)
     return "admin.html not found", 404
+
 
 @app.route('/api/auth/google', methods=['POST'])
 def google_auth():
