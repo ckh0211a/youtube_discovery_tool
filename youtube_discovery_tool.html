@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title id="appTitleText">유튜브 소재 채굴기 v2.8.1 (YouTube Material Discovery)</title>
+    <title id="appTitleText">Tube Trend (유튜브 트렌드 분석 & 소재 발굴)</title>
     <script>
         // Auto-redirect to local server if opened via file:// to prevent Google OAuth errors
         if (window.location.protocol === 'file:') {
@@ -49,7 +49,7 @@
         window.APP_VERSION = {
             major: 3,
             minor: 1,
-            patch: 7
+            patch: 8
         };
         window.PROGRAM_ID = "";
         // [SCORCHED EARTH] Persistent Seen IDs for Mode 3 NEW badge
@@ -137,17 +137,23 @@
             document.querySelectorAll(".app-version-display").forEach(el => {
                 const isMainTitle = el.closest('h1');
                 if (isMainTitle && isMainTitle.id === 'mainTitle') {
-                    // [SCORCHED EARTH v2] Completely rebuild the h1 content!
-                    // There is a phantom red number appearing. We will destroy EVERYTHING
-                    // inside the h1 and recreate only the necessary elements.
                     isMainTitle.innerHTML = `
-                        <i class="fab fa-youtube text-4xl text-red-600 transition-transform group-hover:scale-105"></i>
-                        <span class="pt-1">
-                            <span style="color: #111111 !important; -webkit-text-fill-color: #111111 !important;">Y</span>ouTube
-                            <span style="color: #111111 !important; -webkit-text-fill-color: #111111 !important;">D</span>iscovery
-                            <span style="color: #111111 !important; -webkit-text-fill-color: #111111 !important;">T</span>ool
-                        </span>
-                        <span class="title-v app-version-display ml-2 scale-75 origin-left" style="font-family: sans-serif;">${verStr}</span>
+                        <div class="relative flex items-center justify-center">
+                            <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-tr from-red-600 via-rose-500 to-red-500 flex items-center justify-center shadow-lg shadow-red-500/30 group-hover:shadow-red-500/50 transition-all duration-300 group-hover:rotate-3">
+                                <i class="fab fa-youtube text-2xl md:text-3xl text-white"></i>
+                            </div>
+                            <div class="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white flex items-center justify-center animate-pulse">
+                                <i class="fas fa-bolt text-[8px] text-white"></i>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-start leading-none text-left">
+                            <div class="flex items-center gap-2 text-3xl md:text-5xl font-black tracking-tight" style="font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;">
+                                <span class="text-slate-900 font-extrabold">Tube</span>
+                                <span class="bg-gradient-to-r from-red-600 via-rose-600 to-violet-600 bg-clip-text text-transparent font-black">Trend</span>
+                                <span class="text-[10px] md:text-xs font-black px-2.5 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200 uppercase tracking-wider ml-1 self-center shadow-xs">${verStr}</span>
+                            </div>
+                            <span class="text-[11px] md:text-xs font-bold text-slate-400 tracking-wider mt-1.5 uppercase font-sans">YouTube Discovery & Analytics Platform</span>
+                        </div>
                     `;
                 } else if (isMainTitle) {
                     el.innerHTML = verStr;
@@ -159,7 +165,7 @@
             // 타이틀 텍스트 업데이트
             const titleEl = document.getElementById("appTitleText");
             if (titleEl) {
-                titleEl.innerText = `유튜브 소재 채굴기 ${verStr} (YouTube Material Discovery)`;
+                titleEl.innerText = `Tube Trend ${verStr} - 유튜브 트렌드 분석 & 소재 발굴`;
             }
 
             // [SCORCHED EARTH v4] The OMEGA phantom killer.
@@ -654,21 +660,9 @@
         }
 
         #mainTitle {
-            font-family: 'TmonMonsori', sans-serif;
-            font-size: 3.4rem;
-            letter-spacing: -0.01em;
-            background: linear-gradient(to right, #ef4444, #dc2626, #991b1b);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-            padding: 5px 0;
-        }
-
-        #mainTitle i {
-            -webkit-text-fill-color: #ef4444;
-            font-size: 0.85em;
-            margin-right: 8px;
+            letter-spacing: -0.02em;
+            cursor: pointer;
+            user-select: none;
         }
 
         .title-v {
@@ -1450,23 +1444,27 @@
                     </div>
                 </div>
 
-                <!-- Title at the absolute top (Custom Serif Font) -->
-                <div class="flex flex-col items-center mb-12 w-full">
+                <!-- Title at the absolute top (Tube Trend Brand Logo) -->
+                <div class="flex flex-col items-center mb-10 w-full">
                     <h1 id="mainTitle"
-                        class="text-3xl md:text-5xl flex items-center justify-center gap-3 cursor-pointer transition-all active:scale-95 drop-shadow-sm group"
-                        style="font-family: 'Playfair Display', serif; color: #111111; font-weight: 800; letter-spacing: -0.02em;"
+                        class="flex items-center justify-center gap-3.5 cursor-pointer transition-all hover:scale-[1.02] active:scale-95 group py-2"
                         onclick="switchSearchMode(0)">
-                        <i class="fab fa-youtube text-4xl text-red-600 transition-transform group-hover:scale-105"></i>
-                        <span class="pt-1">
-                            <span
-                                style="color: #111111 !important; -webkit-text-fill-color: #111111 !important;">Y</span>ouTube
-                            <span
-                                style="color: #111111 !important; -webkit-text-fill-color: #111111 !important;">D</span>iscovery
-                            <span
-                                style="color: #111111 !important; -webkit-text-fill-color: #111111 !important;">T</span>ool
-                        </span>
-                        <span class="title-v app-version-display ml-2 scale-75 origin-left"
-                            style="font-family: sans-serif;">v2.6.9</span>
+                        <div class="relative flex items-center justify-center">
+                            <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-tr from-red-600 via-rose-500 to-red-500 flex items-center justify-center shadow-lg shadow-red-500/30 group-hover:shadow-red-500/50 transition-all duration-300 group-hover:rotate-3">
+                                <i class="fab fa-youtube text-2xl md:text-3xl text-white"></i>
+                            </div>
+                            <div class="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 rounded-full border-2 border-white flex items-center justify-center animate-pulse">
+                                <i class="fas fa-bolt text-[8px] text-white"></i>
+                            </div>
+                        </div>
+                        <div class="flex flex-col items-start leading-none text-left">
+                            <div class="flex items-center gap-2 text-3xl md:text-5xl font-black tracking-tight" style="font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;">
+                                <span class="text-slate-900 font-extrabold">Tube</span>
+                                <span class="bg-gradient-to-r from-red-600 via-rose-600 to-violet-600 bg-clip-text text-transparent font-black">Trend</span>
+                                <span class="text-[10px] md:text-xs font-black px-2.5 py-0.5 rounded-full bg-red-50 text-red-600 border border-red-200 uppercase tracking-wider ml-1 self-center shadow-xs">v3.1.8</span>
+                            </div>
+                            <span class="text-[11px] md:text-xs font-bold text-slate-400 tracking-wider mt-1.5 uppercase font-sans">YouTube Discovery & Analytics Platform</span>
+                        </div>
                     </h1>
                 </div>
 
