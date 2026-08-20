@@ -18,6 +18,8 @@
     <script>
         // API Base URL Interceptor for Web Deployment
         (function() {
+            const isLocalEnv = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
+
             const getBackendUrl = function(url) {
                 const targetBase = window.location.protocol === 'file:' ? 'http://127.0.0.1:5001' : window.location.origin;
                 if (url.startsWith('http://127.0.0.1:5001')) {
@@ -29,12 +31,15 @@
 
             const originalFetch = window.fetch;
             window.fetch = function(input, init) {
-                if (typeof input === 'string' && input.includes('force_local=true')) {
-                    // PC 다운 모드: 강제로 127.0.0.1 (로컬 백엔드)로 요청
-                    return originalFetch(input, init);
-                }
-                if (typeof input === 'string' && input.includes('127.0.0.1:5001')) {
-                    input = getBackendUrl(input);
+                if (typeof input === 'string') {
+                    // 웹 배포 환경에서는 force_local 여부와 무관하게 웹 백엔드 서버(tubetrend.xyz)로 요청 전달
+                    if (!isLocalEnv && input.includes('127.0.0.1:5001')) {
+                        input = getBackendUrl(input);
+                    } else if (isLocalEnv && input.includes('force_local=true')) {
+                        return originalFetch(input, init);
+                    } else if (input.includes('127.0.0.1:5001')) {
+                        input = getBackendUrl(input);
+                    }
                 }
                 return originalFetch(input, init);
             };
@@ -49,7 +54,7 @@
         window.APP_VERSION = {
             major: 3,
             minor: 2,
-            patch: 5
+            patch: 6
         };
         window.PROGRAM_ID = "";
         // [SCORCHED EARTH] Persistent Seen IDs for Mode 3 NEW badge
@@ -14219,7 +14224,8 @@ ${commentsStr}
                     }
                 } catch (pe) {
                     console.error("[Script] Critical error during fetch:", pe);
-                    if (pe.message.includes('Failed to fetch') || pe.message.includes('NetworkError') || pe.message.includes('fetch')) {
+                    const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
+                    if (isLocal && (pe.message.includes('Failed to fetch') || pe.message.includes('NetworkError') || pe.message.includes('fetch'))) {
                         alert('앗! 원본 스크립트를 가져오려면 백엔드 서버가 켜져 있어야 합니다.\n\n폴더 내의 "서버실행.bat" 파일을 더블클릭해서 서버를 켜주세요!');
                     }
                 }
