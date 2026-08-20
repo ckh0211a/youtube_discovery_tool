@@ -49,7 +49,7 @@
         window.APP_VERSION = {
             major: 3,
             minor: 1,
-            patch: 6
+            patch: 7
         };
         window.PROGRAM_ID = "";
         // [SCORCHED EARTH] Persistent Seen IDs for Mode 3 NEW badge
@@ -1420,7 +1420,16 @@
                 </div>
 
                 <!-- Clock & User Header Display (Top-Right) -->
-                <div class="w-full flex justify-end items-center gap-2 z-[600] mb-2 pr-2">
+                <div class="w-full flex justify-end items-center gap-2 z-[600] mb-2 pr-2 flex-wrap">
+                    <div class="flex items-center gap-1 bg-white border border-gray-200 p-1.5 px-3 rounded-xl shadow-md text-[13px] font-bold text-gray-600 h-[42px]">
+                        <a href="/about" target="_blank" class="px-2 py-1 hover:text-red-500 transition-colors">소개</a>
+                        <span class="text-gray-300">|</span>
+                        <a href="/privacy" target="_blank" class="px-2 py-1 hover:text-red-500 transition-colors">개인정보</a>
+                        <span class="text-gray-300">|</span>
+                        <a href="/terms" target="_blank" class="px-2 py-1 hover:text-red-500 transition-colors">이용약관</a>
+                        <span class="text-gray-300">|</span>
+                        <a href="/contact" target="_blank" class="px-2 py-1 hover:text-red-500 transition-colors">문의</a>
+                    </div>
                     <div id="userInfoHeader" class="hidden items-center gap-2 bg-white border border-gray-200 p-2 px-3 rounded-xl shadow-md text-[13px] font-bold text-gray-700 h-[42px]">
                         <i class="fas fa-user-circle text-gray-400 text-lg"></i>
                         <span id="userNameSpan"></span>
@@ -1763,6 +1772,22 @@
                                     </p>
                                 </div>
                             </div>
+
+                            <!-- [SEO / Legal Footer Bar] -->
+                            <footer class="mt-12 pt-8 pb-10 border-t border-gray-200/80 text-center w-full max-w-[1400px] mx-auto px-4">
+                                <div class="flex flex-wrap justify-center items-center gap-5 text-sm font-bold text-gray-600 mb-3">
+                                    <a href="/about" target="_blank" class="hover:text-red-500 transition-colors">서비스 소개</a>
+                                    <span class="text-gray-300">•</span>
+                                    <a href="/privacy" target="_blank" class="hover:text-red-500 transition-colors">개인정보처리방침</a>
+                                    <span class="text-gray-300">•</span>
+                                    <a href="/terms" target="_blank" class="hover:text-red-500 transition-colors">이용약관</a>
+                                    <span class="text-gray-300">•</span>
+                                    <a href="/contact" target="_blank" class="hover:text-red-500 transition-colors">고객문의 및 지원</a>
+                                </div>
+                                <p class="text-xs text-gray-400 font-medium">
+                                    &copy; 2026 YouTube Discovery Tool (TubeTrend). All rights reserved. | 문의: <a href="mailto:ckh0211a@naver.com" class="hover:underline text-gray-500">ckh0211a@naver.com</a>
+                                </p>
+                            </footer>
                         </div>
 
                 <!-- [NEW] Mode 20: Shopping Shorts Section -->
@@ -4955,6 +4980,10 @@
             
             // [NEW] 현재 모드의 상태 저장
             saveModeState(currentSearchMode);
+
+            // [ANALYTICS] 페이지뷰 트래킹
+            const modeNames = {0:'홈', 1:'주제별 콘텐츠 검색', 2:'채널 콘텐츠 검색', 3:'채널 추적', 4:'수익성 검사', 5:'소스 추출', 6:'주제별 유튜버 검색', 7:'실시간 떡상 TOP50', 8:'연관 검색', 9:'해외 인기 영상', 10:'환경 설정', 11:'즐겨찾기 관리', 12:'쇼츠관리', 13:'실시간 이슈', 14:'TTS 스튜디오', 15:'TubeTrend', 16:'GEMS 20종', 17:'다국어 번역기', 20:'쇼핑 쇼츠'};
+            try { trackPageView(modeNames[mode] || 'Mode_' + mode); } catch(e) {}
             // [NEW] 13번 모드(실시간 이슈) 진입 시 네비게이션바 노출 유지 및 큐레이션 렌더링 호출
             if (mode === 13) {
                 const nav = document.getElementById('quickNav');
@@ -18835,6 +18864,12 @@ ${commentsText}
                     // 로그인 시 DB에서 즐겨찾기 로드 (기존 로컬 데이터 마이그레이션 후)
                     await migrateLocalBookmarksToDB();
                     await loadBookmarksFromDB();
+
+                    // [ANALYTICS] 로그인 트래킹
+                    try {
+                        window._userEmail = session.user.email;
+                        trackLogin(session.user.email, session.user.user_metadata.full_name || session.user.email);
+                    } catch(e) {}
                 } else {
                     window.isUserLoggedIn = false;
                     window.currentUserId = null;
@@ -19020,6 +19055,47 @@ ${commentsText}
             </div>
         </div>
     </div>
+<!-- [ANALYTICS] 사용자 활동 추적 스크립트 -->
+<script>
+(function() {
+    const BACKEND = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') 
+        ? 'http://127.0.0.1:5001' 
+        : 'https://youtube-discovery-tool-1.onrender.com';
+
+    // Track page view
+    window.trackPageView = function(pageName) {
+        const email = (window.isUserLoggedIn && window._userEmail) ? window._userEmail : 'anonymous';
+        fetch(BACKEND + '/api/track/pageview', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email: email, page_name: pageName})
+        }).catch(function(){});
+    };
+
+    // Track login
+    window.trackLogin = function(email, name) {
+        window._userEmail = email;
+        fetch(BACKEND + '/api/track/login', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email: email, name: name})
+        }).catch(function(){});
+    };
+
+    // Track session time: send accumulated time every 60 seconds
+    var sessionSeconds = 0;
+    setInterval(function() {
+        sessionSeconds += 60;
+        if (window.isUserLoggedIn && window._userEmail) {
+            fetch(BACKEND + '/api/track/session', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({email: window._userEmail, time_spent: 60})
+            }).catch(function(){});
+        }
+    }, 60000);
+})();
+</script>
 </body>
 </html>
 
