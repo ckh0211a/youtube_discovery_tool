@@ -20,6 +20,7 @@ COPY server.py .
 COPY youtube_extractor.py .
 COPY youtube_discovery_tool.html .
 COPY admin.html .
+COPY ads.txt .
 COPY yt-dlp.conf .
 # cookies.txt는 보안상 git에 포함하지 않음
 # 서버 시작 시 YOUTUBE_COOKIES 환경변수에서 자동 생성됨 (server.py 참조)

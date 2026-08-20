@@ -311,6 +311,14 @@ def serve_index():
             return f"send_file error: {str(e)}", 500
     return "youtube_discovery_tool.html not found at " + html_path, 404
 
+@app.route('/ads.txt')
+def serve_ads_txt():
+    ads_txt_path = resource_path('ads.txt')
+    if os.path.exists(ads_txt_path):
+        from flask import send_file
+        return send_file(ads_txt_path, mimetype='text/plain')
+    return "ads.txt not found", 404
+
 @app.route('/admin')
 def serve_admin():
     html_path = resource_path('admin.html')
@@ -1336,6 +1344,94 @@ def resource_path(relative_path):
     return os.path.join(base_path, relative_path)
 
 
+# ------------------ ANALYTICS DB SETUP ------------------
+import sqlite3
+from datetime import datetime
+
+def init_db():
+    db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'analytics.db')
+    conn = sqlite3.connect(db_path)
+    c = conn.cursor()
+    # Users table
+    c.execute('''CREATE TABLE IF NOT EXISTS users (
+                    email TEXT PRIMARY KEY,
+                    name TEXT,
+                    login_count INTEGER DEFAULT 0,
+                    total_time_seconds INTEGER DEFAULT 0,
+                    last_login TEXT
+                )''')
+    # Page views table
+    c.execute('''CREATE TABLE IF NOT EXISTS page_views (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    email TEXT,
+                    page_name TEXT,
+                    timestamp TEXT
+                )''')
+    conn.commit()
+    conn.close()
+
+init_db()
+
+def get_db_connection():
+    db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'analytics.db')
+    conn = sqlite3.connect(db_path)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+# ------------------ TRACKING APIs ------------------
+@app.route('/api/track/login', methods=['POST'])
+def track_login():
+    data = request.json
+    email = data.get('email')
+    name = data.get('name', '')
+    if not email:
+        return jsonify({'status': 'fail'}), 400
+    
+    conn = get_db_connection()
+    c = conn.cursor()
+    now = datetime.now().isoformat()
+    
+    c.execute('SELECT * FROM users WHERE email = ?', (email,))
+    user = c.fetchone()
+    if user:
+        c.execute('UPDATE users SET login_count = login_count + 1, last_login = ? WHERE email = ?', (now, email))
+    else:
+        c.execute('INSERT INTO users (email, name, login_count, total_time_seconds, last_login) VALUES (?, ?, 1, 0, ?)', (email, name, now))
+    
+    conn.commit()
+    conn.close()
+    return jsonify({'status': 'success'})
+
+@app.route('/api/track/pageview', methods=['POST'])
+def track_pageview():
+    data = request.json
+    email = data.get('email', 'anonymous')
+    page_name = data.get('page_name')
+    if not page_name:
+        return jsonify({'status': 'fail'}), 400
+        
+    conn = get_db_connection()
+    c = conn.cursor()
+    c.execute('INSERT INTO page_views (email, page_name, timestamp) VALUES (?, ?, ?)', (email, page_name, datetime.now().isoformat()))
+    conn.commit()
+    conn.close()
+    return jsonify({'status': 'success'})
+
+@app.route('/api/track/session', methods=['POST'])
+def track_session():
+    data = request.json
+    email = data.get('email')
+    time_spent = data.get('time_spent', 0)  # in seconds
+    if not email or time_spent <= 0:
+        return jsonify({'status': 'fail'}), 400
+        
+    conn = get_db_connection()
+    c = conn.cursor()
+    c.execute('UPDATE users SET total_time_seconds = total_time_seconds + ? WHERE email = ?', (time_spent, email))
+    conn.commit()
+    conn.close()
+    return jsonify({'status': 'success'})
+
 # ------------------ ADMIN APIs ------------------
 import jwt
 from functools import wraps
@@ -1387,6 +1483,46 @@ def admin_clear_cache():
         return jsonify({'status': 'success', 'message': 'Cache cleared successfully'})
     except Exception as e:
         return jsonify({'status': 'fail', 'message': str(e)}), 500
+
+@app.route('/api/admin/analytics', methods=['GET'])
+@admin_required
+def get_analytics():
+    conn = get_db_connection()
+    c = conn.cursor()
+    
+    # 1. Top Menus
+    c.execute('''SELECT page_name, COUNT(*) as views 
+                 FROM page_views 
+                 GROUP BY page_name 
+                 ORDER BY views DESC LIMIT 10''')
+    top_menus = [dict(row) for row in c.fetchall()]
+    
+    # 2. User Rankings (Top by login count or time spent)
+    c.execute('''SELECT email, name, login_count, total_time_seconds, last_login 
+                 FROM users 
+                 ORDER BY login_count DESC, total_time_seconds DESC LIMIT 50''')
+    user_rankings = [dict(row) for row in c.fetchall()]
+    
+    # 3. Overall Stats
+    c.execute('SELECT COUNT(*) FROM users')
+    total_users = c.fetchone()[0]
+    
+    c.execute('SELECT COUNT(*) FROM page_views')
+    total_page_views = c.fetchone()[0]
+    
+    conn.close()
+    
+    return jsonify({
+        'status': 'success',
+        'data': {
+            'top_menus': top_menus,
+            'user_rankings': user_rankings,
+            'stats': {
+                'total_users': total_users,
+                'total_page_views': total_page_views
+            }
+        }
+    })
 # ------------------------------------------------
 
 if __name__ == '__main__':
