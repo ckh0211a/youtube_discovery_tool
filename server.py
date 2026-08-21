@@ -807,9 +807,41 @@ def cobalt_proxy():
             }), 200
 
         video_id = yt_id_match.group(1)
-        print(f"[invidious] video_id={video_id}, audio_only={audio_only}")
+        print(f"[cobalt_proxy] video_id={video_id}, audio_only={audio_only}")
+        last_err = None
 
-        # Invidious 공개 인스턴스 목록 (순서대로 시도)
+        # 1순위: yt-dlp 로컬 엔진 시도 (매우 안정적)
+        try:
+            import yt_dlp
+            print("[cobalt_proxy] yt-dlp를 통한 직접 추출 시도...")
+            ydl_opts = {
+                'quiet': True,
+                'skip_download': True,
+                'format': 'bestaudio/best' if audio_only else 'best[ext=mp4]/best'
+            }
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(target_url, download=False)
+                stream_url = info.get('url')
+                title = info.get('title', video_id)
+                
+                if stream_url:
+                    ext = 'mp3' if audio_only else 'mp4'
+                    filename = f"{title}.{ext}"
+                    # 파일명 안전하게 변환
+                    import re
+                    filename = re.sub(r'[\\/*?:"<>|]', "", filename)
+                    
+                    print(f"[cobalt_proxy] yt-dlp 추출 성공: {filename}")
+                    return jsonify({
+                        "status": "redirect",
+                        "url": stream_url,
+                        "filename": filename,
+                    })
+        except Exception as e:
+            last_err = f"yt-dlp 에러: {str(e)}"
+            print(f"[cobalt_proxy] {last_err}")
+
+        # 2순위: Invidious 공개 인스턴스 목록 (순서대로 시도)
         INVIDIOUS_INSTANCES = [
             'https://inv.nadeko.net',
             'https://invidious.nerdvpn.de',
@@ -824,7 +856,6 @@ def cobalt_proxy():
             'Accept': 'application/json',
         }
 
-        last_err = None
         for instance in INVIDIOUS_INSTANCES:
             try:
                 api_url = f"{instance}/api/v1/videos/{video_id}?fields=title,formatStreams,adaptiveFormats"
@@ -878,6 +909,10 @@ def cobalt_proxy():
                     last_err = f"{instance}: URL 없음"
                     continue
 
+                # 파일명 안전하게 변환
+                import re
+                filename = re.sub(r'[\\/*?:"<>|]', "", filename)
+                
                 print(f"[invidious] {instance} 성공: {filename}")
                 return jsonify({
                     "status": "redirect",

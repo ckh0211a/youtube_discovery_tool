@@ -54,7 +54,7 @@
         window.APP_VERSION = {
             major: 3,
             minor: 3,
-            patch: 0
+            patch: 1
         };
         window.PROGRAM_ID = "";
         // [SCORCHED EARTH] Persistent Seen IDs for Mode 3 NEW badge
@@ -14245,8 +14245,11 @@ ${commentsStr}
                         showFinalResult(video, originalTranscript, null);
                     }
                 } else {
-                    let errorMsg = (window.lastScriptError || '유튜브에서 스크립트 데이터를 추출하지 못했습니다.\n\n원인 가능성:\n1. 해당 영상에 자막 기능(CC)이 원천적으로 꺼져 있음\n2. 영상이 삭제되었거나 비공개로 전환됨\n3. 백엔드 서버 연결 끊김');
-                    if (errorMsg.startsWith("ERROR: ")) errorMsg = errorMsg.substring(7);
+                    let rawErr = window.lastScriptError || '';
+                    let errorMsg = '해당 영상은 자막(CC)이 제공되지 않거나, 방금 업로드되어 유튜브에서 자막을 생성 중(약 30~60분 소요)인 영상입니다.\n\n💡 업로드된 지 1~2시간 이상 지난 일반 영상으로 테스트해보시면 자막이 정상적으로 추출됩니다.';
+                    if (rawErr.includes('YT_PROCESSING')) {
+                        errorMsg = '⏳ [유튜브 자막 생성 중]\n방금 등록된 최신 영상이라 유튜브 서버에서 자동 자막을 생성하고 있습니다. (약 30분~1시간 후 이용 가능)';
+                    }
                     throw new Error(errorMsg);
                 }
 
