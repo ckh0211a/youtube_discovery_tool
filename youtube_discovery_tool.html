@@ -78,7 +78,7 @@
         window.APP_VERSION = {
             major: 3,
             minor: 3,
-            patch: 3
+            patch: 4
         };
         window.PROGRAM_ID = "";
         // [SCORCHED EARTH] Persistent Seen IDs for Mode 3 NEW badge
@@ -6619,39 +6619,57 @@ ${newsContext}
         // 서버(/api/cobalt)를 프록시로 사용해 yt-dlp 엔진으로 다운로드 URL 추출
         function showFallbackDownloadButton(videoId, audioOnly) {
             // 팝업 차단기 우회: window.open() 대신 화면 안에 직접 클릭 버튼 표시
-            const ssUrl = `https://ssyoutube.com/watch?v=${videoId}`;
-            const y2mateUrl = `https://www.y2mate.com/youtube/${videoId}`;
-            const cobaltUrl = `https://cobalt.tools/#https://youtube.com/watch?v=${videoId}`;
-            
+            const ytUrl = 'https://youtube.com/watch?v=' + videoId;
+            const saveformUrl = 'https://en.saveform.net/youtube-downloader?url=' + encodeURIComponent(ytUrl);
+            const ssUrl = 'https://ssyoutube.com/watch?v=' + videoId;
+            const cobaltUrl = 'https://cobalt.tools/#' + ytUrl;
+
+            if (document.getElementById('fallbackDownloadModal')) {
+                document.getElementById('fallbackDownloadModal').remove();
+            }
             const modal = document.createElement('div');
             modal.id = 'fallbackDownloadModal';
-            modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;';
-            modal.innerHTML = `
-                <div style="background:#1e1e2e;border-radius:20px;padding:32px;max-width:420px;width:90%;box-shadow:0 25px 60px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);">
-                    <div style="text-align:center;margin-bottom:20px;">
-                        <div style="font-size:36px;margin-bottom:8px;">⚠️</div>
-                        <h3 style="color:#fff;font-size:17px;font-weight:800;margin:0 0 6px;">서버 자동 다운로드 일시 불가</h3>
-                        <p style="color:#aaa;font-size:12px;margin:0;">아래 버튼을 직접 클릭하여 다운로드 사이트로 이동해 주세요</p>
-                    </div>
-                    <div style="display:flex;flex-direction:column;gap:10px;">
-                        <a href="${ssUrl}" target="_blank" rel="noopener" style="display:block;background:linear-gradient(135deg,#e63946,#c1121f);color:#fff;text-align:center;padding:14px;border-radius:12px;font-weight:800;font-size:14px;text-decoration:none;">
-                            🔴 ssyoutube.com 에서 다운로드
-                        </a>
-                        <a href="${y2mateUrl}" target="_blank" rel="noopener" style="display:block;background:linear-gradient(135deg,#f77f00,#d62828);color:#fff;text-align:center;padding:14px;border-radius:12px;font-weight:800;font-size:14px;text-decoration:none;">
-                            🟠 y2mate.com 에서 다운로드
-                        </a>
-                        <a href="${cobaltUrl}" target="_blank" rel="noopener" style="display:block;background:linear-gradient(135deg,#4361ee,#3a0ca3);color:#fff;text-align:center;padding:14px;border-radius:12px;font-weight:800;font-size:14px;text-decoration:none;">
-                            🔵 cobalt.tools 에서 다운로드
-                        </a>
-                    </div>
-                    <button onclick="document.getElementById('fallbackDownloadModal').remove()" 
-                        style="margin-top:16px;width:100%;background:rgba(255,255,255,0.1);color:#aaa;border:none;padding:10px;border-radius:10px;font-size:13px;cursor:pointer;font-weight:600;">
-                        닫기
-                    </button>
-                </div>
-            `;
+            modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:9999;display:flex;align-items:center;justify-content:center;';
+
+            const card = document.createElement('div');
+            card.style.cssText = 'background:#16162a;border-radius:22px;padding:30px 28px;max-width:400px;width:92%;box-shadow:0 30px 70px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.09);';
+
+            card.innerHTML = [
+                '<div style="text-align:center;margin-bottom:22px;">',
+                  '<div style="font-size:38px;line-height:1;margin-bottom:10px;">⬇️</div>',
+                  '<h3 style="color:#fff;font-size:16px;font-weight:800;margin:0 0 5px;">우회 다운로드 사이트로 이동</h3>',
+                  '<p style="color:#888;font-size:11.5px;margin:0;">서버 직접 다운로드가 일시 제한되어 있습니다. 아래 버튼을 눌러주세요.</p>',
+                '</div>',
+                '<div style="display:flex;flex-direction:column;gap:9px;">',
+                  '<a href="' + saveformUrl + '" target="_blank" rel="noopener"',
+                  '   style="display:block;background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;text-align:center;',
+                  '   padding:17px;border-radius:14px;font-weight:800;font-size:15px;text-decoration:none;',
+                  '   box-shadow:0 6px 22px rgba(124,58,237,0.5);letter-spacing:-0.2px;">',
+                  '  ⬇️ saveform.net 에서 다운로드 &nbsp;<span style="opacity:.7;font-size:11px;">(\uad8c\uc7a5)</span>',
+                  '</a>',
+                  '<div style="display:flex;gap:7px;">',
+                    '<a href="' + ssUrl + '" target="_blank" rel="noopener"',
+                    '   style="flex:1;display:block;background:rgba(255,255,255,0.06);color:#aaa;text-align:center;',
+                    '   padding:11px;border-radius:11px;font-weight:700;font-size:12px;text-decoration:none;border:1px solid rgba(255,255,255,0.09);">',
+                    '  ssyoutube.com',
+                    '</a>',
+                    '<a href="' + cobaltUrl + '" target="_blank" rel="noopener"',
+                    '   style="flex:1;display:block;background:rgba(255,255,255,0.06);color:#aaa;text-align:center;',
+                    '   padding:11px;border-radius:11px;font-weight:700;font-size:12px;text-decoration:none;border:1px solid rgba(255,255,255,0.09);">',
+                    '  cobalt.tools',
+                    '</a>',
+                  '</div>',
+                '</div>',
+                '<button id="closeFallbackBtn"',
+                '  style="margin-top:15px;width:100%;background:rgba(255,255,255,0.07);color:#777;border:none;padding:10px;border-radius:10px;font-size:13px;cursor:pointer;font-weight:600;">',
+                '  닫기',
+                '</button>'
+            ].join('');
+
+            modal.appendChild(card);
             document.body.appendChild(modal);
-            modal.addEventListener('click', (e) => { if(e.target === modal) modal.remove(); });
+            modal.addEventListener('click', function(e) { if (e.target === modal) modal.remove(); });
+            card.querySelector('#closeFallbackBtn').addEventListener('click', function() { modal.remove(); });
         }
 
         async function downloadViaCobalt(targetUrl, audioOnly = false) {
