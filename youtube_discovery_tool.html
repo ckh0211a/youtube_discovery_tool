@@ -78,7 +78,7 @@
         window.APP_VERSION = {
             major: 3,
             minor: 3,
-            patch: 4
+            patch: 5
         };
         window.PROGRAM_ID = "";
         // [SCORCHED EARTH] Persistent Seen IDs for Mode 3 NEW badge
@@ -6673,6 +6673,18 @@ ${newsContext}
         }
 
         async function downloadViaCobalt(targetUrl, audioOnly = false) {
+            const videoId = extractVideoId(targetUrl) || '';
+            const isLocalEnv = window.location.hostname === 'localhost' ||
+                               window.location.hostname === '127.0.0.1' ||
+                               window.location.protocol === 'file:';
+
+            // 웹(tubetrend.xyz) 환경: 클라우드 서버 IP로는 유튜브 스트림 URL을 받아도 브라우저에서 접근 불가(기기 IP 불일치)
+            // 로컬 서버가 실행 중이면 로컬로, 아니면 바로 saveform 모달 표시
+            if (!isLocalEnv && !window.localServerAlive) {
+                showFallbackDownloadButton(videoId, audioOnly);
+                return 'fallback';
+            }
+
             const body = {
                 url: targetUrl,
                 downloadMode: audioOnly ? 'audio' : 'auto',
@@ -6681,38 +6693,24 @@ ${newsContext}
             };
             if (audioOnly) body.audioFormat = 'mp3';
 
-            const videoId = extractVideoId(targetUrl) || '';
-            // fetch 인터셉터에서 로컬/원격 처리를 판단
-            const proxyUrl = 'http://127.0.0.1:5001/api/cobalt';
-            const res = await fetch(proxyUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                body: JSON.stringify(body)
-            });
+            try {
+                const proxyUrl = 'http://127.0.0.1:5001/api/cobalt';
+                const res = await fetch(proxyUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify(body)
+                });
 
-            const data = await res.json();
+                const data = await res.json();
 
-            // 모든 방법 실패 → 팝업 차단기 없는 인-페이지 다운로드 버튼 표시
-            if (data.status === 'fallback') {
-                showFallbackDownloadButton(videoId, audioOnly);
-                return 'fallback';
-            }
+                if (data.status === 'fallback') {
+                    showFallbackDownloadButton(videoId, audioOnly);
+                    return 'fallback';
+                }
 
-            if (data.status === 'redirect' || data.status === 'stream' || data.status === 'tunnel') {
-                const a = document.createElement('a');
-                a.href = data.url;
-                a.download = data.filename || (audioOnly ? 'audio.mp3' : 'video.mp4');
-                a.target = '_blank';
-                a.rel = 'noopener';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                return true;
-            } else if (data.status === 'picker') {
-                const first = data.picker?.[0];
-                if (first?.url) {
+                if (data.status === 'redirect' || data.status === 'stream' || data.status === 'tunnel') {
                     const a = document.createElement('a');
-                    a.href = first.url;
+                    a.href = data.url;
                     a.download = data.filename || (audioOnly ? 'audio.mp3' : 'video.mp4');
                     a.target = '_blank';
                     a.rel = 'noopener';
@@ -6720,10 +6718,30 @@ ${newsContext}
                     a.click();
                     document.body.removeChild(a);
                     return true;
+                } else if (data.status === 'picker') {
+                    const first = data.picker?.[0];
+                    if (first?.url) {
+                        const a = document.createElement('a');
+                        a.href = first.url;
+                        a.download = data.filename || (audioOnly ? 'audio.mp3' : 'video.mp4');
+                        a.target = '_blank';
+                        a.rel = 'noopener';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        return true;
+                    }
                 }
+                // 예상치 못한 응답이면 saveform 표시
+                showFallbackDownloadButton(videoId, audioOnly);
+                return 'fallback';
+
+            } catch (e) {
+                // fetch 자체가 실패(네트워크 오류 등) → saveform 모달
+                console.warn('[downloadViaCobalt] fetch 실패, fallback 표시', e.message);
+                showFallbackDownloadButton(videoId, audioOnly);
+                return 'fallback';
             }
-            const errCode = data?.error?.code || data?.error || '다운로드 링크를 가져오지 못했습니다.';
-            throw new Error(errCode);
         }
         // ─────────────────────────────────────────────────────────────────────
 
