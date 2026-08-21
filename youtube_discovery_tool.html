@@ -30,6 +30,13 @@
             window.getBackendUrl = getBackendUrl;
 
             const originalFetch = window.fetch;
+            
+            // Proactively check if local server is running to avoid async delay (which triggers popup blockers)
+            window.localServerAlive = false;
+            originalFetch('http://127.0.0.1:5001/api/transcript')
+                .then(() => { window.localServerAlive = true; })
+                .catch(() => { window.localServerAlive = false; });
+
             window.fetch = async function(input, init) {
                 if (typeof input === 'string') {
                     if (input.includes('127.0.0.1:5001')) {
@@ -38,11 +45,9 @@
                         // 웹 배포 환경(tubetrend.xyz)에서 스크래핑(다운로드/대본) 시도 시,
                         // 사용자 로컬 서버가 켜져있다면 로컬 서버를 우선 사용 (유튜브 IP 차단 회피)
                         if (!isLocalEnv && isScrapingApi) {
-                            try {
-                                const localRes = await originalFetch(input, init);
-                                return localRes;
-                            } catch (e) {
-                                // 로컬 서버가 꺼져있으면 원래대로 클라우드 서버(tubetrend.xyz) 사용
+                            if (window.localServerAlive) {
+                                // use local (do not rewrite input)
+                            } else {
                                 input = getBackendUrl(input);
                             }
                         } 
