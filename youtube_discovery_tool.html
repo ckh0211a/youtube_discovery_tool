@@ -78,7 +78,7 @@
         window.APP_VERSION = {
             major: 3,
             minor: 3,
-            patch: 2
+            patch: 3
         };
         window.PROGRAM_ID = "";
         // [SCORCHED EARTH] Persistent Seen IDs for Mode 3 NEW badge
@@ -6616,7 +6616,44 @@ ${newsContext}
         }
 
         // ── 다운로드 공통 유틸 ────────────────────────────────────────────────
-        // 서버(/api/cobalt)를 프록시로 사용해 cobalt.tools JWT 인증 문제 우회
+        // 서버(/api/cobalt)를 프록시로 사용해 yt-dlp 엔진으로 다운로드 URL 추출
+        function showFallbackDownloadButton(videoId, audioOnly) {
+            // 팝업 차단기 우회: window.open() 대신 화면 안에 직접 클릭 버튼 표시
+            const ssUrl = `https://ssyoutube.com/watch?v=${videoId}`;
+            const y2mateUrl = `https://www.y2mate.com/youtube/${videoId}`;
+            const cobaltUrl = `https://cobalt.tools/#https://youtube.com/watch?v=${videoId}`;
+            
+            const modal = document.createElement('div');
+            modal.id = 'fallbackDownloadModal';
+            modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;';
+            modal.innerHTML = `
+                <div style="background:#1e1e2e;border-radius:20px;padding:32px;max-width:420px;width:90%;box-shadow:0 25px 60px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.1);">
+                    <div style="text-align:center;margin-bottom:20px;">
+                        <div style="font-size:36px;margin-bottom:8px;">⚠️</div>
+                        <h3 style="color:#fff;font-size:17px;font-weight:800;margin:0 0 6px;">서버 자동 다운로드 일시 불가</h3>
+                        <p style="color:#aaa;font-size:12px;margin:0;">아래 버튼을 직접 클릭하여 다운로드 사이트로 이동해 주세요</p>
+                    </div>
+                    <div style="display:flex;flex-direction:column;gap:10px;">
+                        <a href="${ssUrl}" target="_blank" rel="noopener" style="display:block;background:linear-gradient(135deg,#e63946,#c1121f);color:#fff;text-align:center;padding:14px;border-radius:12px;font-weight:800;font-size:14px;text-decoration:none;">
+                            🔴 ssyoutube.com 에서 다운로드
+                        </a>
+                        <a href="${y2mateUrl}" target="_blank" rel="noopener" style="display:block;background:linear-gradient(135deg,#f77f00,#d62828);color:#fff;text-align:center;padding:14px;border-radius:12px;font-weight:800;font-size:14px;text-decoration:none;">
+                            🟠 y2mate.com 에서 다운로드
+                        </a>
+                        <a href="${cobaltUrl}" target="_blank" rel="noopener" style="display:block;background:linear-gradient(135deg,#4361ee,#3a0ca3);color:#fff;text-align:center;padding:14px;border-radius:12px;font-weight:800;font-size:14px;text-decoration:none;">
+                            🔵 cobalt.tools 에서 다운로드
+                        </a>
+                    </div>
+                    <button onclick="document.getElementById('fallbackDownloadModal').remove()" 
+                        style="margin-top:16px;width:100%;background:rgba(255,255,255,0.1);color:#aaa;border:none;padding:10px;border-radius:10px;font-size:13px;cursor:pointer;font-weight:600;">
+                        닫기
+                    </button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+            modal.addEventListener('click', (e) => { if(e.target === modal) modal.remove(); });
+        }
+
         async function downloadViaCobalt(targetUrl, audioOnly = false) {
             const body = {
                 url: targetUrl,
@@ -6626,8 +6663,8 @@ ${newsContext}
             };
             if (audioOnly) body.audioFormat = 'mp3';
 
-            // 서버 프록시를 통해 cobalt.tools 호출 (JWT 인증 우회)
-            // fetch 인터셉터에서 로컬/원격 처리를 판단하도록 getBackendUrl를 씌우지 않음
+            const videoId = extractVideoId(targetUrl) || '';
+            // fetch 인터셉터에서 로컬/원격 처리를 판단
             const proxyUrl = 'http://127.0.0.1:5001/api/cobalt';
             const res = await fetch(proxyUrl, {
                 method: 'POST',
@@ -6637,11 +6674,10 @@ ${newsContext}
 
             const data = await res.json();
 
-            // 모든 인스턴스 실패 → 외부 다운로드 서비스 새 탭으로 열기 (fallback)
+            // 모든 방법 실패 → 팝업 차단기 없는 인-페이지 다운로드 버튼 표시
             if (data.status === 'fallback') {
-                const fallbackUrl = data.fallback_url || `https://ssyoutube.com`;
-                window.open(fallbackUrl, '_blank', 'noopener');
-                throw new Error('자동 다운로드 서비스 일시 불가.\n새 탭(ssyoutube.com)에서 직접 다운로드해주세요.');
+                showFallbackDownloadButton(videoId, audioOnly);
+                return 'fallback';
             }
 
             if (data.status === 'redirect' || data.status === 'stream' || data.status === 'tunnel') {
@@ -6706,12 +6742,17 @@ ${newsContext}
                 if (progressPercent) progressPercent.innerText = '처리 중...';
 
                 const ytUrl = `https://www.youtube.com/watch?v=${videoId}`;
-                await downloadViaCobalt(ytUrl, false);
+                const result = await downloadViaCobalt(ytUrl, false);
 
-                if (progressBar) progressBar.style.width = '100%';
-                if (progressPercent) progressPercent.innerText = '완료!';
-                showToast('영상 다운로드가 시작되었습니다!', 'success');
-                setTimeout(() => progressArea?.classList.add('hidden'), 3000);
+                if (result === 'fallback') {
+                    if (progressArea) progressArea.classList.add('hidden');
+                    // fallback 모달이 이미 표시됨
+                } else {
+                    if (progressBar) progressBar.style.width = '100%';
+                    if (progressPercent) progressPercent.innerText = '완료!';
+                    showToast('영상 다운로드가 시작되었습니다!', 'success');
+                    setTimeout(() => progressArea?.classList.add('hidden'), 3000);
+                }
 
             } catch (err) {
                 console.error('Video Download Error:', err);
@@ -6757,12 +6798,17 @@ ${newsContext}
                 if (progressPercent) progressPercent.innerText = '처리 중...';
 
                 const ytUrl = `https://www.youtube.com/watch?v=${videoId}`;
-                await downloadViaCobalt(ytUrl, true);
+                const result = await downloadViaCobalt(ytUrl, true);
 
-                if (progressBar) progressBar.style.width = '100%';
-                if (progressPercent) progressPercent.innerText = '완료!';
-                showToast('MP3 음원 다운로드가 시작되었습니다!', 'success');
-                setTimeout(() => progressArea?.classList.add('hidden'), 3000);
+                if (result === 'fallback') {
+                    if (progressArea) progressArea.classList.add('hidden');
+                    // fallback 모달이 이미 표시됨
+                } else {
+                    if (progressBar) progressBar.style.width = '100%';
+                    if (progressPercent) progressPercent.innerText = '완료!';
+                    showToast('MP3 음원 다운로드가 시작되었습니다!', 'success');
+                    setTimeout(() => progressArea?.classList.add('hidden'), 3000);
+                }
 
             } catch (err) {
                 console.error('Audio Download Error:', err);
