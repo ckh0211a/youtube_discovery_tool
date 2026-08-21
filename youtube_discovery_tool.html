@@ -30,15 +30,34 @@
             window.getBackendUrl = getBackendUrl;
 
             const originalFetch = window.fetch;
-            window.fetch = function(input, init) {
+            window.fetch = async function(input, init) {
                 if (typeof input === 'string') {
-                    // 웹 배포 환경에서는 force_local 여부와 무관하게 웹 백엔드 서버(tubetrend.xyz)로 요청 전달
-                    if (!isLocalEnv && input.includes('127.0.0.1:5001')) {
-                        input = getBackendUrl(input);
-                    } else if (isLocalEnv && input.includes('force_local=true')) {
-                        return originalFetch(input, init);
-                    } else if (input.includes('127.0.0.1:5001')) {
-                        input = getBackendUrl(input);
+                    if (input.includes('127.0.0.1:5001')) {
+                        const isScrapingApi = input.includes('/api/cobalt') || input.includes('/api/transcript');
+                        
+                        // 웹 배포 환경(tubetrend.xyz)에서 스크래핑(다운로드/대본) 시도 시,
+                        // 사용자 로컬 서버가 켜져있다면 로컬 서버를 우선 사용 (유튜브 IP 차단 회피)
+                        if (!isLocalEnv && isScrapingApi) {
+                            try {
+                                const localRes = await originalFetch(input, init);
+                                return localRes;
+                            } catch (e) {
+                                // 로컬 서버가 꺼져있으면 원래대로 클라우드 서버(tubetrend.xyz) 사용
+                                input = getBackendUrl(input);
+                            }
+                        } 
+                        // 그 외의 경우 (웹 환경 + 일반 API)
+                        else if (!isLocalEnv) {
+                            input = getBackendUrl(input);
+                        } 
+                        // 로컬 환경 + force_local
+                        else if (isLocalEnv && input.includes('force_local=true')) {
+                            // do nothing, use 127.0.0.1
+                        } 
+                        // 로컬 환경 + 일반 API
+                        else {
+                            input = getBackendUrl(input);
+                        }
                     }
                 }
                 return originalFetch(input, init);
@@ -54,7 +73,7 @@
         window.APP_VERSION = {
             major: 3,
             minor: 3,
-            patch: 1
+            patch: 2
         };
         window.PROGRAM_ID = "";
         // [SCORCHED EARTH] Persistent Seen IDs for Mode 3 NEW badge
@@ -6603,7 +6622,8 @@ ${newsContext}
             if (audioOnly) body.audioFormat = 'mp3';
 
             // 서버 프록시를 통해 cobalt.tools 호출 (JWT 인증 우회)
-            const proxyUrl = window.getBackendUrl('http://127.0.0.1:5001/api/cobalt');
+            // fetch 인터셉터에서 로컬/원격 처리를 판단하도록 getBackendUrl를 씌우지 않음
+            const proxyUrl = 'http://127.0.0.1:5001/api/cobalt';
             const res = await fetch(proxyUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
