@@ -78,7 +78,7 @@
         window.APP_VERSION = {
             major: 3,
             minor: 3,
-            patch: 5
+            patch: 6
         };
         window.PROGRAM_ID = "";
         // [SCORCHED EARTH] Persistent Seen IDs for Mode 3 NEW badge
@@ -6618,58 +6618,10 @@ ${newsContext}
         // ── 다운로드 공통 유틸 ────────────────────────────────────────────────
         // 서버(/api/cobalt)를 프록시로 사용해 yt-dlp 엔진으로 다운로드 URL 추출
         function showFallbackDownloadButton(videoId, audioOnly) {
-            // 팝업 차단기 우회: window.open() 대신 화면 안에 직접 클릭 버튼 표시
-            const ytUrl = 'https://youtube.com/watch?v=' + videoId;
-            const saveformUrl = 'https://en.saveform.net/youtube-downloader?url=' + encodeURIComponent(ytUrl);
+            // 팝업 없이 ssyoutube.com으로 바로 이동
             const ssUrl = 'https://ssyoutube.com/watch?v=' + videoId;
-            const cobaltUrl = 'https://cobalt.tools/#' + ytUrl;
-
-            if (document.getElementById('fallbackDownloadModal')) {
-                document.getElementById('fallbackDownloadModal').remove();
-            }
-            const modal = document.createElement('div');
-            modal.id = 'fallbackDownloadModal';
-            modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.72);z-index:9999;display:flex;align-items:center;justify-content:center;';
-
-            const card = document.createElement('div');
-            card.style.cssText = 'background:#16162a;border-radius:22px;padding:30px 28px;max-width:400px;width:92%;box-shadow:0 30px 70px rgba(0,0,0,0.6);border:1px solid rgba(255,255,255,0.09);';
-
-            card.innerHTML = [
-                '<div style="text-align:center;margin-bottom:22px;">',
-                  '<div style="font-size:38px;line-height:1;margin-bottom:10px;">⬇️</div>',
-                  '<h3 style="color:#fff;font-size:16px;font-weight:800;margin:0 0 5px;">우회 다운로드 사이트로 이동</h3>',
-                  '<p style="color:#888;font-size:11.5px;margin:0;">서버 직접 다운로드가 일시 제한되어 있습니다. 아래 버튼을 눌러주세요.</p>',
-                '</div>',
-                '<div style="display:flex;flex-direction:column;gap:9px;">',
-                  '<a href="' + saveformUrl + '" target="_blank" rel="noopener"',
-                  '   style="display:block;background:linear-gradient(135deg,#7c3aed,#4338ca);color:#fff;text-align:center;',
-                  '   padding:17px;border-radius:14px;font-weight:800;font-size:15px;text-decoration:none;',
-                  '   box-shadow:0 6px 22px rgba(124,58,237,0.5);letter-spacing:-0.2px;">',
-                  '  ⬇️ saveform.net 에서 다운로드 &nbsp;<span style="opacity:.7;font-size:11px;">(\uad8c\uc7a5)</span>',
-                  '</a>',
-                  '<div style="display:flex;gap:7px;">',
-                    '<a href="' + ssUrl + '" target="_blank" rel="noopener"',
-                    '   style="flex:1;display:block;background:rgba(255,255,255,0.06);color:#aaa;text-align:center;',
-                    '   padding:11px;border-radius:11px;font-weight:700;font-size:12px;text-decoration:none;border:1px solid rgba(255,255,255,0.09);">',
-                    '  ssyoutube.com',
-                    '</a>',
-                    '<a href="' + cobaltUrl + '" target="_blank" rel="noopener"',
-                    '   style="flex:1;display:block;background:rgba(255,255,255,0.06);color:#aaa;text-align:center;',
-                    '   padding:11px;border-radius:11px;font-weight:700;font-size:12px;text-decoration:none;border:1px solid rgba(255,255,255,0.09);">',
-                    '  cobalt.tools',
-                    '</a>',
-                  '</div>',
-                '</div>',
-                '<button id="closeFallbackBtn"',
-                '  style="margin-top:15px;width:100%;background:rgba(255,255,255,0.07);color:#777;border:none;padding:10px;border-radius:10px;font-size:13px;cursor:pointer;font-weight:600;">',
-                '  닫기',
-                '</button>'
-            ].join('');
-
-            modal.appendChild(card);
-            document.body.appendChild(modal);
-            modal.addEventListener('click', function(e) { if (e.target === modal) modal.remove(); });
-            card.querySelector('#closeFallbackBtn').addEventListener('click', function() { modal.remove(); });
+            window.open(ssUrl, '_blank', 'noopener');
+            showToast('ssyoutube.com 에서 다운로드 페이지가 열립니다!', 'success');
         }
 
         async function downloadViaCobalt(targetUrl, audioOnly = false) {
@@ -6681,7 +6633,9 @@ ${newsContext}
             // 웹(tubetrend.xyz) 환경: 클라우드 서버 IP로는 유튜브 스트림 URL을 받아도 브라우저에서 접근 불가(기기 IP 불일치)
             // 로컬 서버가 실행 중이면 로컬로, 아니면 바로 saveform 모달 표시
             if (!isLocalEnv && !window.localServerAlive) {
-                showFallbackDownloadButton(videoId, audioOnly);
+                const ssUrl = 'https://ssyoutube.com/watch?v=' + videoId;
+                window.open(ssUrl, '_blank', 'noopener');
+                showToast('ssyoutube.com 에서 다운로드 페이지가 열립니다!', 'success');
                 return 'fallback';
             }
 
@@ -6747,19 +6701,25 @@ ${newsContext}
 
 
         async function runVideoDownloader() {
-            console.log('Starting Video Downloader (cobalt.tools)...');
+            console.log('Starting Video Downloader...');
             const urlInput = document.getElementById('videoDownloadInput');
             if (!urlInput) return;
-            
+
             const url = urlInput.value.trim();
-            if (!url) {
-                showToast('유튜브 링크를 입력해주세요.', 'error');
-                return;
-            }
+            if (!url) { showToast('유튜브 링크를 입력해주세요.', 'error'); return; }
 
             const videoId = extractVideoId(url);
-            if (!videoId) {
-                showToast('유효한 유튜브 비디오 ID를 찾을 수 없습니다.', 'error');
+            if (!videoId) { showToast('유효한 유튜브 비디오 ID를 찾을 수 없습니다.', 'error'); return; }
+
+            const isWebEnv = !(window.location.hostname === 'localhost' ||
+                               window.location.hostname === '127.0.0.1' ||
+                               window.location.protocol === 'file:');
+
+            // 웹 환경 + 로쪬 서버 꺼져있으면: 버튼 클릭 시점(유저 제스처)=동기 실행 → 팝업 차단 미적용
+            if (isWebEnv && !window.localServerAlive) {
+                const ssUrl = 'https://ssyoutube.com/watch?v=' + videoId;
+                window.open(ssUrl, '_blank', 'noopener');
+                showToast('ssyoutube.com 에서 다운로드 페이지가 열립니다!', 'success');
                 return;
             }
 
@@ -6769,53 +6729,51 @@ ${newsContext}
             const progressPercent = document.getElementById('videoDownloadPercent');
 
             try {
-                if (btn) {
-                    btn.disabled = true;
-                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 다운로드 중';
-                }
+                if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 다운로드 중'; }
                 if (progressArea) progressArea.classList.remove('hidden');
                 if (progressBar) progressBar.style.width = '50%';
                 if (progressPercent) progressPercent.innerText = '처리 중...';
 
-                const ytUrl = `https://www.youtube.com/watch?v=${videoId}`;
+                const ytUrl = 'https://www.youtube.com/watch?v=' + videoId;
                 const result = await downloadViaCobalt(ytUrl, false);
 
                 if (result === 'fallback') {
                     if (progressArea) progressArea.classList.add('hidden');
-                    // fallback 모달이 이미 표시됨
                 } else {
                     if (progressBar) progressBar.style.width = '100%';
                     if (progressPercent) progressPercent.innerText = '완료!';
                     showToast('영상 다운로드가 시작되었습니다!', 'success');
                     setTimeout(() => progressArea?.classList.add('hidden'), 3000);
                 }
-
             } catch (err) {
                 console.error('Video Download Error:', err);
                 showToast('다운로드 실패: ' + err.message, 'error');
                 if (progressArea) progressArea.classList.add('hidden');
             } finally {
-                if (btn) {
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-film"></i> 영상 다운';
-                }
+                if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-film"></i> 영상 다운'; }
             }
         }
 
         async function runAudioDownloader() {
-            console.log('Starting Audio Downloader (cobalt.tools)...');
+            console.log('Starting Audio Downloader...');
             const urlInput = document.getElementById('audioDownloadInput');
             if (!urlInput) return;
-            
+
             const url = urlInput.value.trim();
-            if (!url) {
-                showToast('유튜브 링크를 입력해주세요.', 'error');
-                return;
-            }
+            if (!url) { showToast('유튜브 링크를 입력해주세요.', 'error'); return; }
 
             const videoId = extractVideoId(url);
-            if (!videoId) {
-                showToast('유효한 유튜브 비디오 ID를 찾을 수 없습니다.', 'error');
+            if (!videoId) { showToast('유효한 유튜브 비디오 ID를 찾을 수 없습니다.', 'error'); return; }
+
+            const isWebEnv = !(window.location.hostname === 'localhost' ||
+                               window.location.hostname === '127.0.0.1' ||
+                               window.location.protocol === 'file:');
+
+            // 웹 환경 + 로쪬 서버 꺼져있으면: 동기 실행 → 팝업 차단 미적용
+            if (isWebEnv && !window.localServerAlive) {
+                const ssUrl = 'https://ssyoutube.com/watch?v=' + videoId;
+                window.open(ssUrl, '_blank', 'noopener');
+                showToast('ssyoutube.com 에서 다운로드 페이지가 열립니다!', 'success');
                 return;
             }
 
@@ -6825,36 +6783,28 @@ ${newsContext}
             const progressPercent = document.getElementById('audioDownloadPercent');
 
             try {
-                if (btn) {
-                    btn.disabled = true;
-                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 추출 중';
-                }
+                if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 추출 중'; }
                 if (progressArea) progressArea.classList.remove('hidden');
                 if (progressBar) progressBar.style.width = '50%';
                 if (progressPercent) progressPercent.innerText = '처리 중...';
 
-                const ytUrl = `https://www.youtube.com/watch?v=${videoId}`;
+                const ytUrl = 'https://www.youtube.com/watch?v=' + videoId;
                 const result = await downloadViaCobalt(ytUrl, true);
 
                 if (result === 'fallback') {
                     if (progressArea) progressArea.classList.add('hidden');
-                    // fallback 모달이 이미 표시됨
                 } else {
                     if (progressBar) progressBar.style.width = '100%';
                     if (progressPercent) progressPercent.innerText = '완료!';
                     showToast('MP3 음원 다운로드가 시작되었습니다!', 'success');
                     setTimeout(() => progressArea?.classList.add('hidden'), 3000);
                 }
-
             } catch (err) {
                 console.error('Audio Download Error:', err);
                 showToast('다운로드 실패: ' + err.message, 'error');
                 if (progressArea) progressArea.classList.add('hidden');
             } finally {
-                if (btn) {
-                    btn.disabled = false;
-                    btn.innerHTML = '<i class="fas fa-music"></i> MP3 추출';
-                }
+                if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-music"></i> MP3 추출'; }
             }
         }
 
