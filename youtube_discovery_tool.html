@@ -14331,12 +14331,16 @@ ${commentsStr}
 
             } catch (err) {
                 console.error(err);
+                const ssUrl = 'https://ssyoutube.com/watch?v=' + videoId;
+                window.open(ssUrl, '_blank', 'noopener');
                 modalContent.innerHTML = `
                     <div class="p-10 text-center space-y-4">
                         <div class="text-red-400 text-5xl mb-4"><i class="fas fa-exclamation-triangle"></i></div>
                         <p class="text-xl text-white font-bold">스크립트를 불러오지 못했습니다</p>
                         <p class="text-gray-400 text-sm whitespace-pre-wrap">${err.message}</p>
-                        <div class="pt-6">
+                        <p class="text-green-400 text-sm">ssyoutube.com 에서 다운로드 페이지가 열렸습니다!</p>
+                        <div class="pt-4 flex gap-3 justify-center">
+                            <a href="${ssUrl}" target="_blank" rel="noopener" class="px-6 py-2 bg-purple-700 hover:bg-purple-600 rounded-lg text-white transition font-bold">⬇️ ssyoutube.com 열기</a>
                             <button onclick="closeModal()" class="px-6 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white transition">닫기</button>
                         </div>
                     </div>
