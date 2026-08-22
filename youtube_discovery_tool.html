@@ -6401,11 +6401,12 @@ ${newsContext}
                                window.location.hostname === '127.0.0.1' ||
                                window.location.protocol === 'file:');
 
-            // 웹 환경 + 로컬 서버 꺼져있으면: ssyoutube.com으로 바로 이동
+            // 웹 환경 + 로컬 서버 꺼져있으면: savefrom.net 자막 페이지로 바로 이동
             if (isWebEnv && !window.localServerAlive) {
-                const ssUrl = 'https://ssyoutube.com/watch?v=' + videoId;
-                window.open(ssUrl, '_blank', 'noopener');
-                showToast('ssyoutube.com 에서 다운로드 페이지가 열립니다!', 'success');
+                const ytUrl = 'https://www.youtube.com/watch?v=' + videoId;
+                const transcriptUrl = 'https://ko.savefrom.net/113-youtube-transcript.html?url=' + encodeURIComponent(ytUrl);
+                window.open(transcriptUrl, '_blank', 'noopener');
+                showToast('savefrom.net 자막 추출 페이지가 열립니다!', 'success');
                 return;
             }
 
@@ -6427,16 +6428,18 @@ ${newsContext}
                     document.body.removeChild(a);
                     showToast('대본 다운로드가 완료되었습니다.', 'success');
                 } else {
-                    // 서버 추출 실패 시 ssyoutube.com으로 이동
-                    const ssUrl = 'https://ssyoutube.com/watch?v=' + videoId;
-                    window.open(ssUrl, '_blank', 'noopener');
-                    showToast('대본 추출 실패 - ssyoutube.com 에서 다운로드 페이지가 열립니다!', 'info');
+                    // 서버 추출 실패 시 savefrom.net 자막 페이지로 이동
+                    const ytUrl = 'https://www.youtube.com/watch?v=' + videoId;
+                    const transcriptUrl = 'https://ko.savefrom.net/113-youtube-transcript.html?url=' + encodeURIComponent(ytUrl);
+                    window.open(transcriptUrl, '_blank', 'noopener');
+                    showToast('대본 추출 실패 - savefrom.net 자막 페이지가 열립니다!', 'info');
                 }
             } catch (e) {
-                // 서버 연결 오류 시 ssyoutube.com으로 이동
-                const ssUrl = 'https://ssyoutube.com/watch?v=' + videoId;
-                window.open(ssUrl, '_blank', 'noopener');
-                showToast('서버 오류 - ssyoutube.com 에서 다운로드 페이지가 열립니다!', 'info');
+                // 서버 연결 오류 시 savefrom.net 자막 페이지로 이동
+                const ytUrl = 'https://www.youtube.com/watch?v=' + videoId;
+                const transcriptUrl = 'https://ko.savefrom.net/113-youtube-transcript.html?url=' + encodeURIComponent(ytUrl);
+                window.open(transcriptUrl, '_blank', 'noopener');
+                showToast('서버 오류 - savefrom.net 자막 페이지가 열립니다!', 'info');
             } finally {
                 showLoading(false);
             }
@@ -14331,16 +14334,17 @@ ${commentsStr}
 
             } catch (err) {
                 console.error(err);
-                const ssUrl = 'https://ssyoutube.com/watch?v=' + videoId;
-                window.open(ssUrl, '_blank', 'noopener');
+                const ytUrl = 'https://www.youtube.com/watch?v=' + videoId;
+                const transcriptUrl = 'https://ko.savefrom.net/113-youtube-transcript.html?url=' + encodeURIComponent(ytUrl);
+                window.open(transcriptUrl, '_blank', 'noopener');
                 modalContent.innerHTML = `
                     <div class="p-10 text-center space-y-4">
                         <div class="text-red-400 text-5xl mb-4"><i class="fas fa-exclamation-triangle"></i></div>
                         <p class="text-xl text-white font-bold">스크립트를 불러오지 못했습니다</p>
                         <p class="text-gray-400 text-sm whitespace-pre-wrap">${err.message}</p>
-                        <p class="text-green-400 text-sm">ssyoutube.com 에서 다운로드 페이지가 열렸습니다!</p>
+                        <p class="text-green-400 text-sm">savefrom.net 자막 추출 페이지가 열렸습니다!</p>
                         <div class="pt-4 flex gap-3 justify-center">
-                            <a href="${ssUrl}" target="_blank" rel="noopener" class="px-6 py-2 bg-purple-700 hover:bg-purple-600 rounded-lg text-white transition font-bold">⬇️ ssyoutube.com 열기</a>
+                            <a href="${transcriptUrl}" target="_blank" rel="noopener" class="px-6 py-2 bg-purple-700 hover:bg-purple-600 rounded-lg text-white transition font-bold">📄 savefrom.net 자막 열기</a>
                             <button onclick="closeModal()" class="px-6 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white transition">닫기</button>
                         </div>
                     </div>
