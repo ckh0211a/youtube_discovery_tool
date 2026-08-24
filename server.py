@@ -1222,30 +1222,84 @@ def get_downloaded_file():
 
 @app.route('/api/download/helper', methods=['GET', 'OPTIONS'])
 def download_helper_bundle():
-    """웹 사용자용 TubeTrend 로컬 헬퍼 번들 다운로드 엔드포인트"""
+    """웹 사용자용 TubeTrend 로컬 헬퍼 번들 다운로드 엔드포인트 (실시간 메모리 압축 스트리밍)"""
+    import io
     import zipfile
-    from flask import send_file
-    zip_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'downloads', 'TubeTrend-Helper.zip')
-    
-    os.makedirs(os.path.dirname(zip_path), exist_ok=True)
+    from flask import send_file, Response
+
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    files_to_zip = [
-        'TubeTrend_Helper.bat',
-        'start_helper.bat',
-        '튜브트렌드_헬퍼_실행.bat',
-        'TubeTrend_Helper.py',
-        'youtube_extractor.py',
-        'yt-dlp.conf',
-        'requirements.txt',
-        'app_icon.ico'
-    ]
-    with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
-        for fname in files_to_zip:
+    memory_file = io.BytesIO()
+
+    # 1. 배치 파일 기본 코드
+    bat_code = """@echo off
+chcp 65001 > nul
+title TubeTrend Local Helper (초고속 무제한 다운로더 헬퍼)
+echo ========================================================================
+echo   ⚡ TubeTrend Local Helper (튜브트렌드 초고속 다운로더 헬퍼) ⚡
+echo ========================================================================
+echo.
+echo [1/3] 파이썬(Python) 환경을 확인하는 중입니다...
+python --version >nul 2>&1
+if %errorlevel% neq 0 (
+    echo.
+    echo [오류] Python이 설치되어 있지 않습니다.
+    echo Python 공식 홈페이지(https://www.python.org)에서 Python을 설치해 주세요.
+    echo (설치 시 반드시 'Add python.exe to PATH' 체크박스를 선택해 주세요!)
+    echo.
+    pause
+    exit /b
+)
+
+echo [2/3] 필수 라이브러리(Flask, yt-dlp, requests 등)를 점검 중입니다...
+pip install -q flask flask-cors yt-dlp requests youtube-transcript-api >nul 2>&1
+
+echo [3/3] 튜브트렌드 다운로더 헬퍼 서버를 시작합니다...
+echo.
+echo  ● 로컬 주소: http://127.0.0.1:5001
+echo  ● 웹사이트(tubetrend.xyz)에서 대본/영상 다운로드를 누르면
+echo    이 프로그램을 통해 차단 없이 즉시 초고속 다운로드됩니다!
+echo.
+echo  ※ 다운로드를 사용하는 동안 이 창을 닫지 마세요.
+echo ========================================================================
+echo.
+python TubeTrend_Helper.py
+pause
+"""
+
+    # 2. 설명서 파일
+    readme_code = """========================================================================
+⚡ TubeTrend Local Helper 사용 방법 ⚡
+========================================================================
+
+1. 'TubeTrend_Helper.bat' 파일을 더블클릭하여 실행합니다.
+2. 검은색 실행창에 "정상 실행 중 (온라인)" 메시지가 뜨면 준비 완료입니다.
+3. 이제 웹 브라우저(tubetrend.xyz)에서 [대본 다운로드] 또는 [영상 다운로드]를 누르면
+   유튜브 차단 없이 내 PC로 즉시 초고속 다운로드됩니다!
+
+※ 다운로드를 사용하는 동안 실행창을 닫지 마세요.
+========================================================================
+"""
+
+    with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zf:
+        # 1) 배치 파일들 및 설명서 직접 쓰기
+        zf.writestr('TubeTrend_Helper.bat', bat_code.encode('utf-8'))
+        zf.writestr('start_helper.bat', '@echo off\r\ncall TubeTrend_Helper.bat\r\n'.encode('utf-8'))
+        zf.writestr('README.txt', readme_code.encode('utf-8'))
+
+        # 2) 파이썬 및 부속 파일들 디스크에서 읽어 추가
+        for fname in ['TubeTrend_Helper.py', 'youtube_extractor.py', 'yt-dlp.conf', 'requirements.txt', 'app_icon.ico']:
             fpath = os.path.join(base_dir, fname)
             if os.path.exists(fpath):
-                zf.write(fpath, fname)
-    
-    return send_file(zip_path, as_attachment=True, download_name='TubeTrend-Helper.zip', mimetype='application/zip')
+                with open(fpath, 'rb') as f:
+                    zf.writestr(fname, f.read())
+
+    memory_file.seek(0)
+    return send_file(
+        memory_file,
+        as_attachment=True,
+        download_name='TubeTrend-Helper.zip',
+        mimetype='application/zip'
+    )
 
 def get_device_id():
     try:
