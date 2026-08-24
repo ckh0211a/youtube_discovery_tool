@@ -1240,40 +1240,12 @@ def download_helper_bundle():
     base_dir = os.path.dirname(os.path.abspath(__file__))
     memory_file = io.BytesIO()
 
-    # 1. 깔끔한 영문 및 안전 인코딩 배치 파일
-    bat_code = """@echo off
-@chcp 65001 >nul
-title TubeTrend Local Helper
-echo ========================================================================
-echo   TubeTrend Local Helper (Download ^& Script Server)
-echo ========================================================================
-echo.
-echo [1/2] Checking Python environment...
-python --version >nul 2>&1
-if %errorlevel% neq 0 (
-    echo [ERROR] Python is not installed. Please install Python 3.9+.
-    pause
-    exit /b
-)
-
-echo [2/2] Checking required packages...
-pip install -q flask flask-cors yt-dlp requests youtube-transcript-api >nul 2>&1
-
-echo.
-echo Starting TubeTrend Helper Server on http://127.0.0.1:5001 ...
-echo (Do not close this window while using the website)
-echo ========================================================================
-echo.
-python TubeTrend_Helper.py
-pause
-"""
-
-    # 2. 설명서 파일
+    # 1. 설명서 파일
     readme_code = """========================================================================
-TubeTrend Local Helper Quick Guide
+TubeTrend Local Helper Quick Guide (무설치 포터블)
 ========================================================================
 
-1. Double-click 'TubeTrend_Helper.bat' to start the local helper.
+1. Double-click 'TubeTrend_Helper.exe' to start the local helper.
 2. When the black window shows "TubeTrend Helper Server", it's ready!
 3. Go back to your browser (tubetrend.xyz) and click Download Script/Video.
    It will download directly to your PC without YouTube IP blocking!
@@ -1282,31 +1254,23 @@ TubeTrend Local Helper Quick Guide
 ========================================================================
 """
 
+    exe_path = os.path.join(base_dir, 'dist', 'TubeTrend_Helper.exe')
+    if not os.path.exists(exe_path):
+        exe_path = os.path.join(base_dir, 'TubeTrend_Helper.exe')
+
     with zipfile.ZipFile(memory_file, 'w', zipfile.ZIP_DEFLATED) as zf:
-        # 1) 배치 파일들 및 설명서 직접 쓰기
-        zf.writestr('TubeTrend_Helper.bat', bat_code.encode('utf-8'))
-        zf.writestr('start_helper.bat', '@echo off\r\ncall TubeTrend_Helper.bat\r\n'.encode('utf-8'))
+        # 1) 설명서 직접 쓰기
         zf.writestr('README.txt', readme_code.encode('utf-8'))
 
-        # 2) 파이썬 및 부속 파일들 디스크에서 읽어 추가 (다양한 candidate 경로 지원)
-        files_to_pack = ['TubeTrend_Helper.py', 'youtube_extractor.py', 'yt-dlp.conf', 'requirements.txt', 'app_icon.ico']
-        for fname in files_to_pack:
-            candidates = [
-                os.path.join(base_dir, fname),
-                os.path.join(os.getcwd(), fname),
-                fname,
-                f'/app/{fname}'
-            ]
-            content = None
-            for cp in candidates:
-                if os.path.exists(cp):
-                    try:
-                        with open(cp, 'rb') as f:
-                            content = f.read()
-                        break
-                    except: pass
-            if content is not None:
-                zf.writestr(fname, content)
+        # 2) 빌드된 exe 파일 읽어서 추가
+        if os.path.exists(exe_path):
+            try:
+                with open(exe_path, 'rb') as f:
+                    zf.writestr('TubeTrend_Helper.exe', f.read())
+            except Exception as e:
+                print(f"[Error] Failed to pack exe: {e}")
+        else:
+            print("[Warning] TubeTrend_Helper.exe not found during helper download packaging.")
 
     memory_file.seek(0)
     return send_file(
