@@ -6450,7 +6450,7 @@ ${newsContext}
             if (isWebEnv && !window.localServerAlive) {
                 const ytUrl = 'https://www.youtube.com/watch?v=' + videoId;
                 navigator.clipboard.writeText(ytUrl).then(() => {
-                    showToast('링크가 자동 복사되었습니다! 입력창에 Ctrl+V로 붙여넣으세요.', 'success');
+                    alert('📌 유튜브 링크가 자동으로 복사되었습니다!\n\n확인을 누르시면 새 창이 열립니다.\n입력칸을 클릭하고 [붙여넣기(Ctrl+V)] 를 눌러주세요.');
                 }).catch(() => {
                     showToast('savefrom.net에서 대본을 받으세요!', 'success');
                 });
@@ -14378,7 +14378,7 @@ ${commentsStr}
             if (!isLocalEnv && !window.localServerAlive) {
                 const ytUrl = 'https://www.youtube.com/watch?v=' + videoId;
                 navigator.clipboard.writeText(ytUrl).then(() => {
-                    showToast('링크가 자동 복사되었습니다! 입력창에 Ctrl+V로 붙여넣으세요.', 'success');
+                    alert('📌 유튜브 링크가 자동으로 복사되었습니다!\n\n확인을 누르시면 새 창이 열립니다.\n입력칸을 클릭하고 [붙여넣기(Ctrl+V)] 를 눌러주세요.');
                 }).catch(() => {
                     showToast('savefrom.net에서 대본을 받으세요!', 'success');
                 });
