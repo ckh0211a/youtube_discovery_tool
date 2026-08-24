@@ -14370,13 +14370,12 @@ ${commentsStr}
             const safeTitle = (video.title || '대본').replace(/[\\/:*?"<>|]/g, '_').substring(0, 60);
             const isLocalEnv = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
 
-            // 웹 환경이고 로컬 헬퍼가 꺼져 있으면 안내 모달 제공
+            // 웹 환경이고 로컬 헬퍼가 꺼져 있으면 savefrom.net으로 자동 이동
             if (!isLocalEnv && !window.localServerAlive) {
-                const isAlive = await checkLocalHelperStatus();
-                if (!isAlive) {
-                    openHelperGuideModal(() => handleScript(videoId), `대본 다운로드 ("${(video.title || '').substring(0, 20)}...")`);
-                    return;
-                }
+                const ytUrl = 'https://www.youtube.com/watch?v=' + videoId;
+                window.open('https://ko.savefrom.net/113-youtube-transcript.html?url=' + encodeURIComponent(ytUrl), '_blank', 'noopener');
+                showToast('savefrom.net에서 대본을 받으세요!', 'success');
+                return;
             }
 
             modal.classList.remove('hidden');
