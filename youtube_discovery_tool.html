@@ -6446,15 +6446,11 @@ ${newsContext}
                                window.location.hostname === '127.0.0.1' ||
                                window.location.protocol === 'file:');
 
-            // 웹 환경 + 로컬 서버 꺼져있으면: savefrom.net으로 URL 자동 입력해서 바로 이동
+            // 웹 환경 + 로컬 서버 꺼져있으면: downsub.com으로 URL 자동 입력해서 바로 이동
             if (isWebEnv && !window.localServerAlive) {
                 const ytUrl = 'https://www.youtube.com/watch?v=' + videoId;
-                navigator.clipboard.writeText(ytUrl).then(() => {
-                    alert('📌 유튜브 링크가 자동으로 복사되었습니다!\n\n확인을 누르시면 새 창이 열립니다.\n입력칸을 클릭하고 [붙여넣기(Ctrl+V)] 를 눌러주세요.');
-                }).catch(() => {
-                    showToast('savefrom.net에서 대본을 받으세요!', 'success');
-                });
-                window.open('https://ko.savefrom.net/113-youtube-transcript.html', '_blank', 'noopener');
+                window.open('https://downsub.com/?url=' + encodeURIComponent(ytUrl), '_blank', 'noopener');
+                showToast('downsub.com에서 대본을 받으세요!', 'success');
                 return;
             }
 
@@ -6476,15 +6472,15 @@ ${newsContext}
                     document.body.removeChild(a);
                     showToast('대본 다운로드가 완료되었습니다.', 'success');
                 } else {
-                    // 서버 추출 실패 시 savefrom.net으로 URL 자동 입력
+                    // 서버 추출 실패 시 downsub.com으로 URL 자동 입력
                     const ytUrl = 'https://www.youtube.com/watch?v=' + videoId;
-                    window.open('https://ko.savefrom.net/113-youtube-transcript.html?url=' + encodeURIComponent(ytUrl), '_blank', 'noopener');
-                    showToast('savefrom.net에서 대본을 받으세요!', 'info');
+                    window.open('https://downsub.com/?url=' + encodeURIComponent(ytUrl), '_blank', 'noopener');
+                    showToast('downsub.com에서 대본을 받으세요!', 'info');
                 }
             } catch (e) {
                 const ytUrl = 'https://www.youtube.com/watch?v=' + videoId;
-                window.open('https://ko.savefrom.net/113-youtube-transcript.html?url=' + encodeURIComponent(ytUrl), '_blank', 'noopener');
-                showToast('savefrom.net에서 대본을 받으세요!', 'info');
+                window.open('https://downsub.com/?url=' + encodeURIComponent(ytUrl), '_blank', 'noopener');
+                showToast('downsub.com에서 대본을 받으세요!', 'info');
             } finally {
                 showLoading(false);
             }
@@ -14374,15 +14370,11 @@ ${commentsStr}
             const safeTitle = (video.title || '대본').replace(/[\\/:*?"<>|]/g, '_').substring(0, 60);
             const isLocalEnv = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
 
-            // 웹 환경이고 로컬 헬퍼가 꺼져 있으면 savefrom.net으로 자동 이동
+            // 웹 환경이고 로컬 헬퍼가 꺼져 있으면 downsub.com으로 자동 이동
             if (!isLocalEnv && !window.localServerAlive) {
                 const ytUrl = 'https://www.youtube.com/watch?v=' + videoId;
-                navigator.clipboard.writeText(ytUrl).then(() => {
-                    alert('📌 유튜브 링크가 자동으로 복사되었습니다!\n\n확인을 누르시면 새 창이 열립니다.\n입력칸을 클릭하고 [붙여넣기(Ctrl+V)] 를 눌러주세요.');
-                }).catch(() => {
-                    showToast('savefrom.net에서 대본을 받으세요!', 'success');
-                });
-                window.open('https://ko.savefrom.net/113-youtube-transcript.html', '_blank', 'noopener');
+                window.open('https://downsub.com/?url=' + encodeURIComponent(ytUrl), '_blank', 'noopener');
+                showToast('downsub.com에서 대본을 받으세요!', 'success');
                 return;
             }
 
@@ -14469,7 +14461,7 @@ ${commentsStr}
                         <p class="text-white font-bold text-lg">${video.title}</p>
                         <p class="text-gray-300 text-sm leading-relaxed">${err.message || '해당 영상에는 자막(CC)이 지원되지 않거나 추출할 수 없습니다.'}</p>
                         <div class="pt-4 flex justify-center gap-3">
-                            <button onclick="window.open('https://ko.savefrom.net/113-youtube-transcript.html?url=${encodeURIComponent(ytUrl)}', '_blank', 'noopener')" class="bg-yellow-600 hover:bg-yellow-500 text-white font-bold px-5 py-2.5 rounded-lg flex items-center gap-2 shadow-lg transition active:scale-95">
+                            <button onclick="window.open('https://downsub.com/?url=${encodeURIComponent(ytUrl)}', '_blank', 'noopener')" class="bg-yellow-600 hover:bg-yellow-500 text-white font-bold px-5 py-2.5 rounded-lg flex items-center gap-2 shadow-lg transition active:scale-95">
                                 <i class="fas fa-external-link-alt"></i> DownSub 사이트에서 대본 받기
                             </button>
                             <button onclick="if (typeof closeModal === 'function') closeModal(); else modal.classList.add('hidden');" class="bg-gray-700 hover:bg-gray-600 text-gray-300 font-bold px-5 py-2.5 rounded-lg transition active:scale-95">
