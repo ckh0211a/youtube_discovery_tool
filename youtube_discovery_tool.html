@@ -1786,7 +1786,7 @@
                                 </button>
 
                                 <!-- TubeTrend -->
-                                <button onclick="window.open('https://tubetrend.xyz/', '_blank')"
+                                <button onclick="window.location.href='https://tubetrend.onrender.com/'"
                                     title="[TubeTrend]&#10;유튜브 트렌드 분석 사이트 TubeTrend를 엽니다."
                                     class="dashboard-btn-animate w-full group relative min-h-[140px] bg-white hover:bg-gray-50 rounded-[2rem] p-5 flex flex-col items-center justify-center text-center shadow-2xl transition-all duration-500 hover:scale-[1.03] hover:-translate-y-2 border border-gray-100 active:scale-95 overflow-hidden">
                                     <div
@@ -19419,6 +19419,75 @@ ${commentsText}
         }
     }, 60000);
 })();
+</script>
+<!-- TubeTrend Modal -->
+<div id="tubeTrendModal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4 sm:p-6">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onclick="closeTubeTrendModal()"></div>
+    <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-7xl h-[90vh] flex flex-col overflow-hidden animate-[modal-pop_0.3s_ease-out]">
+        <!-- Header -->
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-white z-10 relative shrink-0">
+            <div class="flex items-center space-x-3">
+                <div class="bg-rose-50 p-2 rounded-xl">
+                    <i class="fas fa-chart-line text-rose-500 text-lg"></i>
+                </div>
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800 tracking-tight">TubeTrend</h3>
+                    <p class="text-xs text-gray-500 font-medium">유튜브 트렌드 분석 사이트</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button onclick="window.open('https://tubetrend.onrender.com/', '_blank')" class="p-2 text-gray-400 hover:text-rose-500 hover:bg-rose-50 rounded-xl transition-colors" title="새 창에서 열기">
+                    <i class="fas fa-external-link-alt"></i>
+                </button>
+                <button onclick="closeTubeTrendModal()" class="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors" title="닫기 (ESC)">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Iframe Container -->
+        <div class="flex-1 bg-gray-50 relative w-full h-full">
+            <div id="tubeTrendLoading" class="absolute inset-0 flex flex-col items-center justify-center">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-rose-500 mb-4"></div>
+                <p class="text-gray-500 font-medium animate-pulse">TubeTrend 로딩 중...</p>
+            </div>
+            <iframe id="tubeTrendIframe" class="w-full h-full border-0 absolute inset-0 z-10 bg-white" style="opacity: 0; transition: opacity 0.5s;" onload="this.style.opacity='1'; document.getElementById('tubeTrendLoading').style.display='none';"></iframe>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openTubeTrendModal() {
+        const modal = document.getElementById('tubeTrendModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        
+        const iframe = document.getElementById('tubeTrendIframe');
+        if (!iframe.src || iframe.src === 'about:blank') {
+            iframe.src = 'https://tubetrend.onrender.com/';
+        }
+        
+        // Prevent body scroll
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeTubeTrendModal() {
+        const modal = document.getElementById('tubeTrendModal');
+        modal.classList.add('hidden');
+        modal.classList.remove('flex');
+        
+        // Restore body scroll
+        document.body.style.overflow = '';
+    }
+
+    // ESC to close modal
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            const tubeTrendModal = document.getElementById('tubeTrendModal');
+            if (tubeTrendModal && !tubeTrendModal.classList.contains('hidden')) {
+                closeTubeTrendModal();
+            }
+        }
+    });
 </script>
 </body>
 </html>
