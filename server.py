@@ -1227,16 +1227,23 @@ def download_helper_bundle():
     from flask import send_file
     zip_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'downloads', 'TubeTrend-Helper.zip')
     
-    # 압축 파일이 없으면 동적으로 생성
-    if not os.path.exists(zip_path):
-        os.makedirs(os.path.dirname(zip_path), exist_ok=True)
-        base_dir = os.path.dirname(os.path.abspath(__file__))
-        files_to_zip = ['TubeTrend_Helper.py', 'youtube_extractor.py', 'yt-dlp.conf', 'requirements.txt', '튜브트렌드_헬퍼_실행.bat', 'app_icon.ico']
-        with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
-            for fname in files_to_zip:
-                fpath = os.path.join(base_dir, fname)
-                if os.path.exists(fpath):
-                    zf.write(fpath, fname)
+    os.makedirs(os.path.dirname(zip_path), exist_ok=True)
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    files_to_zip = [
+        'TubeTrend_Helper.bat',
+        'start_helper.bat',
+        '튜브트렌드_헬퍼_실행.bat',
+        'TubeTrend_Helper.py',
+        'youtube_extractor.py',
+        'yt-dlp.conf',
+        'requirements.txt',
+        'app_icon.ico'
+    ]
+    with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
+        for fname in files_to_zip:
+            fpath = os.path.join(base_dir, fname)
+            if os.path.exists(fpath):
+                zf.write(fpath, fname)
     
     return send_file(zip_path, as_attachment=True, download_name='TubeTrend-Helper.zip', mimetype='application/zip')
 
