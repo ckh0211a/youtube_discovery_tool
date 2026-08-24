@@ -1220,6 +1220,26 @@ def get_downloaded_file():
     from flask import send_file
     return send_file(filename, as_attachment=True)
 
+@app.route('/api/download/helper', methods=['GET', 'OPTIONS'])
+def download_helper_bundle():
+    """웹 사용자용 TubeTrend 로컬 헬퍼 번들 다운로드 엔드포인트"""
+    import zipfile
+    from flask import send_file
+    zip_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'downloads', 'TubeTrend-Helper.zip')
+    
+    # 압축 파일이 없으면 동적으로 생성
+    if not os.path.exists(zip_path):
+        os.makedirs(os.path.dirname(zip_path), exist_ok=True)
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        files_to_zip = ['TubeTrend_Helper.py', 'youtube_extractor.py', 'yt-dlp.conf', 'requirements.txt', '튜브트렌드_헬퍼_실행.bat', 'app_icon.ico']
+        with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
+            for fname in files_to_zip:
+                fpath = os.path.join(base_dir, fname)
+                if os.path.exists(fpath):
+                    zf.write(fpath, fname)
+    
+    return send_file(zip_path, as_attachment=True, download_name='TubeTrend-Helper.zip', mimetype='application/zip')
+
 def get_device_id():
     try:
         output = subprocess.check_output('wmic csproduct get uuid', shell=True, creationflags=0x08000000).decode('utf-8').strip().split('\n')

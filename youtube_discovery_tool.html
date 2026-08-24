@@ -16,9 +16,10 @@
     <!-- Supabase JS SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // API Base URL Interceptor for Web Deployment
+        // API Base URL Interceptor & TubeTrend Helper Detector
         (function() {
             const isLocalEnv = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
+            window.isLocalAppEnv = isLocalEnv;
 
             const getBackendUrl = function(url) {
                 const targetBase = window.location.protocol === 'file:' ? 'http://127.0.0.1:5001' : window.location.origin;
@@ -30,23 +31,59 @@
             window.getBackendUrl = getBackendUrl;
 
             const originalFetch = window.fetch;
+            window.originalFetch = originalFetch;
             
-            // Proactively check if local server is running to avoid async delay (which triggers popup blockers)
+            // TubeTrend Local Helper state
             window.localServerAlive = false;
-            originalFetch('http://127.0.0.1:5001/api/transcript')
-                .then(() => { window.localServerAlive = true; })
-                .catch(() => { window.localServerAlive = false; });
+            window._pendingHelperAction = null;
+            
+            async function checkLocalHelperStatus(isManual = false) {
+                try {
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 1200);
+                    const res = await originalFetch('http://127.0.0.1:5001/api/helper/status', { signal: controller.signal });
+                    clearTimeout(timeoutId);
+                    if (res.ok) {
+                        window.localServerAlive = true;
+                        if (typeof updateHelperUI === 'function') updateHelperUI(true);
+                        if (isManual && typeof showToast === 'function') showToast('로컬 헬퍼가 정상 연결되었습니다!', 'success');
+                        return true;
+                    }
+                } catch (e) {
+                    try {
+                        const controller2 = new AbortController();
+                        const timeoutId2 = setTimeout(() => controller2.abort(), 1200);
+                        const res2 = await originalFetch('http://127.0.0.1:5001/api/download/progress?video_id=ping', { signal: controller2.signal });
+                        clearTimeout(timeoutId2);
+                        if (res2.ok) {
+                            window.localServerAlive = true;
+                            if (typeof updateHelperUI === 'function') updateHelperUI(true);
+                            if (isManual && typeof showToast === 'function') showToast('로컬 헬퍼가 정상 연결되었습니다!', 'success');
+                            return true;
+                        }
+                    } catch(e2) {}
+                }
+                window.localServerAlive = false;
+                if (typeof updateHelperUI === 'function') updateHelperUI(false);
+                if (isManual && typeof showToast === 'function') showToast('로컬 헬퍼가 아직 실행되지 않았습니다.', 'info');
+                return false;
+            }
+            window.checkLocalHelperStatus = checkLocalHelperStatus;
+            
+            // Initial check & Periodic health check (every 3 seconds)
+            setTimeout(checkLocalHelperStatus, 500);
+            setInterval(checkLocalHelperStatus, 3000);
 
             window.fetch = async function(input, init) {
                 if (typeof input === 'string') {
                     if (input.includes('127.0.0.1:5001')) {
-                        const isScrapingApi = input.includes('/api/cobalt') || input.includes('/api/transcript');
+                        const isScrapingApi = input.includes('/api/cobalt') || input.includes('/api/transcript') || input.includes('/api/download') || input.includes('/api/helper');
                         
-                        // 웹 배포 환경(tubetrend.xyz)에서 스크래핑(다운로드/대본) 시도 시,
-                        // 사용자 로컬 서버가 켜져있다면 로컬 서버를 우선 사용 (유튜브 IP 차단 회피)
+                        // 웹 배포 환경(tubetrend.xyz)에서 스크래핑 시도 시,
+                        // 사용자 로컬 헬퍼가 켜져있다면 로컬 헬퍼(127.0.0.1)를 우선 사용 (유튜브 IP 차단 회피)
                         if (!isLocalEnv && isScrapingApi) {
                             if (window.localServerAlive) {
-                                // use local (do not rewrite input)
+                                // use local helper directly
                             } else {
                                 input = getBackendUrl(input);
                             }
@@ -77,8 +114,8 @@
         */
         window.APP_VERSION = {
             major: 3,
-            minor: 3,
-            patch: 6
+            minor: 4,
+            patch: 0
         };
         window.PROGRAM_ID = "";
         // [SCORCHED EARTH] Persistent Seen IDs for Mode 3 NEW badge
@@ -1446,6 +1483,14 @@
                 <div class="relative flex flex-col items-center mb-2 w-full max-w-[1450px] mx-auto px-4">
                     <!-- User Header Display (Right-aligned with Logo) -->
                     <div class="absolute right-4 md:right-8 top-1/2 -translate-y-1/2 z-[600] flex items-center gap-2">
+                        <!-- TubeTrend Local Helper Status Button -->
+                        <button id="helperStatusBtn" onclick="openHelperGuideModal(null, '다운로더 헬퍼')" 
+                            class="flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-200/80 px-3.5 py-1.5 rounded-full shadow-xs hover:shadow-sm text-[12px] font-bold text-slate-700 transition-all hover:scale-105 active:scale-95"
+                            title="초고속 무제한 다운로더 헬퍼 상태">
+                            <span id="helperStatusDot" class="w-2.5 h-2.5 rounded-full bg-gray-400"></span>
+                            <span id="helperStatusText" class="text-xs">다운로더 헬퍼</span>
+                        </button>
+
                         <div id="userInfoHeader" class="hidden items-center gap-2 bg-white border border-slate-200/80 px-3.5 py-1.5 rounded-full shadow-xs text-[12px] font-bold text-slate-700">
                             <i class="fas fa-user-circle text-slate-400 text-base"></i>
                             <span id="userNameSpan"></span>
@@ -14254,12 +14299,85 @@ ${commentsStr}
             };
         }
 
+        // TubeTrend Helper Modal Control Functions
+        function openHelperGuideModal(actionCallback = null, actionName = '초고속 다운로드') {
+            if (actionCallback) {
+                window._pendingHelperAction = actionCallback;
+            }
+            const modal = document.getElementById('helperGuideModal');
+            const label = document.getElementById('helperModalActionLabel');
+            if (label) label.innerText = actionName;
+            if (modal) modal.classList.remove('hidden');
+            if (typeof checkLocalHelperStatus === 'function') checkLocalHelperStatus();
+        }
+
+        function closeHelperGuideModal() {
+            const modal = document.getElementById('helperGuideModal');
+            if (modal) modal.classList.add('hidden');
+        }
+
+        function updateHelperUI(isOnline) {
+            const dot = document.getElementById('helperStatusDot');
+            const text = document.getElementById('helperStatusText');
+            const pulseDot = document.getElementById('helperPulseDot');
+            const msg = document.getElementById('helperStatusMsg');
+
+            if (isOnline) {
+                if (dot) {
+                    dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]';
+                }
+                if (text) {
+                    text.innerHTML = '<span class="text-emerald-600 font-bold">다운로더 연결됨</span>';
+                }
+                if (pulseDot) {
+                    pulseDot.className = 'w-3 h-3 rounded-full bg-emerald-500';
+                }
+                if (msg) {
+                    msg.innerHTML = '<span class="text-emerald-400 font-bold">🟢 헬퍼 연결 성공! 작업을 시작합니다...</span>';
+                }
+
+                // 만약 대기 중인 다운로드 작업이 있다면 자동 실행 및 모달 닫기
+                if (window._pendingHelperAction) {
+                    const action = window._pendingHelperAction;
+                    window._pendingHelperAction = null;
+                    setTimeout(() => {
+                        closeHelperGuideModal();
+                        showToast('로컬 헬퍼가 연결되었습니다. 다운로드를 시작합니다.', 'success');
+                        try { action(); } catch(e) { console.error(e); }
+                    }, 600);
+                }
+            } else {
+                if (dot) {
+                    dot.className = 'w-2.5 h-2.5 rounded-full bg-gray-400';
+                }
+                if (text) {
+                    text.innerText = '다운로더 헬퍼';
+                }
+                if (pulseDot) {
+                    pulseDot.className = 'w-3 h-3 rounded-full bg-amber-500 animate-ping';
+                }
+                if (msg) {
+                    msg.innerText = '헬퍼 프로그램 실행 대기 중...';
+                }
+            }
+        }
+
         // New: Handle Script Draft (대본 추출 및 즉시 다운로드 + 모달 뷰어)
         async function handleScript(videoId) {
             const video = currentVideos.find(v => v.id === videoId);
             if (!video) return alert('영상 정보를 찾을 수 없습니다.');
 
             const safeTitle = (video.title || '대본').replace(/[\\/:*?"<>|]/g, '_').substring(0, 60);
+            const isLocalEnv = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:';
+
+            // 웹 환경이고 로컬 헬퍼가 꺼져 있으면 안내 모달 제공
+            if (!isLocalEnv && !window.localServerAlive) {
+                const isAlive = await checkLocalHelperStatus();
+                if (!isAlive) {
+                    openHelperGuideModal(() => handleScript(videoId), `대본 다운로드 ("${(video.title || '').substring(0, 20)}...")`);
+                    return;
+                }
+            }
 
             modal.classList.remove('hidden');
             keywordSelectionArea.classList.add('hidden');
@@ -15698,6 +15816,71 @@ ${commentsText}
             <div class="p-4 border-t border-700 bg-gray-800 rounded-b-xl flex justify-end">
                 <button onclick="closeModal()"
                     class="px-6 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg transition font-medium border border-gray-600">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TubeTrend Helper Guide Modal (초고속 다운로더 헬퍼 안내 모달) -->
+    <div id="helperGuideModal" class="fixed inset-0 z-[400] hidden flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+        <div class="bg-gray-900 border border-yellow-500/40 w-full max-w-lg rounded-3xl p-7 shadow-[0_25px_60px_rgba(0,0,0,0.8)] relative animate-scale-in">
+            <button onclick="closeHelperGuideModal()" class="absolute top-5 right-5 text-gray-400 hover:text-white transition text-lg w-8 h-8 rounded-full flex items-center justify-center bg-gray-800/60 hover:bg-gray-700">
+                <i class="fas fa-times"></i>
+            </button>
+            
+            <div class="flex items-center gap-4 mb-5">
+                <div class="w-14 h-14 bg-gradient-to-tr from-yellow-600 via-amber-500 to-yellow-400 rounded-2xl flex items-center justify-center shadow-lg shadow-yellow-500/30 flex-shrink-0">
+                    <i class="fas fa-bolt text-gray-950 text-2xl animate-pulse"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="bg-yellow-500/20 text-yellow-400 text-[10px] px-2 py-0.5 rounded font-black border border-yellow-500/30 uppercase tracking-wider">무설치 포터블</span>
+                        <span id="helperModalActionLabel" class="text-xs text-gray-400 font-bold">초고속 다운로더</span>
+                    </div>
+                    <h3 class="text-white font-black text-xl mt-0.5">튜브트렌드 다운로더 헬퍼</h3>
+                </div>
+            </div>
+
+            <div class="bg-gray-800/90 rounded-2xl p-4 border border-gray-700/60 mb-5 space-y-3 shadow-inner">
+                <p class="text-gray-200 text-sm leading-relaxed">
+                    웹 환경에서 유튜브 IP 차단 없이 <strong class="text-yellow-400">대본 및 영상</strong>을 제한 없이 다운로드하려면 <strong>1회 실행</strong>이 필요합니다.
+                </p>
+                <div class="space-y-2 text-xs text-gray-300">
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-5 h-5 bg-yellow-500 text-gray-950 rounded-full font-black flex items-center justify-center text-[10px] flex-shrink-0">1</span>
+                        <span>아래 <strong>[헬퍼 다운로드]</strong> 버튼을 눌러 압축파일을 받습니다.</span>
+                    </div>
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-5 h-5 bg-yellow-500 text-gray-950 rounded-full font-black flex items-center justify-center text-[10px] flex-shrink-0">2</span>
+                        <span>압축을 푼 뒤 <code class="bg-gray-950 px-1.5 py-0.5 rounded text-yellow-400 font-mono">튜브트렌드_헬퍼_실행.bat</code>을 실행합니다.</span>
+                    </div>
+                    <div class="flex items-center gap-2.5">
+                        <span class="w-5 h-5 bg-yellow-500 text-gray-950 rounded-full font-black flex items-center justify-center text-[10px] flex-shrink-0">3</span>
+                        <span>실행 즉시 웹 화면이 자동 감지하여 <strong>요청한 작업이 즉시 시작</strong>됩니다!</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Real-time Status Card -->
+            <div id="helperConnectionStatusBox" class="bg-gray-950/80 border border-gray-800 rounded-xl p-3.5 flex items-center justify-between mb-5 shadow-inner">
+                <div class="flex items-center gap-3">
+                    <span id="helperPulseDot" class="w-3 h-3 rounded-full bg-amber-500 animate-ping"></span>
+                    <span id="helperStatusMsg" class="text-xs text-gray-300 font-bold">헬퍼 프로그램 실행 대기 중...</span>
+                </div>
+                <button onclick="checkLocalHelperStatus(true)" class="text-xs text-yellow-400 hover:text-yellow-300 font-bold flex items-center gap-1 transition active:scale-95 bg-yellow-950/40 px-2.5 py-1 rounded-lg border border-yellow-800/40">
+                    <i class="fas fa-sync-alt"></i> 상태 확인
+                </button>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex gap-3">
+                <a href="/api/download/helper" download="TubeTrend-Helper.zip" id="downloadHelperBtn"
+                    class="flex-1 bg-gradient-to-r from-yellow-500 to-amber-500 hover:from-yellow-400 hover:to-amber-400 text-gray-950 font-black py-3.5 rounded-xl shadow-lg transition active:scale-95 text-center flex items-center justify-center gap-2 text-sm">
+                    <i class="fas fa-download"></i> 헬퍼 다운로드 (.zip)
+                </a>
+                <button onclick="closeHelperGuideModal()"
+                    class="px-5 py-3.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-xs font-bold transition active:scale-95 border border-gray-700">
+                    닫기
+                </button>
             </div>
         </div>
     </div>
