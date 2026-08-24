@@ -8913,7 +8913,7 @@ ${newsContext}
 
         // Utility: Download File
         function downloadText(content, filename) {
-            const blob = new Blob([content], { type: 'text/plain' });
+            const blob = new Blob(['\uFEFF' + content], { type: 'text/plain;charset=utf-8' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.style.display = 'none';
@@ -13587,6 +13587,7 @@ ${newsContext}
                                 <i class="fas fa-comments text-green-500"></i> 댓글
                             </button>
                             <button onclick="handleScript('${vId}')" 
+                                title="[대본 다운로드]&#10;영상의 전체 대본 스크립트를 즉시 추출하여 .txt 파일로 다운로드합니다."
                                 class="bg-gray-700 hover:bg-gray-600 text-gray-300 py-1.5 rounded-lg text-[11px] font-medium border border-gray-600 flex items-center justify-center gap-1 transition active:scale-95">
                                 <i class="fas fa-file-alt text-yellow-500"></i> 대본
                             </button>
@@ -13763,7 +13764,7 @@ ${newsContext}
                                     <i class="fas fa-comments text-green-500"></i> 댓글
                                 </button>
                                 <button onclick="handleScript('${vId}')" 
-                                    title="[스크립트 추출]&#10;자막 데이터를 텍스트로 치환합니다. 영상 전체 내용을 1분 안에 속독하여 편집 구성을 빠르게 정리할 때 유용합니다."
+                                    title="[대본 다운로드]&#10;영상의 전체 대본 스크립트를 즉시 추출하여 .txt 파일로 다운로드합니다."
                                     class="bg-gray-700 hover:bg-gray-600 text-gray-300 py-1.5 rounded-lg text-[10px] font-bold border border-gray-600 flex items-center justify-center gap-1 transition active:scale-95">
                                     <i class="fas fa-file-alt text-yellow-500"></i> 대본
                                 </button>
@@ -13876,7 +13877,7 @@ ${newsContext}
                              <button onclick="downloadVideoRapid('${vId}')" class="w-7 h-7 flex items-center justify-center hover:bg-gray-700 text-gray-400 rounded transition" title="다운로드"><i class="fas fa-download text-sm"></i></button>
                              <button onclick="handleTags('${vId}')" class="w-7 h-7 flex items-center justify-center hover:bg-gray-700 text-gray-400 rounded transition" title="태그 확인"><i class="fas fa-tags text-sm"></i></button>
                              <button onclick="handleComments('${vId}')" class="w-7 h-7 flex items-center justify-center hover:bg-gray-700 text-gray-400 rounded transition" title="댓글 분석"><i class="fas fa-comments text-sm"></i></button>
-                             <button onclick="handleScript('${vId}')" class="w-7 h-7 flex items-center justify-center hover:bg-gray-700 text-gray-400 rounded transition" title="대본 추출"><i class="fas fa-file-alt text-sm"></i></button>
+                             <button onclick="handleScript('${vId}')" class="w-7 h-7 flex items-center justify-center hover:bg-gray-700 text-gray-400 rounded transition" title="대본 다운로드"><i class="fas fa-file-alt text-sm"></i></button>
                              <button onclick="downloadThumbnail('${vId}')" class="w-7 h-7 flex items-center justify-center hover:bg-gray-700 text-gray-400 rounded transition" title="이미지 저장"><i class="fas fa-image text-sm"></i></button>
                         </div>
                     </div>
@@ -14253,11 +14254,12 @@ ${commentsStr}
             };
         }
 
-        // New: Handle Script Draft
-        // New: Handle Script Draft (Integrated with Original Transcript Fetching)
+        // New: Handle Script Draft (대본 추출 및 즉시 다운로드 + 모달 뷰어)
         async function handleScript(videoId) {
             const video = currentVideos.find(v => v.id === videoId);
-            const geminiKey = getGeminiKey();
+            if (!video) return alert('영상 정보를 찾을 수 없습니다.');
+
+            const safeTitle = (video.title || '대본').replace(/[\\/:*?"<>|]/g, '_').substring(0, 60);
 
             modal.classList.remove('hidden');
             keywordSelectionArea.classList.add('hidden');
@@ -14268,19 +14270,18 @@ ${commentsStr}
                 modal.children[0].classList.remove('scale-95');
             }, 10);
 
-            modalTitle.innerHTML = `<i class="fas fa-file-alt text-yellow-500"></i> "${video.title}" 스크립트 불러오기`;
+            modalTitle.innerHTML = `<i class="fas fa-file-alt text-yellow-500"></i> "${video.title}" 대본 추출 및 다운로드`;
             modalContent.innerHTML = `
                 <div class="flex flex-col items-center justify-center h-64 space-y-4">
                     <div class="animate-spin rounded-full h-12 w-12 border-4 border-gray-600 border-t-yellow-500"></div>
-                    <p class="text-lg text-gray-300 font-medium">유튜브에서 원본 스크립트(Transcript)를 불러오고 있습니다...</p>
-                    <p class="text-sm text-gray-500">잠시만 기다려 주세요...</p>
+                    <p class="text-lg text-gray-300 font-medium">유튜브에서 원본 대본(스크립트)을 추출하고 있습니다...</p>
+                    <p class="text-sm text-gray-500">추출 완료 시 자동으로 .txt 파일이 다운로드됩니다.</p>
                 </div>
             `;
 
             try {
                 // 1. Try to fetch original transcript
                 let originalTranscript = null;
-                let mode = 'ai'; // Default to ai until original is proven
                 try {
                     console.log(`[Script] Requesting transcript for ${videoId} from local server...`);
                     const response = await fetch(`http://127.0.0.1:5001/api/transcript?video_id=${videoId}&force_local=true`);
@@ -14291,10 +14292,10 @@ ${commentsStr}
                             console.log(`[Script] Successfully fetched transcript: ${originalTranscript.length} lines`);
                         } else {
                             window.lastScriptError = data.error;
-                            throw new Error(data.error || "Failed to extract transcript.");
+                            throw new Error(data.error || "대본을 추출할 수 없습니다.");
                         }
                     } else {
-                        throw new Error(`Server returned status ${response.status}`);
+                        throw new Error(`서버 응답 오류 (Status: ${response.status})`);
                     }
                 } catch (pe) {
                     console.error("[Script] Critical error during fetch:", pe);
@@ -14302,26 +14303,29 @@ ${commentsStr}
                     if (isLocal && (pe.message.includes('Failed to fetch') || pe.message.includes('NetworkError') || pe.message.includes('fetch'))) {
                         alert('앗! 원본 스크립트를 가져오려면 백엔드 서버가 켜져 있어야 합니다.\n\n폴더 내의 "서버실행.bat" 파일을 더블클릭해서 서버를 켜주세요!');
                     }
+                    throw pe;
                 }
 
                 if (originalTranscript && originalTranscript.length > 0) {
+                    let fullText = originalTranscript.map(l => l.text).join(' ');
+
                     // [NEW] 글로벌 번역 활성화 상태라면 스크립트도 한글로 번역
                     if (isGlobalTranslated) {
-                    showLoading(true, '스크립트를 한글로 번역 중입니다...', null, true);
-                        // 긴 스크립트는 여러 번에 나눠서 번역
-                        const fullScript = originalTranscript.map(l => l.text).join(' ');
-                        const translatedScript = await translateText(fullScript, 'ko');
-                        
-                        // 원본 구조 유지 대신 번역된 통텍스트를 전달하거나 구조 재구성
-                        // 간단하게 text만 교체한 객체 배열로 전달
-                        showFinalResult(video, [{ text: translatedScript }], null);
-                        showLoading(false);
-                    } else {
-                        showFinalResult(video, originalTranscript, null);
+                        showNotice('스크립트를 한글로 번역 중입니다...', 'info');
+                        fullText = await translateText(fullText, 'ko');
                     }
+
+                    // 1) 텍스트 파일 자동 다운로드 실행!
+                    const filename = `[대본]_${safeTitle}.txt`;
+                    const header = `============================================================\n[ 유튜브 영상 원본 대본 ]\n제목: ${video.title}\n채널: ${video.channelTitle || ''}\n영상 링크: https://www.youtube.com/watch?v=${videoId}\n추출 일시: ${new Date().toLocaleString()}\n============================================================\n\n`;
+                    downloadText(header + fullText, filename);
+                    showToast('대본 다운로드가 완료되었습니다.', 'success');
+
+                    // 2) 모달에 결과 화면 표시
+                    showFinalResult(video, [{ text: fullText }], fullText);
                 } else {
                     let rawErr = window.lastScriptError || '';
-                    let errorMsg = '해당 영상은 자막(CC)이 제공되지 않거나, 방금 업로드되어 유튜브에서 자막을 생성 중(약 30~60분 소요)인 영상입니다.\n\n💡 업로드된 지 1~2시간 이상 지난 일반 영상으로 테스트해보시면 자막이 정상적으로 추출됩니다.';
+                    let errorMsg = '해당 영상은 자막(CC)이 제공되지 않거나, 방금 업로드되어 유튜브에서 자막을 생성 중(약 30~60분 소요)인 영상입니다.';
                     if (rawErr.includes('YT_PROCESSING')) {
                         errorMsg = '⏳ [유튜브 자막 생성 중]\n방금 등록된 최신 영상이라 유튜브 서버에서 자동 자막을 생성하고 있습니다. (약 30분~1시간 후 이용 가능)';
                     }
@@ -14331,48 +14335,63 @@ ${commentsStr}
             } catch (err) {
                 console.error(err);
                 const ytUrl = 'https://www.youtube.com/watch?v=' + videoId;
-                // 모달 닫고 downsub.com으로 URL 자동 입력해서 바로 이동
-                if (typeof closeModal === 'function') closeModal();
-                window.open('https://downsub.com/?url=' + encodeURIComponent(ytUrl), '_blank', 'noopener');
+                showNotice('대본 추출 실패: ' + (err.message || '자막 없음'), 'error');
+                // 안내 화면 모달 표시
+                modalTitle.innerHTML = `<i class="fas fa-exclamation-triangle text-red-500"></i> 대본 추출 안내`;
+                modalContent.innerHTML = `
+                    <div class="bg-gray-800 p-6 rounded-xl border border-gray-700 space-y-4 text-center">
+                        <i class="fas fa-closed-captioning text-5xl text-yellow-500 mb-2"></i>
+                        <p class="text-white font-bold text-lg">${video.title}</p>
+                        <p class="text-gray-300 text-sm leading-relaxed">${err.message || '해당 영상에는 자막(CC)이 지원되지 않거나 추출할 수 없습니다.'}</p>
+                        <div class="pt-4 flex justify-center gap-3">
+                            <button onclick="window.open('https://downsub.com/?url=${encodeURIComponent(ytUrl)}', '_blank', 'noopener')" class="bg-yellow-600 hover:bg-yellow-500 text-white font-bold px-5 py-2.5 rounded-lg flex items-center gap-2 shadow-lg transition active:scale-95">
+                                <i class="fas fa-external-link-alt"></i> DownSub 사이트에서 대본 받기
+                            </button>
+                            <button onclick="if (typeof closeModal === 'function') closeModal(); else modal.classList.add('hidden');" class="bg-gray-700 hover:bg-gray-600 text-gray-300 font-bold px-5 py-2.5 rounded-lg transition active:scale-95">
+                                닫기
+                            </button>
+                        </div>
+                    </div>
+                `;
             }
 
-            function showFinalResult(video, original, ai) {
-                // Prepare raw text for download/copy
-                const rawOriginalText = Array.isArray(original) ? original.map(l => l.text).join(' ') : "";
+            function showFinalResult(video, original, rawText) {
+                const rawOriginalText = rawText || (Array.isArray(original) ? original.map(l => l.text).join(' ') : "");
 
                 modalContent.innerHTML = `
                     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 bg-gray-800 p-4 rounded-lg border border-gray-700 gap-4">
                         <div>
-                            <p class="text-xs text-gray-500 uppercase font-black tracking-widest">YouTube Content Script</p>
-                            <p class="text-xl font-bold text-white line-clamp-1">${video.title}</p>
+                            <div class="flex items-center gap-2">
+                                <span class="bg-yellow-500/20 text-yellow-400 text-xs px-2 py-0.5 rounded font-bold border border-yellow-500/30">다운로드 완료 (.txt)</span>
+                                <p class="text-xs text-gray-400 uppercase font-bold tracking-wider">YouTube Script</p>
+                            </div>
+                            <p class="text-lg font-bold text-white line-clamp-1 mt-1">${video.title}</p>
                         </div>
-                        <div class="flex gap-2">
-                            <button id="translateScriptBtn" class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition active:scale-95 shadow-lg">
-                                <i class="fas fa-language"></i> 한글로 번역
+                        <div class="flex gap-2 flex-wrap">
+                            <button id="translateScriptBtn" class="bg-blue-600 hover:bg-blue-500 text-white px-3.5 py-2 rounded-lg font-bold text-sm flex items-center gap-1.5 transition active:scale-95 shadow-md">
+                                <i class="fas fa-language"></i> 번역
                             </button>
-                            <button id="copyScriptBtn" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition active:scale-95 shadow-lg border border-gray-600">
+                            <button id="copyScriptBtn" class="bg-gray-700 hover:bg-gray-600 text-white px-3.5 py-2 rounded-lg font-bold text-sm flex items-center gap-1.5 transition active:scale-95 shadow-md border border-gray-600">
                                 <i class="fas fa-copy"></i> 복사
                             </button>
-                            <button id="downloadScriptBtn" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg font-bold flex items-center gap-2 transition active:scale-95 shadow-lg">
-                                <i class="fas fa-file-download"></i> 저장 (.txt)
+                            <button id="downloadScriptBtn" class="bg-yellow-600 hover:bg-yellow-500 text-white px-3.5 py-2 rounded-lg font-bold text-sm flex items-center gap-1.5 transition active:scale-95 shadow-md">
+                                <i class="fas fa-file-download"></i> 다시 저장 (.txt)
                             </button>
                         </div>
                     </div>
 
                     <div class="flex border-b border-gray-700 mb-4 gap-4">
-                        <button class="px-6 py-2 text-white font-bold border-b-2 border-yellow-500 flex items-center gap-2 cursor-default">
-                            <i class="fas fa-Closed-Captioning"></i> 원본 스크립트
+                        <button class="px-4 py-2 text-white font-bold border-b-2 border-yellow-500 flex items-center gap-2 cursor-default text-sm">
+                            <i class="fas fa-closed-captioning text-yellow-500"></i> 원본 스크립트 내용
                         </button>
                     </div>
 
-                    <div id="scriptDisplay" class="bg-gray-900 rounded-xl border border-gray-800 overflow-y-auto max-h-[60vh]">
-                        <div id="originalContent" class="p-6 overflow-x-hidden">
-                            ${Array.isArray(original) ? `<p class="text-gray-300 text-sm leading-relaxed whitespace-pre-wrap">${original.map(line => line.text).join(' ')}</p>` : '<p class="text-gray-500 text-center py-10">원본 자막 데이터를 가져오지 못했습니다.</p>'}
+                    <div id="scriptDisplay" class="bg-gray-900 rounded-xl border border-gray-800 overflow-y-auto max-h-[55vh] p-5 shadow-inner">
+                        <div id="originalContent" class="overflow-x-hidden">
+                            <p class="text-gray-200 text-sm leading-relaxed whitespace-pre-wrap select-text">${rawOriginalText || '대본 내용이 없습니다.'}</p>
                         </div>
                     </div>
                 `;
-
-
 
                 document.getElementById('translateScriptBtn').onclick = async (e) => {
                     const btn = e.currentTarget;
@@ -14385,7 +14404,6 @@ ${commentsStr}
                         btn.innerHTML = '<i class="fas fa-spinner animate-spin"></i> 번역 중...';
                         
                         const fullText = scriptArea.innerText;
-                        // Split by ~2000 chars to avoid URL limit
                         const chunks = fullText.match(/.{1,2000}/g) || [];
                         let translatedFull = "";
                         
@@ -14404,15 +14422,20 @@ ${commentsStr}
                 };
 
                 document.getElementById('copyScriptBtn').onclick = () => {
-                    navigator.clipboard.writeText(rawOriginalText).then(() => {
-                        showToast('클립보드에 복사되었습니다.', 'success');
+                    const scriptArea = document.getElementById('originalContent').querySelector('p');
+                    const textToCopy = scriptArea ? scriptArea.innerText : rawOriginalText;
+                    navigator.clipboard.writeText(textToCopy).then(() => {
+                        showToast('대본이 클립보드에 복사되었습니다.', 'success');
                     });
                 };
 
                 document.getElementById('downloadScriptBtn').onclick = () => {
-                    const filename = `${video.title}_원본스크립트.txt`;
-                    const header = `[유튜브 원본 스크립트]\n참고 대상: ${video.title}\n일시: ${new Date().toLocaleString()}\n\n========================================\n\n`;
-                    downloadText(header + (rawOriginalText || ""), filename);
+                    const scriptArea = document.getElementById('originalContent').querySelector('p');
+                    const textToDownload = scriptArea ? scriptArea.innerText : rawOriginalText;
+                    const filename = `[대본]_${safeTitle}.txt`;
+                    const header = `============================================================\n[ 유튜브 영상 원본 대본 ]\n제목: ${video.title}\n채널: ${video.channelTitle || ''}\n영상 링크: https://www.youtube.com/watch?v=${videoId}\n추출 일시: ${new Date().toLocaleString()}\n============================================================\n\n`;
+                    downloadText(header + (textToDownload || ""), filename);
+                    showToast('대본 파일이 다운로드되었습니다.', 'success');
                 };
             }
         }
