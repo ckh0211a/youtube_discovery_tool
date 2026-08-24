@@ -1242,15 +1242,15 @@ def download_helper_bundle():
 
     # 1. 설명서 파일
     readme_code = """========================================================================
-TubeTrend Local Helper Quick Guide (무설치 포터블)
+TubeTrend 로컬 다운로더 헬퍼 빠른 사용 가이드 (무설치 포터블)
 ========================================================================
 
-1. Double-click 'TubeTrend_Helper.exe' to start the local helper.
-2. When the black window shows "TubeTrend Helper Server", it's ready!
-3. Go back to your browser (tubetrend.xyz) and click Download Script/Video.
-   It will download directly to your PC without YouTube IP blocking!
+1. 압축을 푼 뒤 'TubeTrend_Helper.exe' 파일을 더블 클릭하여 실행합니다.
+2. 검은색 콘솔 창에 "정상 실행 중 (온라인)" 메시지가 나타나면 준비가 완료된 것입니다.
+3. 웹브라우저 화면(tubetrend.xyz)으로 돌아가 대본 추출이나 영상 다운로드를 클릭합니다.
+   유튜브 IP 차단 없이 사용자의 PC로 즉시 초고속 다운로드됩니다!
 
-※ Do not close the command window while using the website.
+※ 웹사이트를 이용하는 동안에는 이 검은색 콘솔 창을 닫지 마세요.
 ========================================================================
 """
 
