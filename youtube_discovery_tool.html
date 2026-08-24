@@ -6449,8 +6449,12 @@ ${newsContext}
             // 웹 환경 + 로컬 서버 꺼져있으면: savefrom.net으로 URL 자동 입력해서 바로 이동
             if (isWebEnv && !window.localServerAlive) {
                 const ytUrl = 'https://www.youtube.com/watch?v=' + videoId;
-                window.open('https://ko.savefrom.net/113-youtube-transcript.html?url=' + encodeURIComponent(ytUrl), '_blank', 'noopener');
-                showToast('savefrom.net에서 대본을 받으세요!', 'success');
+                navigator.clipboard.writeText(ytUrl).then(() => {
+                    showToast('링크가 자동 복사되었습니다! 입력창에 Ctrl+V로 붙여넣으세요.', 'success');
+                }).catch(() => {
+                    showToast('savefrom.net에서 대본을 받으세요!', 'success');
+                });
+                window.open('https://ko.savefrom.net/113-youtube-transcript.html', '_blank', 'noopener');
                 return;
             }
 
@@ -14373,8 +14377,12 @@ ${commentsStr}
             // 웹 환경이고 로컬 헬퍼가 꺼져 있으면 savefrom.net으로 자동 이동
             if (!isLocalEnv && !window.localServerAlive) {
                 const ytUrl = 'https://www.youtube.com/watch?v=' + videoId;
-                window.open('https://ko.savefrom.net/113-youtube-transcript.html?url=' + encodeURIComponent(ytUrl), '_blank', 'noopener');
-                showToast('savefrom.net에서 대본을 받으세요!', 'success');
+                navigator.clipboard.writeText(ytUrl).then(() => {
+                    showToast('링크가 자동 복사되었습니다! 입력창에 Ctrl+V로 붙여넣으세요.', 'success');
+                }).catch(() => {
+                    showToast('savefrom.net에서 대본을 받으세요!', 'success');
+                });
+                window.open('https://ko.savefrom.net/113-youtube-transcript.html', '_blank', 'noopener');
                 return;
             }
 
