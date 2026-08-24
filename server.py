@@ -359,6 +359,16 @@ def serve_admin():
         return send_file(html_path)
     return "admin.html not found", 404
 
+@app.route('/tubetrend')
+@app.route('/tubetrend.html')
+def serve_tubetrend():
+    html_path = resource_path('tubetrend.html')
+    if os.path.exists(html_path):
+        from flask import send_file
+        return send_file(html_path)
+    return "tubetrend.html not found", 404
+
+
 
 @app.route('/api/auth/google', methods=['POST'])
 def google_auth():

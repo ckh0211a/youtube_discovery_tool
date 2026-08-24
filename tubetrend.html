@@ -1,0 +1,2474 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TUBETREND Shorts — 실시간 쇼츠 트렌드 탐색기</title>
+  <meta name="description" content="YouTube 카테고리별 실시간 인기 쇼츠(Shorts) 트렌드를 분석하고 콘텐츠 소재를 발굴하는 툴" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <!-- Google AdSense -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-8960488319625035" crossorigin="anonymous"></script>
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg-base:       #f8f9fa;
+      --bg-surface:    #ffffff;
+      --bg-card:       #ffffff;
+      --bg-card-hover: #f1f3f5;
+      --bg-sidebar:    #ffffff;
+      --accent:        #5c4ff0;
+      --accent-glow:   rgba(92, 79, 240, 0.2);
+      --accent-light:  #7b6df5;
+      --accent-bright: #9c6fff;
+      --border:        rgba(0,0,0,0.08);
+      --border-active: rgba(92, 79, 240, 0.5);
+      --text-primary:  #212529;
+      --text-secondary:#495057;
+      --text-muted:    #868e96;
+      --text-tag:      #495057;
+      --green:         #0ca678;
+      --red:           #fa5252;
+      --yellow:        #f59f00;
+      --sidebar-w:     240px;
+      --header-h:      auto;
+      --transition:    0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--bg-base);
+      color: var(--text-primary);
+      overflow: hidden;
+    }
+
+    /* ===== LAYOUT ===== */
+    .app {
+      display: grid;
+      grid-template-rows: var(--header-h) 1fr;
+      grid-template-columns: var(--sidebar-w) 1fr;
+      height: 100vh;
+    }
+
+    /* ===== HEADER ===== */
+    .header {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      padding: 10px 16px 10px 0;
+      min-height: 60px;
+      background: var(--bg-surface);
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      z-index: 100;
+      gap: 0;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 18px;
+      height: 100%;
+      border-right: 1px solid var(--border);
+      min-width: var(--sidebar-w);
+    }
+
+    .logo-icon {
+      width: 34px;
+      height: 34px;
+      background: linear-gradient(135deg, #5c4ff0, #9c6fff);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      box-shadow: 0 0 18px var(--accent-glow);
+      flex-shrink: 0;
+    }
+
+    .logo-text h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--text-primary);
+      line-height: 1;
+    }
+    .logo-text p {
+      font-size: 8px;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    /* ===== REGION TAB BAR ===== */
+    .region-tabs {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      flex: 1;
+      flex-wrap: wrap;
+      overflow: visible;
+      padding: 0 16px;
+      border-right: 1px solid var(--border);
+    }
+    .region-tabs::-webkit-scrollbar { height: 0; }
+
+    .region-tab {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      font-family: 'Inter', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: var(--transition);
+      white-space: nowrap;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .region-tab:hover {
+      background: rgba(92,79,240,0.08);
+      border-color: rgba(92,79,240,0.4);
+      color: var(--accent);
+    }
+    .region-tab.active {
+      background: linear-gradient(135deg, rgba(92,79,240,0.18), rgba(92,79,240,0.06));
+      border-color: var(--accent);
+      color: var(--accent);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+    .region-tab .tab-flag {
+      font-size: 18px;
+      line-height: 1;
+    }
+    .region-tab .tab-name {
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .region-tab .tab-code {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      opacity: 0.8;
+    }
+    .region-tab.active .tab-code { color: var(--accent-bright); opacity: 1; }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding-left: 16px;
+      flex-shrink: 0;
+    }
+    .header-right.hidden-api { display: none; }
+
+    .api-status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .api-status:hover { border-color: var(--accent); color: var(--text-primary); }
+    .api-status .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--red);
+      transition: var(--transition);
+    }
+    .api-status.ok .dot { background: var(--green); box-shadow: 0 0 8px var(--green); }
+
+    .settings-btn {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+      transition: var(--transition);
+    }
+    .settings-btn:hover { background: var(--bg-card); color: var(--text-primary); border-color: var(--accent); }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 16px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .sidebar-title {
+      display: flex; align-items: center; gap: 7px;
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .sidebar-title svg { opacity: 0.9; }
+
+    .cat-count {
+      font-size: 10px;
+      padding: 2px 8px;
+      background: rgba(92,79,240,0.15);
+      border: 1px solid var(--border-active);
+      border-radius: 10px;
+      color: var(--accent-bright);
+    }
+
+    .cat-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 0;
+    }
+    .cat-list::-webkit-scrollbar { width: 3px; }
+    .cat-list::-webkit-scrollbar-track { background: transparent; }
+    .cat-list::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 2px; }
+
+    .cat-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 11px 16px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      border-left: 3px solid transparent;
+      transition: var(--transition);
+      position: relative;
+      letter-spacing: 0.2px;
+    }
+    .cat-item:hover {
+      background: rgba(92,79,240,0.08);
+      color: var(--accent);
+      border-left-color: rgba(92,79,240,0.5);
+    }
+    .cat-item.active {
+      background: linear-gradient(90deg, rgba(92,79,240,0.15), rgba(92,79,240,0.02));
+      color: var(--accent);
+      font-weight: 700;
+      border-left-color: var(--accent);
+    }
+    .cat-item.active::after {
+      content: '';
+      position: absolute;
+      right: 0; top: 50%;
+      transform: translateY(-50%);
+      width: 1px; height: 60%;
+      background: var(--accent);
+      opacity: 0.7;
+    }
+    .cat-item-left { display: flex; align-items: center; gap: 10px; }
+    .cat-icon { font-size: 15px; }
+    .cat-chevron {
+      font-size: 12px;
+      color: var(--accent-bright);
+      opacity: 0;
+      transition: var(--transition);
+    }
+    .cat-item.active .cat-chevron,
+    .cat-item:hover .cat-chevron { opacity: 1; }
+
+    .sidebar-footer {
+      padding: 12px 14px;
+      border-top: 1px solid var(--border);
+    }
+    .sidebar-quote {
+      font-size: 10px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      font-style: italic;
+    }
+
+    /* ===== MAIN CONTENT ===== */
+    .main {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--bg-base);
+    }
+
+    /* ===== SEARCH BAR ===== */
+    .search-area {
+      padding: 18px 24px 16px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-surface);
+      flex-shrink: 0;
+    }
+
+    .search-label {
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      display: flex; align-items: center; gap: 6px;
+      font-weight: 600;
+    }
+    .search-label::before {
+      content: '';
+      display: inline-block;
+      width: 14px; height: 2px;
+      background: var(--accent);
+    }
+
+    .search-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .search-input {
+      flex: 1;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 16px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      color: var(--text-primary);
+      transition: var(--transition);
+      outline: none;
+    }
+    .search-input::placeholder { color: var(--text-muted); }
+    .search-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+      background: var(--bg-card-hover);
+    }
+
+    .generate-btn {
+      display: flex; align-items: center; gap: 7px;
+      padding: 10px 20px;
+      background: linear-gradient(135deg, var(--accent), #8a6ff5);
+      border: none;
+      border-radius: 10px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+      transition: var(--transition);
+      white-space: nowrap;
+      position: relative;
+      overflow: hidden;
+    }
+    .generate-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+      opacity: 0;
+      transition: var(--transition);
+    }
+    .generate-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 24px var(--accent-glow); }
+    .generate-btn:hover::before { opacity: 1; }
+    .generate-btn:active { transform: translateY(0); }
+    .generate-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .btn-icon { font-size: 15px; animation: none; }
+    .generate-btn.loading .btn-icon { animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== RESULTS AREA ===== */
+    .results-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px 24px;
+    }
+    .results-area::-webkit-scrollbar { width: 4px; }
+    .results-area::-webkit-scrollbar-track { background: transparent; }
+    .results-area::-webkit-scrollbar-thumb { background: var(--text-muted); border-radius: 2px; }
+
+    .results-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 18px;
+    }
+
+    .results-title {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 13px; font-weight: 600;
+    }
+    .results-title::before {
+      content: '';
+      display: inline-block;
+      width: 4px; height: 18px;
+      background: linear-gradient(to bottom, var(--accent), var(--accent-light));
+      border-radius: 2px;
+    }
+    .results-title .report-label { color: var(--text-secondary); }
+    .results-title .cat-highlight {
+      color: var(--accent-bright);
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: var(--transition);
+    }
+    .results-title .cat-highlight:hover { color: #fff; text-decoration: underline; }
+
+    .results-count {
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    /* ===== VECTOR GRID ===== */
+    .vector-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    .sort-btn {
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: var(--transition);
+    }
+    .sort-btn.active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+    .sort-btn:hover:not(.active) {
+      background: var(--bg-card-hover);
+    }
+
+    /* ===== VECTOR CARD ===== */
+    .vector-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
+      animation: fadeInUp 0.4s ease both;
+    }
+    .vector-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(92,79,240,0.06), transparent);
+      opacity: 0;
+      transition: var(--transition);
+      pointer-events: none;
+    }
+    .vector-card:hover {
+      border-color: var(--border-active);
+      background: var(--bg-card-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px var(--border-active);
+    }
+    .vector-card:hover::before { opacity: 1; }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card-meta {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .card-number {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+    .card-type {
+      display: flex; align-items: center; gap: 4px;
+      font-size: 10px; letter-spacing: 1px;
+      color: var(--text-muted);
+    }
+    .card-type-icon { font-size: 11px; }
+
+    .card-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.4;
+      margin-bottom: 10px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-shadow: none;
+    }
+
+    .card-channel {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      display: flex; align-items: center; gap: 4px;
+      font-weight: 500;
+    }
+
+    .tag-list {
+      display: flex; flex-wrap: wrap; gap: 5px;
+    }
+    .tag {
+      font-size: 10px;
+      padding: 3px 9px;
+      background: rgba(0,0,0,0.04);
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 4px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      overflow: hidden;
+      position: relative;
+      z-index: 2;
+      text-overflow: ellipsis;
+      max-width: 130px;
+      transition: var(--transition);
+      font-weight: 500;
+    }
+    .tag:hover {
+      background: rgba(92,79,240,0.1);
+      border-color: var(--border-active);
+      color: var(--accent);
+    }
+    .tag .tag-region {
+      color: var(--accent);
+      font-size: 11px;
+      font-weight: 700;
+      margin-right: 4px;
+    }
+
+    /* ===== SKELETON CARDS ===== */
+    .skeleton { animation: shimmer 1.5s infinite linear; }
+    @keyframes shimmer {
+      0%   { background-position: -800px 0; }
+      100% { background-position: 800px 0; }
+    }
+    .skeleton-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      animation: fadeInUp 0.4s ease both;
+    }
+    .skeleton-line {
+      border-radius: 4px;
+      background: linear-gradient(90deg, #e9ecef 25%, #f8f9fa 50%, #e9ecef 75%);
+      background-size: 800px 100%;
+      animation: shimmer 1.5s infinite linear;
+    }
+
+    /* ===== EMPTY / ERROR STATES ===== */
+    .state-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 60%;
+      gap: 12px;
+      text-align: center;
+    }
+    .state-icon { font-size: 48px; opacity: 0.6; }
+    .state-title { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+    .state-desc { font-size: 13px; color: var(--text-muted); max-width: 320px; line-height: 1.6; }
+
+    /* ===== GLOBAL TOP 50 ===== */
+    .top50-section {
+      padding: 0;
+    }
+    .top50-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .top50-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-primary);
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .top50-title .fire-icon {
+      font-size: 22px;
+      animation: fireGlow 2s ease-in-out infinite;
+    }
+    @keyframes fireGlow {
+      0%, 100% { filter: brightness(1); transform: scale(1); }
+      50% { filter: brightness(1.3); transform: scale(1.1); }
+    }
+    .top50-badge {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      background: linear-gradient(135deg, rgba(250, 82, 82, 0.15), rgba(255, 146, 43, 0.15));
+      border: 1px solid rgba(250, 82, 82, 0.3);
+      border-radius: 20px;
+      color: #fa5252;
+    }
+    .top50-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .top50-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .top50-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: var(--transition);
+      position: relative;
+      animation: fadeInUp 0.4s ease both;
+    }
+    .top50-card:hover {
+      border-color: var(--border-active);
+      transform: translateY(-3px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.12), 0 0 0 1px var(--border-active);
+    }
+
+    .top50-thumb {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 9 / 16;
+      overflow: hidden;
+      background: #e9ecef;
+    }
+    .top50-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .top50-card:hover .top50-thumb img {
+      transform: scale(1.05);
+    }
+
+    .top50-rank {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      min-width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 13px;
+      font-weight: 800;
+      color: #fff;
+      padding: 0 6px;
+      z-index: 2;
+    }
+    .top50-rank.gold {
+      background: linear-gradient(135deg, #f59f00, #f76707);
+      box-shadow: 0 2px 12px rgba(245, 159, 0, 0.5);
+    }
+    .top50-rank.silver {
+      background: linear-gradient(135deg, #868e96, #495057);
+      box-shadow: 0 2px 12px rgba(134, 142, 150, 0.4);
+    }
+    .top50-rank.bronze {
+      background: linear-gradient(135deg, #e67700, #d9480f);
+      box-shadow: 0 2px 12px rgba(230, 119, 0, 0.4);
+    }
+    .top50-rank.normal {
+      background: rgba(0,0,0,0.65);
+      backdrop-filter: blur(4px);
+    }
+
+    .top50-play-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0);
+      transition: background 0.3s ease;
+      z-index: 1;
+    }
+    .top50-card:hover .top50-play-overlay {
+      background: rgba(0,0,0,0.3);
+    }
+    .top50-play-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(255,0,0,0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transform: scale(0.8);
+      transition: all 0.3s ease;
+    }
+    .top50-card:hover .top50-play-btn {
+      opacity: 1;
+      transform: scale(1);
+    }
+    .top50-play-btn::after {
+      content: '';
+      display: block;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 8px 0 8px 14px;
+      border-color: transparent transparent transparent #fff;
+      margin-left: 3px;
+    }
+
+    .top50-info {
+      padding: 12px 14px;
+    }
+    .top50-video-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    .top50-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .top50-channel {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      max-width: 60%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .top50-views {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      flex-shrink: 0;
+    }
+    .top50-views .view-icon {
+      font-size: 15px;
+    }
+
+    /* Top 50 skeleton */
+    .top50-skeleton {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      animation: fadeInUp 0.4s ease both;
+    }
+    .top50-skeleton .skel-thumb {
+      width: 100%;
+      aspect-ratio: 9/16;
+      background: linear-gradient(90deg, #e9ecef 25%, #f8f9fa 50%, #e9ecef 75%);
+      background-size: 800px 100%;
+      animation: shimmer 1.5s infinite linear;
+    }
+    .top50-skeleton .skel-info {
+      padding: 12px 14px;
+    }
+    .top50-skeleton .skel-line {
+      border-radius: 4px;
+      background: linear-gradient(90deg, #e9ecef 25%, #f8f9fa 50%, #e9ecef 75%);
+      background-size: 800px 100%;
+      animation: shimmer 1.5s infinite linear;
+    }
+
+    /* ===== MODAL (API Key Setup) ===== */
+    .modal-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.75);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: var(--transition);
+    }
+    .modal-overlay.show { opacity: 1; pointer-events: all; }
+
+    .modal {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 32px;
+      width: 480px;
+      max-width: 90vw;
+      transform: translateY(20px);
+      transition: var(--transition);
+      box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(92,79,240,0.2);
+    }
+    .modal-overlay.show .modal { transform: translateY(0); }
+
+    .modal-header { margin-bottom: 20px; }
+    .modal-title {
+      font-size: 18px; font-weight: 700;
+      color: var(--text-primary);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .modal-title-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .modal-desc {
+      font-size: 12px; color: var(--text-secondary);
+      line-height: 1.6; margin-top: 8px;
+    }
+    .modal-desc a { color: var(--accent-bright); text-decoration: none; }
+    .modal-desc a:hover { text-decoration: underline; }
+
+    .modal-field { margin-bottom: 16px; }
+    .modal-label {
+      font-size: 11px; font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase; letter-spacing: 1px;
+      margin-bottom: 6px; display: block;
+    }
+    .modal-input {
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px;
+      color: var(--text-primary);
+      outline: none;
+      transition: var(--transition);
+    }
+    .modal-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+
+    .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+    .btn-primary {
+      flex: 1;
+      padding: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-light));
+      border: none; border-radius: 8px;
+      font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
+      color: #fff; cursor: pointer;
+      transition: var(--transition);
+    }
+    .btn-primary:hover { box-shadow: 0 4px 16px var(--accent-glow); }
+    .btn-secondary {
+      padding: 10px 18px;
+      background: var(--bg-card);
+      border: 1px solid var(--border); border-radius: 8px;
+      font-family: 'Inter', sans-serif; font-size: 13px;
+      color: var(--text-secondary); cursor: pointer;
+      transition: var(--transition);
+    }
+    .btn-secondary:hover { color: var(--text-primary); border-color: var(--text-muted); }
+
+    /* ===== TOAST ===== */
+    .toast-area {
+      position: fixed;
+      bottom: 24px; right: 24px;
+      z-index: 2000;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .toast {
+      padding: 10px 16px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 12px; color: var(--text-primary);
+      display: flex; align-items: center; gap: 8px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+      animation: slideInRight 0.3s ease;
+      transition: var(--transition);
+    }
+    .toast.success { border-color: rgba(34,211,160,0.4); }
+    .toast.error   { border-color: rgba(255,77,109,0.4); }
+    @keyframes slideInRight {
+      from { opacity: 0; transform: translateX(20px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* ===== HOME ARTICLES (BLOG STYLE) ===== */
+    .home-articles-section {
+      padding: 0 0 24px 0;
+      animation: fadeInUp 0.4s ease both;
+    }
+    .home-articles-header {
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .home-articles-title {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--text-primary);
+      font-family: 'Space Grotesk', sans-serif;
+    }
+    .home-articles-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 20px;
+    }
+    .article-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+    }
+    .article-card:hover {
+      border-color: var(--accent);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+    }
+    .article-thumb {
+      width: 100%;
+      height: 150px;
+      background: #e9ecef;
+      overflow: hidden;
+    }
+    .article-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.4s ease;
+    }
+    .article-card:hover .article-thumb img {
+      transform: scale(1.05);
+    }
+    .article-info {
+      padding: 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    .article-tag {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--accent-bright);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    .article-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+    .article-desc {
+      font-size: 12px;
+      color: var(--text-secondary);
+      line-height: 1.5;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-bottom: 16px;
+    }
+    .article-readmore {
+      margin-top: auto;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* ===== ARTICLE DETAIL VIEW ===== */
+    .article-detail-section {
+      max-width: 800px;
+      margin: 0 auto;
+      animation: fadeInUp 0.4s ease both;
+      display: none;
+      padding-bottom: 40px;
+    }
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: var(--transition);
+      margin-bottom: 24px;
+    }
+    .btn-back:hover {
+      background: var(--bg-card-hover);
+      color: var(--text-primary);
+      border-color: var(--text-muted);
+    }
+    .detail-tag {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent-bright);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+    .detail-title {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.3;
+      margin-bottom: 24px;
+    }
+    .detail-cover {
+      width: 100%;
+      height: 400px;
+      border-radius: 16px;
+      overflow: hidden;
+      margin-bottom: 32px;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+    }
+    .detail-cover img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .detail-content {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.8;
+    }
+    .detail-content h3 {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin: 32px 0 16px;
+    }
+    .detail-content p {
+      margin-bottom: 16px;
+    }
+    .detail-content ul {
+      margin-left: 20px;
+      margin-bottom: 20px;
+    }
+    .detail-content li {
+      margin-bottom: 8px;
+    }
+
+    /* ===== SCROLLBAR ===== */
+    * { scrollbar-width: thin; scrollbar-color: var(--text-muted) transparent; }
+  </style>
+</head>
+<body>
+
+<!-- API Key Modal -->
+<div class="modal-overlay" id="apiModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">
+        <div class="modal-title-icon">🔑</div>
+        YouTube API 키 설정
+      </div>
+      <p class="modal-desc">
+        YouTube Data API v3 키가 필요합니다.<br>
+        <a href="https://console.cloud.google.com/apis/credentials" target="_blank">Google Cloud Console</a>에서 무료로 발급받을 수 있습니다.
+        (하루 10,000 쿼터 무료)
+      </p>
+    </div>
+    <div class="modal-field">
+      <label class="modal-label" for="apiKeyInput">API 키</label>
+      <input class="modal-input" id="apiKeyInput" type="password"
+             placeholder="AIza..." autocomplete="off" />
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary" id="saveApiBtn" onclick="saveApiKey()">저장 및 시작</button>
+      <button class="btn-secondary" onclick="closeModal()">나중에</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Area -->
+<div class="toast-area" id="toastArea"></div>
+
+<div class="app">
+  <!-- HEADER -->
+  <header class="header">
+    <div class="logo-area" style="cursor:pointer;" onclick="goHome()">
+      <div class="logo-icon">⚡</div>
+      <div class="logo-text">
+        <h1>TUBETREND</h1>
+        <p>Shorts Intelligence</p>
+      </div>
+    </div>
+    <!-- Region Tab Bar -->
+    <div class="region-tabs" id="regionTabs">
+      <button class="region-tab active" data-region="US" data-lang="en" onclick="selectRegionTab(this)">
+        <span class="tab-flag">🇺🇸</span>
+        <span class="tab-name">미국</span>
+        <span class="tab-code">US</span>
+      </button>
+      <button class="region-tab" data-region="NO" data-lang="no" onclick="selectRegionTab(this)">
+        <span class="tab-flag">🇳🇴</span>
+        <span class="tab-name">노르웨이</span>
+        <span class="tab-code">NO</span>
+      </button>
+      <button class="region-tab" data-region="DE" data-lang="de" onclick="selectRegionTab(this)">
+        <span class="tab-flag">🇩🇪</span>
+        <span class="tab-name">독일</span>
+        <span class="tab-code">DE</span>
+      </button>
+      <button class="region-tab" data-region="AU" data-lang="en" onclick="selectRegionTab(this)">
+        <span class="tab-flag">🇦🇺</span>
+        <span class="tab-name">호주</span>
+        <span class="tab-code">AU</span>
+      </button>
+      <button class="region-tab" data-region="GB" data-lang="en" onclick="selectRegionTab(this)">
+        <span class="tab-flag">🇬🇧</span>
+        <span class="tab-name">영국</span>
+        <span class="tab-code">GB</span>
+      </button>
+      <button class="region-tab" data-region="CH" data-lang="de" onclick="selectRegionTab(this)">
+        <span class="tab-flag">🇨🇭</span>
+        <span class="tab-name">스위스</span>
+        <span class="tab-code">CH</span>
+      </button>
+      <button class="region-tab" data-region="CA" data-lang="en" onclick="selectRegionTab(this)">
+        <span class="tab-flag">🇨🇦</span>
+        <span class="tab-name">캐나다</span>
+        <span class="tab-code">CA</span>
+      </button>
+      <button class="region-tab" data-region="NZ" data-lang="en" onclick="selectRegionTab(this)">
+        <span class="tab-flag">🇳🇿</span>
+        <span class="tab-name">뉴질랜드</span>
+        <span class="tab-code">NZ</span>
+      </button>
+      <button class="region-tab" data-region="NL" data-lang="nl" onclick="selectRegionTab(this)">
+        <span class="tab-flag">🇳🇱</span>
+        <span class="tab-name">네덜란드</span>
+        <span class="tab-code">NL</span>
+      </button>
+      <button class="region-tab" data-region="SE" data-lang="sv" onclick="selectRegionTab(this)">
+        <span class="tab-flag">🇸🇪</span>
+        <span class="tab-name">스웨덴</span>
+        <span class="tab-code">SE</span>
+      </button>
+      <button class="region-tab" data-region="DK" data-lang="da" onclick="selectRegionTab(this)">
+        <span class="tab-flag">🇩🇰</span>
+        <span class="tab-name">덴마크</span>
+        <span class="tab-code">DK</span>
+      </button>
+      <button class="region-tab" data-region="AT" data-lang="de" onclick="selectRegionTab(this)">
+        <span class="tab-flag">🇦🇹</span>
+        <span class="tab-name">오스트리아</span>
+        <span class="tab-code">AT</span>
+      </button>
+      <button class="region-tab" data-region="IE" data-lang="en" onclick="selectRegionTab(this)">
+        <span class="tab-flag">🇮🇪</span>
+        <span class="tab-name">아일랜드</span>
+        <span class="tab-code">IE</span>
+      </button>
+      <button class="region-tab" data-region="FI" data-lang="fi" onclick="selectRegionTab(this)">
+        <span class="tab-flag">🇫🇮</span>
+        <span class="tab-name">핀란드</span>
+        <span class="tab-code">FI</span>
+      </button>
+      <button class="region-tab" data-region="FR" data-lang="fr" onclick="selectRegionTab(this)">
+        <span class="tab-flag">🇫🇷</span>
+        <span class="tab-name">프랑스</span>
+        <span class="tab-code">FR</span>
+      </button>
+      <button class="region-tab" data-region="SG" data-lang="en" onclick="selectRegionTab(this)">
+        <span class="tab-flag">🇸🇬</span>
+        <span class="tab-name">싱가포르</span>
+        <span class="tab-code">SG</span>
+      </button>
+      <button class="region-tab" data-region="AE" data-lang="ar" onclick="selectRegionTab(this)">
+        <span class="tab-flag">🇦🇪</span>
+        <span class="tab-name">UAE</span>
+        <span class="tab-code">AE</span>
+      </button>
+      <button class="region-tab" data-region="JP" data-lang="ja" onclick="selectRegionTab(this)">
+        <span class="tab-flag">🇯🇵</span>
+        <span class="tab-name">일본</span>
+        <span class="tab-code">JP</span>
+      </button>
+      <button class="region-tab" data-region="KR" data-lang="ko" onclick="selectRegionTab(this)">
+        <span class="tab-flag">🇰🇷</span>
+        <span class="tab-name">한국</span>
+        <span class="tab-code">KR</span>
+      </button>
+      <button class="region-tab" data-region="BE" data-lang="nl" onclick="selectRegionTab(this)">
+        <span class="tab-flag">🇧🇪</span>
+        <span class="tab-name">벨기에</span>
+        <span class="tab-code">BE</span>
+      </button>
+    </div>
+    <div class="header-right" id="headerRight" style="display:flex; align-items:center; gap:10px;">
+      <a href="/" style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 20px; background: linear-gradient(135deg, #fa5252, #e03131); color: #ffffff; font-size: 12px; font-weight: 700; text-decoration: none; box-shadow: 0 2px 8px rgba(224, 49, 49, 0.3); transition: all 0.2s; white-space: nowrap;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='none'">
+        <span>🏠</span>
+        <span>소재채굴기 홈</span>
+      </a>
+      <div class="api-status" id="apiStatus" onclick="openModal()">
+        <span class="dot"></span>
+        <span id="apiStatusText">API 설정</span>
+      </div>
+      <button class="settings-btn" onclick="openModal()" title="설정">⚙</button>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+          <circle cx="6" cy="6" r="5" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M6 3.5V6L7.5 7.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Categories
+      </div>
+      <span class="cat-count" id="catCount">15 Total</span>
+    </div>
+    <div class="cat-list" id="catList">
+      <!-- Populated by JS -->
+    </div>
+    <div class="sidebar-footer">
+      <p class="sidebar-quote">"Click any keyword to instantly see global search volume trends on YouTube's primary engine."</p>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <!-- Search Bar -->
+    <div class="search-area">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px;">
+        <div class="search-label" style="margin-bottom: 0;">Deep Scan Keyword</div>
+        <div style="font-size: 12px; color: var(--text-primary); font-weight: 500;">
+          <span style="color: var(--accent-bright); font-weight: 700;">*</span> 본인의 유투브 api key를 입력해서 사용하세요. api key는 본인의 브라우져에 저장되니 안심하세요.
+        </div>
+      </div>
+      <div class="search-row">
+        <input
+          class="search-input"
+          id="searchInput"
+          type="text"
+          placeholder="Enter a focus topic (e.g. AI tools, ASMR cooking)..."
+          onkeydown="if(event.key==='Enter') generateSearch()"
+        />
+        <button class="generate-btn" id="generateBtn" onclick="generateSearch()">
+          <span class="btn-icon" id="btnIcon">✦</span>
+          Generate
+        </button>
+      </div>
+    </div>
+
+    <!-- Results -->
+    <div class="results-area" id="resultsArea">
+      <div class="results-header" id="resultsHeader" style="display:none">
+        <div class="results-title">
+          <span class="report-label">Intelligence Report:</span>
+          <a class="cat-highlight" id="catHighlight" href="#" onclick="return false;"></a>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <div class="sort-buttons" style="display: flex; gap: 6px;" id="sortButtons">
+            <button class="sort-btn active" onclick="sortVectors('latest', this)">최신순</button>
+            <button class="sort-btn" onclick="sortVectors('oldest', this)">과거순</button>
+            <button class="sort-btn" onclick="sortVectors('views', this)">조회수순</button>
+          </div>
+          <span class="results-count" id="vectorCount"></span>
+        </div>
+      </div>
+
+      <div id="vectorGrid" class="vector-grid"></div>
+
+      <!-- Global Top 50 (Initial State) -->
+      <div class="top50-section" id="globalTop50Section">
+        <div class="top50-header">
+          <div>
+            <div class="top50-title">
+              <span class="fire-icon">🔥</span>
+              오늘의 글로벌 인기 쇼츠 TOP 50
+            </div>
+            <div class="top50-subtitle">YouTube에서 가장 인기 있는 쇼츠를 실시간으로 확인하세요</div>
+          </div>
+          <div class="top50-badge" id="top50Badge">LIVE TRENDING</div>
+        </div>
+        <div class="top50-grid" id="top50Grid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Home Articles (Blog Style) -->
+      <div class="home-articles-section" id="homeArticlesSection" style="display:none">
+        <div class="home-articles-header">
+          <div class="logo-icon" style="width:28px; height:28px; font-size:14px; box-shadow:none;">💡</div>
+          <div class="home-articles-title">유튜브 소재 탐색 가이드</div>
+        </div>
+        <div class="home-articles-grid" id="homeArticlesGrid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Article Detail View -->
+      <div class="article-detail-section" id="articleDetailSection">
+        <button class="btn-back" onclick="showHomeArticles()">← 목록으로 돌아가기</button>
+        <div class="detail-tag" id="detailTag">GUIDE</div>
+        <div class="detail-title" id="detailTitle">Title</div>
+        <div class="detail-cover">
+          <img id="detailCoverImg" src="" alt="Cover" />
+        </div>
+        <div class="detail-content" id="detailContent">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- Static Informational Pages -->
+      <div class="static-pages-section" id="staticPagesSection" style="padding: 20px 0;">
+        
+        <div style="margin-bottom: 40px;" id="about">
+          <h2 style="font-size: 18px; font-weight: 800; margin-bottom: 12px; color: var(--text-primary);">📌 서비스 소개 (About)</h2>
+          <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; font-size: 14px; color: var(--text-secondary); line-height: 1.6;">
+            <strong>TUBETREND</strong>는 전 세계 다양한 국가의 YouTube 실시간 인기 트렌드를 분석하고, 카테고리별로 떠오르는 콘텐츠 주제를 빠르게 탐색할 수 있도록 돕는 글로벌 인텔리전스 네비게이터입니다.<br><br>
+            크리에이터, 마케터, 트렌드 분석가들이 어떤 키워드가 현재 전 세계적으로 주목받고 있는지 한눈에 파악할 수 있도록 직관적인 인터페이스와 심층적인 검색 기능을 제공합니다. 왼쪽 카테고리를 선택하거나 직접 검색어를 입력하여 최신 글로벌 동향을 확인해 보세요.
+          </div>
+        </div>
+
+        <div style="margin-bottom: 40px;" id="privacy">
+          <h2 style="font-size: 18px; font-weight: 800; margin-bottom: 12px; color: var(--text-primary);">🛡️ 개인정보처리방침 (Privacy Policy)</h2>
+          <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; font-size: 14px; color: var(--text-secondary); line-height: 1.6;">
+            TUBETREND는 사용자의 개인정보를 소중하게 생각하며, 안전하게 보호하기 위해 최선을 다하고 있습니다.<br><br>
+            1. <strong>수집하는 정보:</strong> 본 서비스는 별도의 회원가입 없이 이용 가능하며, 서비스 제공을 위해 최소한의 비식별 정보(접속 국가, 언어 설정 등) 및 사용자가 입력한 검색어만을 일시적으로 처리합니다.<br>
+            2. <strong>YouTube API 사용:</strong> 본 서비스는 YouTube Data API를 사용하여 공개된 트렌드 정보를 가져옵니다. 사용자가 개인 API 키를 입력할 경우, 해당 키는 브라우저의 로컬 스토리지(Local Storage)에만 안전하게 저장되며 서버로 전송되거나 수집되지 않습니다.<br>
+            3. <strong>쿠키(Cookies):</strong> 사용자 편의(다크모드 설정, API 키 저장 등)를 위해 브라우저 쿠키 또는 로컬 스토리지를 활용할 수 있습니다.
+          </div>
+        </div>
+
+        <div style="margin-bottom: 40px;" id="terms">
+          <h2 style="font-size: 18px; font-weight: 800; margin-bottom: 12px; color: var(--text-primary);">📜 이용약관 (Terms of Service)</h2>
+          <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; font-size: 14px; color: var(--text-secondary); line-height: 1.6;">
+            TUBETREND 이용약관에 오신 것을 환영합니다.<br><br>
+            본 서비스가 제공하는 모든 트렌드 데이터 및 검색 결과는 YouTube의 공개 데이터를 기반으로 하며, 정보의 정확성이나 완전성을 보장하지는 않습니다. 사용자는 본 서비스를 통해 얻은 정보를 참고용으로만 활용해야 하며, 이를 악용하여 발생하는 문제에 대해서는 TUBETREND가 책임지지 않습니다.<br>
+            TUBETREND는 예고 없이 서비스의 내용을 변경하거나 중단할 수 있습니다.
+          </div>
+        </div>
+
+        <div style="margin-bottom: 20px;" id="contact">
+          <h2 style="font-size: 18px; font-weight: 800; margin-bottom: 12px; color: var(--text-primary);">✉️ 문의 (Contact)</h2>
+          <div style="background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; font-size: 14px; color: var(--text-secondary); line-height: 1.6;">
+            서비스 이용 중 불편한 점이나 제휴 제안, 기타 문의 사항이 있으시면 언제든지 아래 연락처로 문의해 주시기 바랍니다.<br><br>
+            <strong>이메일:</strong> ckh0211a@naver.com<br>
+            최대한 빠르게 확인 후 답변 드리도록 하겠습니다.
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>
+
+<script>
+  // ===== CONFIG =====
+  let API_BASE = '';
+  if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+    // 로컬이 아닌 모든 환경(Cloudflare Pages, tubetrend.xyz 등)에서 Render.com 백엔드 사용
+    API_BASE = 'https://tubetrend.onrender.com'; 
+  }
+  let currentCategory = null;
+  let isLoading = false;
+  let currentRegion = 'KR';
+  let currentLang = 'ko';
+  let currentVectors = [];
+
+  // ===== CATEGORIES =====
+  const CATEGORIES = [
+    { isGroup: true, name: "🔥 글로벌 트렌드" },
+    { id: "global_top_50", name: "오늘의 글로벌 인기 쇼츠 TOP 50", icon: "🔥" },
+
+    { isGroup: true, name: "📰 뉴스 및 시사" },
+    { id: "25", name: "뉴스/속보", icon: "📰" },
+    { id: "custom_politics", name: "정치/외교", icon: "🏛️" },
+    { id: "custom_economy", name: "경제/비즈니스", icon: "📈" },
+    { id: "custom_society", name: "사회/이슈", icon: "🗣️" },
+
+    { isGroup: true, name: "❤️ 감동 및 스토리" },
+    { id: "custom_touching", name: "감동/따뜻한 이야기", icon: "💖" },
+    { id: "custom_story", name: "사연/고민 상담", icon: "💌" },
+    { id: "custom_exp", name: "썰/경험담", icon: "💬" },
+    { id: "custom_motivation", name: "동기부여/자기계발", icon: "🔥" },
+
+    { isGroup: true, name: "🎬 엔터테인먼트 및 예술" },
+    { id: "1", name: "영화/드라마 리뷰", icon: "🎬" },
+    { id: "custom_ani", name: "애니메이션/서브컬처", icon: "👾" },
+    { id: "23", name: "코미디/예능/스케치", icon: "😂" },
+    { id: "10", name: "음악/커버/공연", icon: "🎵" },
+    { id: "24", name: "아이돌/연예계 소식", icon: "✨" },
+
+    { isGroup: true, name: "🎮 게임 및 e스포츠" },
+    { id: "20", name: "PC/콘솔 게임", icon: "🎮" },
+    { id: "custom_mobile_game", name: "모바일 게임", icon: "📱" },
+    { id: "custom_esports", name: "e스포츠 대회/중계", icon: "🏆" },
+    { id: "custom_game_review", name: "게임 공략/리뷰", icon: "🕹️" },
+
+    { isGroup: true, name: "💡 지식 및 교육" },
+    { id: "28", name: "IT/테크/전자기기", icon: "💻" },
+    { id: "custom_science", name: "과학/우주/자연", icon: "🔬" },
+    { id: "27", name: "역사/인문학/철학", icon: "📚" },
+    { id: "custom_language", name: "어학/외국어 교육", icon: "🗣️" },
+
+    { isGroup: true, name: "🛋️ 라이프스타일 및 일상" },
+    { id: "22", name: "브이로그/일상", icon: "📹" },
+    { id: "26", name: "뷰티/패션/스타일링", icon: "💄" },
+    { id: "custom_mukbang", name: "먹방/맛집 탐방", icon: "🍔" },
+    { id: "custom_cooking", name: "요리/레시피", icon: "🍳" },
+    { id: "custom_diy", name: "인테리어/DIY", icon: "🛠️" },
+    { id: "15", name: "반려동물/동물", icon: "🐾" },
+
+    { isGroup: true, name: "✈️ 취미 및 레저" },
+    { id: "19", name: "국내/해외 여행", icon: "✈️" },
+    { id: "custom_camping", name: "캠핑/아웃도어", icon: "🏕️" },
+    { id: "2", name: "자동차/바이크", icon: "🚗" },
+    { id: "17", name: "스포츠/피트니스", icon: "⚽" }
+  ];
+
+  // ===== INIT =====
+  async function init() {
+    renderCategoryList();
+    checkApiStatusSilent();
+    
+    // 초기 화면: 홈 아티클 리스트 노출
+    document.getElementById('staticPagesSection').style.display = 'block';
+    document.getElementById('globalTop50Section').style.display = 'none';
+    
+    renderHomeArticles();
+  }
+
+  function renderCategoryList() {
+    const list = document.getElementById('catList');
+    let html = '';
+    let count = 0;
+    for (const cat of CATEGORIES) {
+      if (cat.isGroup) {
+        html += `<div class="cat-group-title" style="font-size:11px; font-weight:700; color:var(--text-muted); padding:16px 16px 6px; text-transform:uppercase; letter-spacing:1px; margin-top:4px;">${cat.name}</div>`;
+      } else {
+        html += `
+          <div class="cat-item" data-id="${cat.id}" onclick="selectCategory('${cat.id}', '${cat.name}')" style="padding:8px 16px 8px 24px;">
+            <div class="cat-item-left">
+              <span class="cat-icon" style="font-size:14px;">${cat.icon}</span>
+              <span style="font-size:13px;">${cat.name}</span>
+            </div>
+            <span class="cat-chevron">›</span>
+          </div>
+        `;
+        count++;
+      }
+    }
+    list.innerHTML = html;
+    document.getElementById('catCount').textContent = `${count} Total`;
+  }
+
+  // ===== API STATUS =====
+  function getStoredApiKey() {
+    return localStorage.getItem('YOUTUBE_API_KEY') || localStorage.getItem('youtube_api_key') || localStorage.getItem('yt_api_key') || '';
+  }
+
+  function checkApiStatusSilent() {
+    const key = getStoredApiKey();
+    if (key && key.trim() !== '') {
+      setApiStatusOk();
+    }
+  }
+
+  function getAuthHeaders() {
+    const key = getStoredApiKey();
+    return {
+      'Content-Type': 'application/json',
+      'x-api-key': key
+    };
+  }
+
+  function setApiStatusOk() {
+    const el = document.getElementById('apiStatus');
+    el.classList.add('ok');
+    document.getElementById('apiStatusText').textContent = 'API 연결됨';
+  }
+
+  // ===== REGION TAB SELECT =====
+  function selectRegionTab(el) {
+    // Update active state
+    document.querySelectorAll('.region-tab').forEach(btn => btn.classList.remove('active'));
+    el.classList.add('active');
+
+    currentRegion = el.getAttribute('data-region');
+    currentLang = el.getAttribute('data-lang');
+
+    if (currentCategory) {
+      loadTrending(currentCategory.id, currentCategory.name);
+    } else {
+      const query = document.getElementById('searchInput').value.trim();
+      if (query) {
+        generateSearch(currentLang, currentRegion);
+      }
+    }
+  }
+
+  // ===== CATEGORY SELECT =====
+  async function selectCategory(id, name) {
+    if (isLoading) return;
+    currentCategory = { id, name };
+
+    // Update sidebar active state
+    document.querySelectorAll('.cat-item').forEach(el => {
+      el.classList.toggle('active', el.dataset.id === id);
+    });
+
+    if (id === 'global_top_50') {
+      document.getElementById('catHighlight').textContent = name;
+      document.getElementById('resultsHeader').style.display = 'none';
+      document.getElementById('staticPagesSection').style.display = 'none';
+      document.getElementById('homeArticlesSection').style.display = 'none';
+      document.getElementById('articleDetailSection').style.display = 'none';
+      document.getElementById('vectorGrid').innerHTML = ''; // 기존 검색결과 삭제
+      
+      await loadGlobalTop50();
+      return;
+    }
+
+    // Update header
+    document.getElementById('catHighlight').textContent = name;
+    document.getElementById('resultsHeader').style.display = 'flex';
+    document.getElementById('staticPagesSection').style.display = 'none';
+    document.getElementById('globalTop50Section').style.display = 'none';
+    document.getElementById('homeArticlesSection').style.display = 'none';
+    document.getElementById('articleDetailSection').style.display = 'none';
+
+    await loadTrending(id, name);
+  }
+
+  // ===== LOAD TRENDING =====
+  async function loadTrending(categoryId, categoryName) {
+    if (isLoading) return;
+    isLoading = true;
+    setLoadingState(true);
+
+    try {
+      const res = await fetch(`${API_BASE}/api/trending?category_id=${categoryId}&category_name=${encodeURIComponent(categoryName)}&region=${currentRegion}&max_results=30`, {
+        headers: getAuthHeaders()
+      });
+      const data = await res.json();
+
+      if (data.error === 'API_KEY_MISSING') {
+        showToast('🔑 이 기능을 사용하려면 API 키가 필요합니다. 우측 상단 ⚙ 버튼을 클릭하세요.', 'error', 5000);
+        document.getElementById('headerRight').classList.remove('hidden-api');
+        return;
+      }
+      if (data.error) {
+        showToast(`❌ ${data.error}`, 'error');
+        showError(data.error);
+        return;
+      }
+
+      currentVectors = data.vectors || [];
+      // 기본 정렬: 최신순
+      sortVectors('latest');
+      
+      document.getElementById('vectorCount').textContent = `${data.total} Vectors Found`;
+
+    } catch(e) {
+      showToast('❌ 데이터를 불러올 수 없습니다.', 'error');
+      showError('서버 연결 오류');
+    } finally {
+      isLoading = false;
+      setLoadingState(false);
+    }
+  }
+
+  // ===== SEARCH BY TAG =====
+  function searchByTag(event, text, lang='ko', region='KR') {
+    event.stopPropagation();
+    document.getElementById('searchInput').value = text;
+    generateSearch(lang, region);
+  }
+
+  // ===== GENERATE SEARCH =====
+  async function generateSearch(lang=currentLang, region=currentRegion) {
+    const query = document.getElementById('searchInput').value.trim();
+    if (!query) {
+      showToast('🔍 검색어를 입력해주세요.', 'error');
+      return;
+    }
+    if (isLoading) return;
+    isLoading = true;
+
+    const catId = currentCategory?.id || '';
+    const catName = query;
+
+    // Update UI
+    document.getElementById('catHighlight').textContent = query;
+    document.getElementById('resultsHeader').style.display = 'flex';
+    document.getElementById('staticPagesSection').style.display = 'none';
+    document.getElementById('globalTop50Section').style.display = 'none';
+    document.getElementById('homeArticlesSection').style.display = 'none';
+    document.getElementById('articleDetailSection').style.display = 'none';
+    document.querySelectorAll('.cat-item').forEach(el => el.classList.remove('active'));
+
+    setLoadingState(true, true);
+
+    try {
+      const params = new URLSearchParams({ q: query, region: region, lang: lang, max_results: 30 });
+      if (catId) params.append('category_id', catId);
+
+      const res = await fetch(`${API_BASE}/api/search?${params}`, {
+        headers: getAuthHeaders()
+      });
+      const data = await res.json();
+
+      if (data.error === 'API_KEY_MISSING') {
+        showToast('🔑 이 기능을 사용하려면 API 키가 필요합니다. 우측 상단 ⚙ 버튼을 클릭하세요.', 'error', 5000);
+        document.getElementById('headerRight').classList.remove('hidden-api');
+        return;
+      }
+      if (data.error) {
+        showToast(`❌ ${data.error}`, 'error');
+        showError(data.error);
+        return;
+      }
+
+      currentVectors = data.vectors || [];
+      sortVectors('latest');
+      
+      document.getElementById('vectorCount').textContent = `${data.total} Vectors Found`;
+
+    } catch(e) {
+      showToast('❌ 검색 중 오류가 발생했습니다.', 'error');
+    } finally {
+      isLoading = false;
+      setLoadingState(false);
+    }
+  }
+
+  // ===== SORT VECTORS =====
+  function sortVectors(type, btnEl = null) {
+    if (btnEl) {
+      document.querySelectorAll('#sortButtons .sort-btn').forEach(el => el.classList.remove('active'));
+      btnEl.classList.add('active');
+    } else {
+      // Find the button if not provided
+      document.querySelectorAll('#sortButtons .sort-btn').forEach(el => {
+        el.classList.remove('active');
+        if (
+          (type === 'latest' && el.textContent === '최신순') ||
+          (type === 'oldest' && el.textContent === '과거순') ||
+          (type === 'views' && el.textContent === '조회수순')
+        ) {
+          el.classList.add('active');
+        }
+      });
+    }
+
+    let sorted = [...currentVectors];
+    if (type === 'latest') {
+      sorted.sort((a, b) => new Date(b.published_at || 0) - new Date(a.published_at || 0));
+    } else if (type === 'oldest') {
+      sorted.sort((a, b) => new Date(a.published_at || 0) - new Date(b.published_at || 0));
+    } else if (type === 'views') {
+      sorted.sort((a, b) => (b.view_count || 0) - (a.view_count || 0));
+    }
+
+    renderVectors(sorted);
+  }
+
+  // ===== RENDER VECTORS =====
+  function renderVectors(vectors) {
+    const grid = document.getElementById('vectorGrid');
+
+    if (!vectors || vectors.length === 0) {
+      grid.innerHTML = `
+        <div class="state-container" style="grid-column:1/-1">
+          <div class="state-icon">🔍</div>
+          <div class="state-title">결과가 없습니다</div>
+          <div class="state-desc">이 카테고리에서 현재 인기 동영상을 찾을 수 없습니다.</div>
+        </div>`;
+      return;
+    }
+
+    grid.innerHTML = vectors.map((v, i) => {
+      const delay = (i % 10) * 40;
+      
+      return `
+      <div class="top50-card" style="animation-delay:${delay}ms"
+           onclick="window.open('https://www.youtube.com/watch?v=${v.video_id}', '_blank')">
+        <div class="top50-thumb">
+          <img src="${v.thumbnail || ''}" alt="" loading="lazy" />
+          <div class="top50-play-overlay">
+            <div class="top50-play-btn"></div>
+          </div>
+        </div>
+        <div class="top50-info">
+          <div class="top50-video-title">${escHtml(v.title)}</div>
+          <div class="top50-meta">
+            <span class="top50-channel">📺 ${escHtml(v.channel)}</span>
+            <span class="top50-views"><span class="view-icon">👁</span> ${formatViewCount(v.view_count || 0)}</span>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // ===== OPEN YOUTUBE =====
+  function openYouTubeSearch(event, query) {
+    event.stopPropagation();
+    const url = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+    window.open(url, '_blank');
+  }
+
+  // ===== LOADING STATE =====
+  function setLoadingState(loading, isSearch = false) {
+    const btn = document.getElementById('generateBtn');
+    const icon = document.getElementById('btnIcon');
+
+    if (loading) {
+      btn.disabled = true;
+      btn.classList.add('loading');
+      icon.textContent = '↻';
+
+      // Show skeleton cards
+      const grid = document.getElementById('vectorGrid');
+      grid.innerHTML = Array(8).fill(0).map((_, i) => `
+        <div class="skeleton-card" style="animation-delay:${i*50}ms">
+          <div class="skeleton-line" style="height:10px; width:60px; margin-bottom:14px;"></div>
+          <div class="skeleton-line" style="height:18px; width:85%; margin-bottom:6px;"></div>
+          <div class="skeleton-line" style="height:14px; width:55%; margin-bottom:14px;"></div>
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            ${Array(4).fill(0).map(() => `<div class="skeleton-line" style="height:20px; width:70px; border-radius:4px;"></div>`).join('')}
+          </div>
+        </div>
+      `).join('');
+    } else {
+      btn.disabled = false;
+      btn.classList.remove('loading');
+      icon.textContent = '✦';
+    }
+  }
+
+  // ===== ERROR STATE =====
+  function showError(msg) {
+    const grid = document.getElementById('vectorGrid');
+    grid.innerHTML = `
+      <div class="state-container" style="grid-column:1/-1">
+        <div class="state-icon">⚠️</div>
+        <div class="state-title">오류 발생</div>
+        <div class="state-desc">${escHtml(msg)}</div>
+      </div>`;
+  }
+
+  // ===== MODAL =====
+  function openModal() {
+    document.getElementById('apiModal').classList.add('show');
+    document.getElementById('apiKeyInput').focus();
+  }
+  function closeModal() {
+    document.getElementById('apiModal').classList.remove('show');
+  }
+
+  async function saveApiKey() {
+    const key = document.getElementById('apiKeyInput').value.trim();
+    if (!key) { showToast('🔑 API 키를 입력해주세요.', 'error'); return; }
+
+    localStorage.setItem('YOUTUBE_API_KEY', key);
+    setApiStatusOk();
+    closeModal();
+    showToast('✅ API 키가 브라우저에 안전하게 저장되었습니다!', 'success');
+    document.getElementById('apiKeyInput').value = '';
+  }
+
+  // Enter key in modal
+  document.getElementById('apiKeyInput').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') saveApiKey();
+  });
+
+  // Click outside modal to close
+  document.getElementById('apiModal').addEventListener('click', (e) => {
+    if (e.target === document.getElementById('apiModal')) closeModal();
+  });
+
+  // ===== TOAST =====
+  function showToast(msg, type = 'info', duration = 3000) {
+    const area = document.getElementById('toastArea');
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = msg;
+    area.appendChild(toast);
+    setTimeout(() => {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(20px)';
+      setTimeout(() => toast.remove(), 300);
+    }, duration);
+  }
+
+  // ===== GLOBAL TOP 50 =====
+  let top50RetryCount = 0;
+  const TOP50_MAX_RETRIES = 4;
+  const TOP50_RETRY_DELAY = 15000; // 15초
+
+  async function loadGlobalTop50() {
+    const grid = document.getElementById('top50Grid');
+    const section = document.getElementById('globalTop50Section');
+    
+    // 이전에 숨겼다면 다시 표시
+    if (section) section.style.display = 'block';
+
+    // Show skeleton loading
+    showTop50Skeleton(grid);
+
+    await fetchTop50WithRetry(grid);
+  }
+
+  function showTop50Skeleton(grid) {
+    grid.innerHTML = Array(12).fill(0).map((_, i) => `
+      <div class="top50-skeleton" style="animation-delay:${i * 50}ms">
+        <div class="skel-thumb"></div>
+        <div class="skel-info">
+          <div class="skel-line" style="height:14px; width:90%; margin-bottom:8px;"></div>
+          <div class="skel-line" style="height:12px; width:60%;"></div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function fetchTop50WithRetry(grid) {
+    try {
+      const res = await fetch(`${API_BASE}/api/global_top50`);
+      const data = await res.json();
+
+      if (data.error) {
+        if (top50RetryCount < TOP50_MAX_RETRIES) {
+          showTop50RetryMessage(grid);
+          return;
+        }
+        showTop50FallbackContent(grid);
+        return;
+      }
+
+      // 성공!
+      top50RetryCount = 0;
+      const videos = data.videos || [];
+      document.getElementById('top50Badge').textContent = `TOP ${videos.length} LIVE`;
+      renderTop50Videos(grid, videos);
+
+    } catch(e) {
+      if (top50RetryCount < TOP50_MAX_RETRIES) {
+        showTop50RetryMessage(grid);
+        return;
+      }
+      showTop50FallbackContent(grid);
+    }
+  }
+
+  function showTop50RetryMessage(grid) {
+    top50RetryCount++;
+    let seconds = Math.ceil(TOP50_RETRY_DELAY / 1000);
+    
+    grid.innerHTML = `
+      <div class="state-container" style="grid-column:1/-1">
+        <div class="state-icon" style="animation: spin 2s linear infinite;">⏳</div>
+        <div class="state-title">YouTube 인기 영상을 불러오고 있습니다...</div>
+        <div class="state-desc">서버를 준비하고 있습니다. <strong id="retryCountdown">${seconds}</strong>초 후 자동으로 다시 시도합니다.<br>(${top50RetryCount}/${TOP50_MAX_RETRIES}회 시도 중)</div>
+        <div style="margin-top:16px; display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
+          ${Array(6).fill(0).map((_, i) => `
+            <div style="width:160px; height:100px; background:linear-gradient(90deg, #e9ecef 25%, #f8f9fa 50%, #e9ecef 75%); background-size:800px 100%; animation:shimmer 1.5s infinite linear; border-radius:8px;"></div>
+          `).join('')}
+        </div>
+      </div>`;
+    
+    const countdownEl = document.getElementById('retryCountdown');
+    const countdownInterval = setInterval(() => {
+      seconds--;
+      if (countdownEl) countdownEl.textContent = seconds;
+      if (seconds <= 0) clearInterval(countdownInterval);
+    }, 1000);
+
+    setTimeout(() => {
+      clearInterval(countdownInterval);
+      showTop50Skeleton(grid);
+      fetchTop50WithRetry(grid);
+    }, TOP50_RETRY_DELAY);
+  }
+
+  function showTop50FallbackContent(grid) {
+    grid.innerHTML = `
+      <div class="state-container" style="grid-column:1/-1">
+        <div class="state-icon">🔄</div>
+        <div class="state-title">잠시 후 다시 방문해주세요</div>
+        <div class="state-desc">서버가 준비 중입니다. 잠시 후 새로고침하면 YouTube 글로벌 인기 TOP 50 영상을 확인할 수 있습니다.</div>
+        <button onclick="top50RetryCount=0; loadGlobalTop50();" style="
+          margin-top:16px; padding:10px 24px;
+          background:linear-gradient(135deg, var(--accent), #8a6ff5);
+          border:none; border-radius:10px;
+          font-family:'Inter',sans-serif; font-size:13px; font-weight:600;
+          color:#fff; cursor:pointer; transition:var(--transition);
+        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 24px var(--accent-glow)'"
+           onmouseout="this.style.transform=''; this.style.boxShadow=''">
+          🔄 다시 시도
+        </button>
+      </div>`;
+  }
+
+  function renderTop50Videos(grid, videos) {
+    grid.innerHTML = videos.map((v, i) => {
+      const delay = (i % 15) * 40;
+      let rankClass = 'normal';
+      if (v.rank === 1) rankClass = 'gold';
+      else if (v.rank === 2) rankClass = 'silver';
+      else if (v.rank === 3) rankClass = 'bronze';
+
+      return `
+      <div class="top50-card" style="animation-delay:${delay}ms"
+           onclick="window.open('https://www.youtube.com/watch?v=${v.video_id}', '_blank')">
+        <div class="top50-thumb">
+          <img src="${v.thumbnail}" alt="" loading="lazy" />
+          <div class="top50-rank ${rankClass}">${v.rank}</div>
+          <div class="top50-play-overlay">
+            <div class="top50-play-btn"></div>
+          </div>
+        </div>
+        <div class="top50-info">
+          <div class="top50-video-title">${escHtml(v.title)}</div>
+          <div class="top50-meta">
+            <span class="top50-channel">📺 ${escHtml(v.channel)}</span>
+            <span class="top50-views"><span class="view-icon">👁</span> ${formatViewCount(v.view_count)}</span>
+          </div>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  function formatViewCount(count) {
+    if (count >= 100000000) return (count / 100000000).toFixed(1) + '억';
+    if (count >= 10000) return (count / 10000).toFixed(1) + '만';
+    if (count >= 1000) return (count / 1000).toFixed(1) + 'K';
+    return count.toLocaleString();
+  }
+
+  // ===== UTIL =====
+  function escHtml(str) {
+    if (!str) return '';
+    return String(str)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#x27;');
+  }
+
+  // ===== HOME ARTICLES (GUIDES) =====
+    const MOCK_ARTICLES = [
+    {
+      id: 1, tag: 'ALGORITHM', title: '초반 3초의 마법: 쇼츠 알고리즘의 선택을 받는 후킹 공식', desc: '조회수가 터지는 쇼츠는 첫 3초 안에 결정됩니다. 시청자의 이탈을 막고 몰입하게 만드는 3초 후킹 전략을 알아봅니다.', image: 'https://picsum.photos/seed/s1/600/400',
+      content: `
+        <p>유튜브 쇼츠 생태계에서 가장 중요한 지표는 단연코 <strong>"초반 3초 이탈률"</strong>입니다. 아무리 뒤에 좋은 내용이 있더라도 초반 3초를 넘기지 못하면 알고리즘의 선택을 받을 수 없습니다. 스크롤을 내리려는 시청자의 손가락을 멈추게 하는 마법의 공식을 소개합니다.</p>
+        
+        <h3>1. 두괄식 전개: 결론부터 말하세요</h3>
+        <p>궁금증을 유발하는 긴 인트로나 "안녕하세요" 같은 인사는 과감히 생략하세요. "오늘 알아볼 것은..." 보다는 <strong>"이것만 알면 무조건 조회수 떡상합니다"</strong>처럼 가장 자극적이고 핵심적인 결론이나 궁금증을 유발하는 강렬한 문장을 맨 앞에 배치해야 합니다.</p>
+        
+        <h3>2. 시각적 자극의 극대화</h3>
+        <ul>
+          <li><strong>빠른 화면 전환:</strong> 1~3초 사이에 최소 2번 이상의 화면 전환(컷 편집)이나 줌인/줌아웃 효과를 주어 시각적 지루함을 없앱니다.</li>
+          <li><strong>강렬한 텍스트 자막:</strong> 영상 중앙에 시선을 사로잡는 큰 폰트와 대비되는 색상의 자막을 띄워 시청자가 무의식적으로 텍스트를 읽게 만드세요.</li>
+          <li><strong>얼굴 클로즈업:</strong> 사람은 본능적으로 타인의 표정에 가장 먼저 반응합니다. 놀라거나 화난 표정, 찡그린 표정의 클로즈업 샷을 첫 화면에 배치해보세요.</li>
+        </ul>
+        
+        <h3>3. 소품과 행동으로 시선 끌기</h3>
+        <p>말보다 행동이 먼저입니다. 물건을 떨어뜨리거나, 이상한 행동을 하고 있거나, 갑자기 화면으로 무언가를 들이미는 등 예측 불가능한 시각적 액션으로 시작하는 것도 훌륭한 전략입니다.</p>
+        
+        <p>성공적인 3초를 만들면 시청 지속 시간(Audience Retention) 그래프가 초반에 뚝 떨어지지 않고 완만하게 유지되며, 유튜브 알고리즘은 여러분의 영상을 '우수한 콘텐츠'로 분류하여 피드에 폭발적으로 노출시켜 줄 것입니다.</p>
+      `
+    },
+    {
+      id: 2, tag: 'EDITING', title: '끝나지 않는 쇼츠: 루프(Loop) 편집 기술 기초', desc: '시청자가 영상이 끝난 줄도 모르고 두 번, 세 번 보게 만드는 무한 루프 편집의 비밀을 파헤쳐 봅니다.', image: 'https://picsum.photos/seed/s2/600/400',
+      content: `
+        <p>쇼츠의 평균 조회율(Average Percentage Viewed)을 100% 이상, 심지어 150%까지 끌어올리는 가장 강력한 마법이 바로 <strong>무한 루프(Infinite Loop)</strong>입니다. 시청자가 영상이 끝난 줄 모르고 자연스럽게 두 번째 재생을 맞이하게 하는 기술입니다.</p>
+        
+        <h3>루프의 기본 원리: 꼬리와 머리 잇기</h3>
+        <p>영상의 마지막 대사나 동작이 자연스럽게 영상의 첫 번째 장면으로 이어지도록 <strong>대본 자체를 원형으로 기획</strong>해야 합니다. 예를 들어, 영상 마지막 대사를 <em>"그래서 제가 알아낸 방법이 뭐냐면요,"</em> 로 끝내고, 영상 첫 대사를 <em>"바로 이것입니다!"</em> 로 시작하면 무한 루프가 완성됩니다.</p>
+        
+        <h3>완벽한 루프를 위한 편집 디테일</h3>
+        <ul>
+          <li><strong>오디오 겹치기 (J-Cut / L-Cut):</strong> 음악이나 대사를 영상의 앞뒤 컷에 1~2초가량 겹쳐지게 편집(크로스 디졸브 등)하면 컷이 전환될 때 오디오가 끊기는 느낌을 완벽하게 없앨 수 있습니다.</li>
+          <li><strong>동작의 일치(Match Cut):</strong> 손을 내미는 동작으로 끝났다면, 첫 화면은 손 거두는 동작으로 시작해보세요. 시각적 연속성이 유지되어 시청자는 반복 재생을 인지하지 못합니다.</li>
+          <li><strong>숨표 제거:</strong> 첫 컷의 앞 공백과 마지막 컷의 뒷 공백(오디오 파형이 없는 부분)을 프레임 단위로 미세하게 잘라내어 재생이 반복되는 순간의 딜레이를 완전히 제거해야 합니다.</li>
+        </ul>
+        
+        <p>단 한 번의 추가 재생(루프)만으로도 조회율이 폭발적으로 상승하며, 이는 쇼츠 알고리즘의 강력한 추천으로 이어집니다.</p>
+      `
+    },
+    {
+      id: 3, tag: 'TREND', title: '해외 떡상 영상 벤치마킹으로 국내 1등 되기', desc: '해외 유튜브 트렌드를 한발 앞서 분석하고 국내 시청자 입맛에 맞게 로컬라이징하는 꿀팁.', image: 'https://picsum.photos/seed/s3/600/400',
+      content: `
+        <p>유튜브 생태계에서 가장 리스크가 적고 검증된 성공 방정식은 <strong>이미 해외에서 터진 콘텐츠 포맷을 국내로 가장 먼저 들여오는 것</strong>입니다. 트렌드는 돌고 돕니다.</p>
+        
+        <h3>글로벌 트렌드 레이더망 구축하기</h3>
+        <p>내 주제와 관련된 미국, 남미, 일본의 대형 쇼츠 크리에이터 계정을 최소 20~30개 팔로우하세요. TUBETREND와 같은 전문 분석 툴을 활용하여 각 국가의 '실시간 인기 동영상'과 검색량 급상승 키워드를 매일 아침 확인하는 습관을 들여야 합니다.</p>
+        
+        <h3>단순 번역이 아닌 '로컬라이징(현지화)'</h3>
+        <ul>
+          <li><strong>유머 코드의 각색:</strong> 미국식 조크나 서양 밈(Meme)은 한국 시청자에게 와닿지 않습니다. 상황은 가져오되, 대사나 상황극의 디테일은 철저히 한국인이 공감할 수 있는 'K-유머'와 최신 유행어로 변경해야 합니다.</li>
+          <li><strong>국내 트렌딩 오디오 결합:</strong> 해외에서 유행한 안무나 챌린지라도, BGM은 현재 한국 쇼츠/틱톡에서 가장 인기 있는 음원으로 교체하여 업로드하는 것이 노출에 유리합니다.</li>
+          <li><strong>비주얼 리패키징:</strong> 해외 영상의 자막 스타일(예: 두꺼운 폰트)을 그대로 쓰기보다는, 국내 트렌드에 맞는 세련된 폰트(예: G마켓 산스, 에스코어 드림)와 자막 애니메이션으로 재포장하세요.</li>
+        </ul>
+        
+        <p>벤치마킹은 표절이 아닙니다. 해외의 성공적인 포맷(형식)에 나만의 독창적인 색깔(내용)을 입히는 '창조적 재해석'이 바로 크리에이터의 능력입니다.</p>
+      `
+    },
+    {
+      id: 4, tag: 'DATA', title: '데이터가 알려주는 최적의 업로드 황금 시간대', desc: '아무 때나 올리지 마세요. 내 채널의 구독자가 가장 활발하게 활동하는 시간을 찾는 데이터 분석법.', image: 'https://picsum.photos/seed/s4/600/400',
+      content: `
+        <p>유튜브 쇼츠는 롱폼 영상에 비해 <strong>업로드 직후 1~2시간의 초기 반응(Seed Audience Reaction)</strong>이 노출을 결정짓는 데 훨씬 더 결정적인 역할을 합니다. 내 영상을 봐줄 사람이 가장 많은 시간에 올려야 알고리즘의 탄력을 받을 수 있습니다.</p>
+        
+        <h3>일반적인 쇼츠 황금 시간대</h3>
+        <ul>
+          <li><strong>평일 출퇴근 시간 (오전 7~9시 / 오후 6~8시):</strong> 대중교통에서 스마트폰을 보는 시청자를 타겟팅합니다.</li>
+          <li><strong>점심 시간 (오후 12~2시):</strong> 휴식을 취하며 가볍게 쇼츠를 넘겨보는 직장인과 학생 타겟층이 활발합니다.</li>
+          <li><strong>자기 전 프라임 타임 (오후 10~12시):</strong> 하루 중 유튜브 트래픽이 가장 높은 시간대로, 침대에 누워 쇼츠를 보는 시간입니다.</li>
+        </ul>
+        
+        <h3>내 채널만의 황금 시간대 찾는 법 (유튜브 스튜디오)</h3>
+        <p>일반적인 시간대보다 중요한 것은 <strong>'내 채널 구독자'</strong>의 활동 시간입니다.</p>
+        <ol>
+          <li>유튜브 스튜디오(PC) 접속 후 <strong>[분석] - [시청자층]</strong> 탭으로 이동합니다.</li>
+          <li>"시청자가 YouTube를 사용하는 시간대"라는 보라색 막대 그래프를 확인합니다.</li>
+          <li>보라색이 가장 짙은 시간대(활발함)를 파악합니다.</li>
+          <li><strong>핵심 팁:</strong> 가장 짙은 시간대 정각에 올리기보다는, <strong>트래픽이 상승하기 시작하는 1~2시간 전</strong>에 업로드하여 영상이 피드에 노출될 준비를 마치는 것이 유리합니다.</li>
+        </ol>
+        
+        <p>시간대 못지않게 '꾸준한 업로드 주기'를 유지하여 시청자가 내 영상을 기다리게 만드는 것도 훌륭한 전략입니다.</p>
+      `
+    },
+    {
+      id: 5, tag: 'ENGAGEMENT', title: '댓글을 유도하는 심리테스트 & 퀴즈 쇼츠 기획', desc: '조회수만큼 중요한 것이 바로 상호작용(Engagement)입니다. 시청자가 자발적으로 댓글을 달게 만드는 기획법.', image: 'https://picsum.photos/seed/s5/600/400',
+      content: `
+        <p>유튜브 알고리즘은 단순히 끝까지 본 영상보다, 시청자가 <strong>댓글, 좋아요, 공유</strong>와 같은 능동적인 행동(Engagement)을 한 영상을 '가치 있고 확산시켜야 할 콘텐츠'로 인식합니다.</p>
+        
+        <h3>1. 참여형 퀴즈 및 숨은그림찾기 도입</h3>
+        <p>영상 내에 가벼운 퀴즈를 넣으세요. "이 중 진짜 명품은 무엇일까요? 정답은 댓글에 달아주세요!" 처럼 시청자가 멈추고 생각한 뒤 행동하게 만듭니다. 화면 구석에 작은 이스터에그(숨겨진 이미지)를 넣고 "영상 속에 숨겨진 고양이를 찾으셨나요?"라고 묻는 것도 훌륭합니다.</p>
+        
+        <h3>2. 논쟁거리(밸런스 게임) 던지기</h3>
+        <ul>
+          <li>탕수육 부먹 vs 찍먹</li>
+          <li>평생 라면만 먹기 vs 평생 치킨만 먹기</li>
+          <li>100억 받고 10년 늙기 vs 그냥 살기</li>
+        </ul>
+        <p>이러한 가벼운 밸런스 게임이나 논쟁거리는 시청자들 사이의 토론을 유발합니다. 시청자들이 댓글을 작성하고 다른 사람의 댓글을 읽는 동안 <strong>배경에서는 쇼츠가 계속 무한 루프 재생</strong>되므로 조회수와 시청 시간도 함께 상승합니다.</p>
+        
+        <h3>3. 고정 댓글과 하트(❤️) 활용</h3>
+        <p>첫 번째 댓글에 영상과 관련된 추가 질문이나 요약을 '고정 댓글'로 달아두세요. 시청자가 댓글 창을 열었을 때 가장 먼저 보게 되며 답글을 유도합니다. 또한 시청자의 댓글에 하트를 눌러주면 해당 시청자에게 알림이 가서 재방문율을 높일 수 있습니다.</p>
+      `
+    },
+    {
+      id: 6, tag: 'MUSIC', title: '트렌딩 오디오의 중요성: 배경음악이 절반이다', desc: '현재 가장 유행하는 음악을 배경으로 깔기만 해도 노출이 달라집니다. 트렌딩 오디오 찾는 법.', image: 'https://picsum.photos/seed/s6/600/400',
+      content: `
+        <p>틱톡(TikTok)에서 시작된 숏폼 트렌드의 핵심은 바로 <strong>"음악(Audio)"</strong>입니다. 어떤 오디오를 사용하느냐에 따라 알고리즘이 내 영상을 분류하는 카테고리가 달라지고, 초기 노출량이 결정됩니다.</p>
+        
+        <h3>트렌딩 오디오(Trending Audio)란?</h3>
+        <p>현재 플랫폼 내에서 수많은 크리에이터들이 앞다투어 사용하고 있으며, 시청자들의 반응이 폭발적으로 늘고 있는 음원입니다. 모바일 유튜브 앱에서 쇼츠를 넘기다 보면 우측 하단 음원 이름 옆에 <strong>우상향 화살표(↗)</strong> 아이콘이 붙은 것을 볼 수 있는데, 이것이 바로 트렌딩 오디오입니다.</p>
+        
+        <h3>트렌딩 오디오 스마트하게 활용하는 법</h3>
+        <ul>
+          <li><strong>내용과 무관해도 사용하기:</strong> 내 영상이 댄스나 립싱크가 아닌 지식 채널이더라도, 잔잔하고 유행하는 오디오를 골라 배경음악으로 활용하세요.</li>
+          <li><strong>볼륨 밸런스 조절:</strong> 내 목소리나 현장음이 메인이라면 유튜브 앱 편집기에서 트렌딩 오디오의 볼륨을 <strong>5% ~ 10%</strong>로 아주 작게 줄이세요. 시청자에게는 거슬리지 않지만 알고리즘은 해당 오디오를 사용한 것으로 인식하여 추천 피드에 띄워줍니다.</li>
+          <li><strong>오디오 피드 벤치마킹:</strong> 우측 하단 빙글빙글 도는 음원 아이콘을 클릭하면 해당 오디오를 사용한 쇼츠들이 모여있는 피드가 나옵니다. 여기서 가장 조회수가 높은 영상들의 썸네일과 후킹 방식을 분석하세요.</li>
+        </ul>
+        
+        <p>잘 고른 배경음악 하나가 열 편집 기술 안 부러운 쇼츠의 세계입니다. 항상 소리를 켜두고 쇼츠를 시청하며 어떤 음악이 유행하는지 귀를 열어두세요.</p>
+      `
+    },
+    {
+      id: 7, tag: 'NICHE', title: '초보 유튜버를 위한 틈새시장(Niche) 공략 가이드', desc: '레드오션에서 살아남으려면 타겟을 좁혀야 합니다. 나만의 강력한 틈새시장을 발굴하는 방법.', image: 'https://picsum.photos/seed/s7/600/400',
+      content: `
+        <p>모두가 다루는 광범위한 주제("일상", "게임", "먹방")로 유튜브 쇼츠에 뛰어드는 것은 계란으로 바위 치기입니다. 초보 유튜버가 살아남기 위한 유일한 생존 전략은 바로 타겟을 뾰족하게 좁히는 <strong>니치 다운(Niche Down)</strong>입니다.</p>
+        
+        <h3>니치 다운(Niche Down)의 구체적 사례</h3>
+        <ul>
+          <li><strong>요리/먹방:</strong> 단순한 먹방이 아니라 <em>"원룸 자취생이 5분 만에 전자레인지로 만드는 다이어트 요리"</em>.</li>
+          <li><strong>게임:</strong> 인기 게임 전체가 아니라 <em>"마인크래프트 건축물 1분 컷 리뷰"</em> 혹은 <em>"고전 오락실 게임 엔딩만 모아보기"</em>.</li>
+          <li><strong>지식/정보:</strong> 광범위한 상식이 아니라 <em>"Z세대를 위한 부동산 경매 기초"</em> 혹은 <em>"신용카드 혜택만 1분 만에 털어주는 리뷰"</em>.</li>
+        </ul>
+        
+        <h3>니치 채널의 폭발적인 장점</h3>
+        <p>주제가 뾰족해지면 잠재 시청자 풀(Pool)은 줄어들지만, <strong>시청자의 충성도와 구독 전환율</strong>은 기하급수적으로 높아집니다. 알고리즘 역시 내 채널의 정체성을 명확하게 파악하여, 해당 주제에 관심 있는 타겟 시청자에게 내 쇼츠를 정확하게 꽂아줍니다.</p>
+        
+        <p>10만 명에게 노출되어 1,000명이 보는 영상보다, 2,000명에게 노출되어 1,500명이 보고 500명이 구독하는 영상이 채널 성장에 압도적으로 유리합니다. 나만의 '작은 우물'을 깊게 파세요.</p>
+      `
+    },
+    {
+      id: 8, tag: 'THUMBNAIL', title: '쇼츠 썸네일, 과연 중요할까? 설정 꿀팁', desc: '쇼츠 탭에서는 바로 재생되지만, 채널 방문자에게는 썸네일이 보입니다. 클릭을 유도하는 쇼츠 썸네일 설정법.', image: 'https://picsum.photos/seed/s8/600/400',
+      content: `
+        <p>많은 분들이 "쇼츠는 피드에서 자동으로 넘어가는데 썸네일이 무슨 소용이야?"라고 생각합니다. 하지만 <strong>채널 페이지를 방문한 시청자</strong>나 <strong>유튜브 홈 화면 추천 탭</strong>에서 쇼츠를 발견한 시청자에게 썸네일은 클릭을 결정짓는 0순위 요소입니다.</p>
+        
+        <h3>스마트폰에서 쇼츠 썸네일 지정하기</h3>
+        <p>과거에는 쇼츠 썸네일 지정이 불가했지만, 현재는 모바일 유튜브 앱에서 쇼츠를 업로드하는 마지막 화면(세부정보 추가)에서 좌측 상단 <strong>[연필 아이콘]</strong>을 눌러 영상 내 특정 프레임을 썸네일로 직접 선택할 수 있습니다. (PC에서는 아직 불가합니다.)</p>
+        
+        <h3>선택받는 썸네일 프레임의 특징</h3>
+        <ul>
+          <li><strong>시각적 강렬함:</strong> 화려한 이펙트, 폭발하는 장면, 극적인 표정 변화 등 시각적으로 가장 호기심을 유발하는 장면을 고르세요.</li>
+          <li><strong>결과물 선공개:</strong> 요리 완성품, 비포/애프터의 애프터 사진, DIY의 완성작 등 결론이 명확히 보이는 프레임이 클릭률이 높습니다.</li>
+          <li><strong>자막과 텍스트의 조화:</strong> 선택할 프레임 위치에 미리 편집 프로그램에서 <strong>크고 자극적인 텍스트(예: "충격적인 결말", "절대 하지 마세요")</strong>를 배치해 두면 썸네일에 텍스트가 노출되어 효과 만점입니다.</li>
+        </ul>
+        
+        <p>정성들여 만든 쇼츠가 썸네일 하나 때문에 외면받지 않도록, 편집 단계부터 '이 장면을 썸네일로 써야겠다'고 기획하는 습관을 들이세요.</p>
+      `
+    },
+    {
+      id: 9, tag: 'SEO', title: '검색 노출을 위한 제목과 해시태그 전략', desc: '알고리즘 추천 외에도 검색을 통한 유입을 무시할 수 없습니다. 핵심 키워드를 배치하는 SEO 팁.', image: 'https://picsum.photos/seed/s9/600/400',
+      content: `
+        <p>유튜브 쇼츠 트래픽의 70%는 '쇼츠 피드(Shorts Feed)'에서 오지만, 나머지 30%는 <strong>'유튜브 검색(Search)'</strong>과 <strong>'탐색 기능'</strong>에서 발생합니다. 꾸준한 조회수(스테디셀러)를 만들려면 검색 최적화(SEO)를 놓쳐선 안 됩니다.</p>
+        
+        <h3>클릭을 부르는 제목(Title) 공식</h3>
+        <p>제목은 60자를 넘기지 않는 것이 좋습니다. 모바일 화면에서 잘리지 않아야 합니다.</p>
+        <ul>
+          <li><strong>숫자 활용:</strong> "아이폰 배터리 아끼는 법" 보다 <strong>"아이폰 배터리 수명 2배 늘리는 3가지 설정"</strong>이 훨씬 매력적입니다.</li>
+          <li><strong>부정적 호기심:</strong> "~하는 법" 보다 <strong>"당신이 지금까지 폼클렌징을 잘못 쓰고 있었던 이유"</strong>처럼 경각심을 주는 제목이 클릭률을 높입니다.</li>
+        </ul>
+        
+        <h3>해시태그(#)의 정석</h3>
+        <p>해시태그를 10~20개씩 남발하면 알고리즘이 영상의 타겟을 특정하지 못해 스팸으로 분류할 수 있습니다. <strong>핵심 해시태그 3~5개</strong>면 충분합니다.</p>
+        <ol>
+          <li><code>#shorts</code> : 기본 필수 태그 (유튜브 공식 권장)</li>
+          <li><strong>대분류 키워드:</strong> 예) <code>#다이어트</code> <code>#요리</code></li>
+          <li><strong>소분류 키워드(타겟):</strong> 예) <code>#저탄고지</code> <code>#자취요리</code></li>
+        </ol>
+        <p>제목과 해시태그는 알고리즘에게 내 영상이 누구에게 배달되어야 하는지 알려주는 '주소표'와 같습니다. 명확하게 작성하세요.</p>
+      `
+    },
+    {
+      id: 10, tag: 'STORYTELLING', title: '1분 안에 기승전결 만들기: 숏폼 스토리텔링', desc: '짧은 시간 안에도 스토리가 있어야 끝까지 봅니다. 60초 안에 이야기를 기승전결로 담아내는 법.', image: 'https://picsum.photos/seed/s10/600/400',
+      content: `
+        <p>1분은 틱톡커에겐 영원과도 같고, 롱폼 유튜버에겐 찰나와도 같은 시간입니다. 지루한 10초는 시청자를 떠나게 하지만, 스토리가 있는 60초는 시청자를 몰입시킵니다. 숏폼에 최적화된 마이크로 스토리텔링(Micro Storytelling) 구조를 파악하세요.</p>
+        
+        <h3>숏폼 최적화 4단계 (Hook - Context - Climax - Call to Action)</h3>
+        
+        <ul>
+          <li><strong>Hook (0~3초) - 문제 제기 및 시선 강탈:</strong> "왜 아이폰 액정은 항상 모서리부터 깨질까요?" 와 같은 강한 질문이나 시각적 충격으로 시작합니다.</li>
+          <li><strong>Context (3~15초) - 상황 설명과 빌드업:</strong> 시청자가 상황을 이해할 수 있도록 빠르고 명확하게 배경을 설명합니다. (불필요한 군더더기 모두 삭제)</li>
+          <li><strong>Climax (15~45초) - 해결책 제시 및 반전:</strong> 앞서 제기한 문제에 대한 기발한 해결책, 실험의 결과, 혹은 예상치 못한 반전을 속도감 있게 보여줍니다. 이 구간에서 가장 시각적인 자료가 많이 들어가야 합니다.</li>
+          <li><strong>CTA (45~60초) - 여운과 행동 유도:</strong> "다음 번엔 삼성 갤럭시로 테스트해볼까요? 댓글로 남겨주세요!" 처럼 시청자의 구독, 좋아요, 댓글을 자연스럽게 유도하며 영상을 마무리(또는 루프로 연결)합니다.</li>
+        </ul>
+        
+        <p>대본을 다 쓰고 나면 반드시 소리 내어 읽어보세요. 숨이 차거나 지루하게 느껴지는 형용사, 부사는 과감히 지워버리는 것이 숏폼 스토리텔링의 핵심입니다.</p>
+      `
+    },
+    {
+      id: 11, tag: 'EQUIPMENT', title: '스마트폰 하나로 끝내는 쇼츠 촬영과 편집', desc: '비싼 장비는 필요 없습니다. 스마트폰 기본 카메라와 무료 앱만으로 고퀄리티 쇼츠 만드는 법.', image: 'https://picsum.photos/seed/s11/600/400',
+      content: `
+        <p>"카메라가 없어서", "편집을 할 줄 몰라서"는 더 이상 변명이 될 수 없습니다. 지금 여러분의 손에 있는 스마트폰은 수십만 유튜버들이 메인 장비로 사용하는 강력한 스튜디오입니다.</p>
+        
+        <h3>스마트폰 촬영의 기본 세팅</h3>
+        <ul>
+          <li><strong>해상도와 프레임:</strong> 카메라 설정에서 영상 화질을 <strong>4K 30fps</strong> 또는 <strong>1080p 60fps</strong>로 설정하세요. 부드러운 움직임이 필요하다면 60fps가 좋습니다.</li>
+          <li><strong>조명의 중요성:</strong> 비싼 조명보다 '자연광'이 최고입니다. 낮에 창문을 마주 보고(순광) 촬영하면 카메라 화질이 2배는 좋아 보입니다.</li>
+          <li><strong>렌즈 닦기:</strong> 촬영 전 옷깃으로 카메라 렌즈를 한 번 닦는 것만으로도 뿌연 느낌을 없애고 선명도를 극적으로 높일 수 있습니다.</li>
+        </ul>
+        
+        <h3>필수 무료/가성비 편집 앱 추천</h3>
+        <ul>
+          <li><strong>CapCut (캡컷):</strong> 현재 숏폼 생태계를 장악한 최강의 무료 앱입니다. 트렌디한 효과, 텍스트 템플릿, 자동 자막 기능이 완벽합니다.</li>
+          <li><strong>VLLO (블로):</strong> 한국인이 직관적으로 사용하기 편한 UI를 제공하며, 저작권 걱정 없는 브금과 효과음이 풍부합니다.</li>
+        </ul>
+        
+        <p>유일하게 투자할 가치가 있는 장비는 <strong>'마이크'</strong>입니다. 2~3만 원대의 무선 핀마이크 하나만 구매해서 목소리를 선명하게 수음하면 영상의 퀄리티와 신뢰도가 수직 상승합니다.</p>
+      `
+    },
+    {
+      id: 12, tag: 'MONETIZATION', title: '쇼츠 수익 창출의 모든 것: 조회수당 단가 분석', desc: '쇼츠만으로 돈이 될까요? 2023년부터 도입된 쇼츠 수익 창출 모델과 조회수당 예상 단가 완벽 정리.', image: 'https://picsum.photos/seed/s12/600/400',
+      content: `
+        <p>과거 쇼츠는 채널을 홍보하기 위한 미끼 상품에 불과했지만, 2023년 2월 유튜브 파트너 프로그램(YPP)이 개편되면서 쇼츠 단독으로도 강력한 수익 창출이 가능해졌습니다.</p>
+        
+        <h3>쇼츠 수익 창출(YPP) 승인 조건</h3>
+        <p>두 가지 조건 중 하나만 충족하면 됩니다.</p>
+        <ol>
+          <li>구독자 1,000명 + 지난 365일간 롱폼 시청 시간 4,000시간</li>
+          <li><strong>구독자 1,000명 + 지난 90일간 쇼츠 조회수 1,000만 회</strong></li>
+        </ol>
+        
+        <h3>쇼츠의 현실적인 RPM (조회수당 수익)</h3>
+        <p>쇼츠 영상 사이사이에 나오는 피드 광고 수익을 크리에이터들과 나누는 구조입니다.</p>
+        <ul>
+          <li><strong>한국 기준 RPM:</strong> 카테고리에 따라 다르지만 보통 <strong>조회수 1,000회당 10원 ~ 40원</strong> 수준으로 형성되어 있습니다. 롱폼(1~2천원)에 비하면 매우 낮습니다.</li>
+          <li><strong>글로벌 노출:</strong> 미국, 유럽 등 광고 단가가 높은 국가의 시청자가 보면 RPM이 100원 이상으로 뜁니다. (언어의 장벽이 없는 넌버벌 콘텐츠가 돈이 되는 이유)</li>
+        </ul>
+        
+        <h3>진짜 수익은 '브랜디드 광고'와 '커머스'</h3>
+        <p>쇼츠 크리에이터의 진짜 수익은 유튜브 조회수 수익이 아닙니다. 채널 주제가 명확하고 팬덤이 생기면 <strong>구독자 1~2만 명 수준에서도 건당 수십만 원의 협찬 광고</strong>가 들어옵니다. 또한, 공동구매나 제휴 마케팅 링크를 커뮤니티나 댓글에 달아 막대한 추가 수익을 창출할 수 있습니다.</p>
+      `
+    },
+    {
+      id: 13, tag: 'SHORTS VS LONG', title: '쇼츠로 채널 키우고 긴 영상(롱폼) 떡상시키기', desc: '쇼츠 시청자를 긴 영상으로 유도하는 전략. 채널의 전체적인 체급을 키우는 선순환 구조 만들기.', image: 'https://picsum.photos/seed/s13/600/400',
+      content: `
+        <p>"쇼츠로 들어온 구독자는 긴 영상(롱폼)을 안 본다"는 유튜브계의 오랜 괴담이 있습니다. 절반은 맞고 절반은 틀립니다. 올바른 전략으로 유도한다면 쇼츠는 롱폼의 조회수를 견인하는 최고의 무료 트래픽 엔진이 됩니다.</p>
+        
+        <h3>'관련 동영상' 기능 200% 활용하기</h3>
+        <p>유튜브는 쇼츠와 롱폼의 끊어진 다리를 연결하기 위해 <strong>'관련 동영상(Related Video)'</strong> 기능을 추가했습니다.</p>
+        <ul>
+          <li>유튜브 스튜디오 PC 버전에서 쇼츠의 세부정보를 수정할 때 우측 하단에서 내 채널의 다른 롱폼 영상을 '관련 동영상'으로 연결할 수 있습니다.</li>
+          <li>이렇게 연결하면 모바일 쇼츠 화면의 하단(크리에이터 닉네임 바로 위)에 롱폼으로 바로가는 <strong>재생 아이콘(▶)과 텍스트 링크</strong>가 생성됩니다.</li>
+        </ul>
+        
+        <h3>영화 예고편 전략 (Trailer Strategy)</h3>
+        <p>10분짜리 롱폼 영상을 만들었다면, 그중에서 <strong>가장 호기심을 유발하고 도파민이 터지는 40초 분량</strong>을 컷편집하여 세로형 쇼츠로 업로드하세요.</p>
+        <p>그리고 쇼츠 영상 말미에 시각적 자막과 음성으로 <em>"이 사건의 충격적인 결말이 궁금하시다면, 화면 하단의 재생 버튼을 눌러 풀버전을 확인하세요!"</em>라고 직접적으로 콜투액션(CTA)을 던집니다. 이 방식을 통해 쇼츠 조회수의 5~10%를 롱폼으로 전환시킬 수 있습니다.</p>
+      `
+    },
+    {
+      id: 14, tag: 'MINDSET', title: '조회수 0의 늪에서 탈출하는 마인드셋', desc: '처음 몇 개 올리고 포기하시나요? 알고리즘이 내 채널을 파악할 때까지 버티는 멘탈 관리법.', image: 'https://picsum.photos/seed/s14/600/400',
+      content: `
+        <p>정성스럽게 밤을 새워 편집한 쇼츠를 올렸는데 조회수 12, 좋아요 0. 초보 유튜버의 90%가 여기서 멘탈이 나가고 유튜브를 접습니다. 여러분이 잘못한 것이 아니라 유튜브 시스템의 당연한 과정입니다.</p>
+        
+        <h3>알고리즘의 '테스트 룸' 이해하기</h3>
+        <p>신생 채널이 영상을 올리면, 유튜브 AI는 이 영상이 어떤 카테고리인지, 어떤 연령대와 성향의 시청자가 좋아할지 모릅니다. 그래서 처음에는 아주 소수의 사람(Seed Audience)에게만 노출을 시켜 반응을 간 봅니다.</p>
+        <p>이 데이터가 쌓이지 않으면 트래픽 문을 열어주지 않습니다. AI가 내 채널의 정체성을 파악(머신러닝)할 때까지 <strong>동일한 주제의 영상을 최소 20~30개</strong>는 올려야 합니다.</p>
+        
+        <h3>멘탈 붕괴를 막는 3가지 마인드셋</h3>
+        <ul>
+          <li><strong>조회수는 운, 업로드는 실력:</strong> 개별 영상의 조회수에 일희일비하지 마세요. 통제할 수 있는 것은 오직 '오늘 영상을 업로드했는가' 뿐입니다.</li>
+          <li><strong>완벽주의 버리기:</strong> 100점짜리 영상 1개를 한 달에 올리는 것보다, 70점짜리 영상 10개를 한 달에 올리는 것이 쇼츠 생태계에서는 압도적으로 유리합니다. 공장장처럼 찍어내며 감을 잡으세요.</li>
+          <li><strong>지나간 영상도 다시 터진다:</strong> 쇼츠 알고리즘은 특이해서, 한 달 전에 올린 조회수 0짜리 영상이 갑자기 알고리즘을 타고 수백만 조회를 기록하는 일이 흔하게 발생합니다. 버티는 자가 승리합니다.</li>
+        </ul>
+      `
+    },
+    {
+      id: 15, tag: 'AI TOOLS', title: 'ChatGPT와 AI로 쇼츠 대본 5분 만에 쓰기', desc: '기획 아이디어가 고갈되었다면 AI의 힘을 빌려보세요. 조회수 터지는 대본을 뽑아내는 프롬프트.', image: 'https://picsum.photos/seed/s15/600/400',
+      content: `
+        <p>크리에이터의 가장 큰 고충은 '매일 새로운 소재를 찾는 것'과 '대본을 쓰는 것'입니다. 이제 ChatGPT, Claude, 뤼튼 같은 생성형 AI를 활용하여 기획과 대본 작성 시간을 10분의 1로 줄일 수 있습니다.</p>
+        
+        <h3>조회수 터지는 챗GPT 프롬프트(명령어) 공식</h3>
+        <p>단순히 "재미있는 쇼츠 대본 써줘"라고 하면 재미없는 로봇 말투가 나옵니다. 페르소나와 구조를 명확히 쥐어줘야 합니다.</p>
+        
+        <blockquote>
+          "너는 구독자 100만 명을 보유한 유튜브 쇼츠 전문가야.<br>
+          주제: <strong>직장인이 점심 식사 후 안 졸리게 하는 방법 3가지</strong><br>
+          조건:<br>
+          1. 시청자의 시선을 1초 만에 사로잡는 매우 자극적이고 호기심을 유발하는 첫 문장(Hook)으로 시작해.<br>
+          2. 전체 대본은 1분이 넘지 않도록 간결하고 빠른 템포로 작성해.<br>
+          3. 친근하고 약간은 유머러스한 한국어 구어체(~요, ~다)를 사용해.<br>
+          4. 중간중간 시각적으로 어떤 화면을 보여주면 좋을지 [화면: ~] 형태로 지시문도 넣어줘."
+        </blockquote>
+        
+        <h3>AI는 보조 작가일 뿐, 마무리는 인간의 몫</h3>
+        <p>AI가 훌륭한 초안을 뽑아주더라도 그대로 읽으면 밋밋합니다. AI가 작성한 대본을 베이스로 삼고, 본인 채널만의 유행어, 밈, 감칠맛 나는 수식어를 덧붙이는 '각색' 작업이 필수입니다. 이것이 AI 유튜버들과 차별화되는 인간 유튜버의 경쟁력입니다.</p>
+      `
+    },
+    {
+      id: 16, tag: 'VOICEOVER', title: 'TTS(인공지능 목소리)를 활용한 얼굴 없는 유튜버 되기', desc: '내 목소리와 얼굴을 공개하기 부담스럽다면? 자연스러운 AI 보이스를 활용하는 방법과 팁.', image: 'https://picsum.photos/seed/s16/600/400',
+      content: `
+        <p>유튜브를 시작하고 싶지만 카메라 앞에 서는 것이 부끄럽거나 목소리에 자신이 없다면, <strong>'얼굴 없는(Faceless) 채널'</strong>과 <strong>TTS(Text-to-Speech)</strong> 기술이 완벽한 해결책입니다. 현재 쇼츠 생태계의 30% 이상이 AI 목소리로 운영되고 있습니다.</p>
+        
+        <h3>왜 TTS 보이스가 숏폼에 유리할까?</h3>
+        <p>숏폼 시청자는 빠른 정보 전달을 원합니다. AI 보이스 특유의 명확한 발음과 일정한 톤(딕션)은 어설픈 일반인의 목소리보다 오히려 시청자의 집중력을 높이고 이탈을 방지하는 효과가 있습니다. 특히 정보 전달, 리뷰, 미스터리, 랭킹 채널에서 그 위력을 발휘합니다.</p>
+        
+        <h3>크리에이터를 위한 추천 TTS 서비스</h3>
+        <ul>
+          <li><strong>Typecast (타입캐스트):</strong> 국내 크리에이터들이 가장 많이 사용하는 서비스입니다. 아나운서, 어린이, 노인, 심지어 감정 연기(화남, 슬픔)까지 가능한 수백 개의 캐릭터 보이스를 제공합니다.</li>
+          <li><strong>Vrew (브루):</strong> 영상 편집과 자막, TTS 더빙을 한 프로그램에서 무료(기본 기능)로 끝낼 수 있는 엄청난 장점이 있습니다. 초보자에게 가장 추천합니다.</li>
+          <li><strong>ElevenLabs (일레븐랩스):</strong> 영어 등 다국어 채널을 운영할 때 필수입니다. 현재 세상에서 가장 자연스럽고 인간과 구별이 불가능한 수준의 음성을 생성합니다.</li>
+        </ul>
+        
+        <p><strong>꿀팁:</strong> TTS를 사용할 때는 문장 부호(쉼표, 마침표)와 띄어쓰기를 철저하게 지켜야 AI가 호흡을 자연스럽게 쉬어가며 실제 사람처럼 말합니다.</p>
+      `
+    },
+    {
+      id: 17, tag: 'REPURPOSE', title: '원소스 멀티유즈: 인스타 릴스, 틱톡 동시 공략법', desc: '하나의 영상을 만들어서 여러 플랫폼에서 조회수를 빨아들이는 요령. 플랫폼별 차이점 완벽 분석.', image: 'https://picsum.photos/seed/s17/600/400',
+      content: `
+        <p>피땀 흘려 만든 세로형 1분 영상을 유튜브 쇼츠에만 올리는 것은 <strong>절대적인 손해</strong>입니다. 약간의 품을 더 들여 인스타그램 릴스(Reels)와 틱톡(TikTok), 심지어 네이버 클립(Clip)까지 동시 업로드하는 '원소스 멀티유즈(OSMU)' 전략이 필수입니다.</p>
+        
+        <h3>플랫폼별 유저 성향과 터지는 포인트</h3>
+        <ul>
+          <li><strong>유튜브 쇼츠 (Shorts):</strong> 연령대가 가장 다양하며, '정보성'이 강하거나 깊이 있는 지식, 리뷰 콘텐츠가 롱폼 영상에 버금가는 소비력을 보여줍니다.</li>
+          <li><strong>인스타 릴스 (Reels):</strong> 시각적인 '감성'과 '트렌드'가 중요합니다. 예쁜 인테리어, 패션, 감각적인 브이로그나 B급 유머가 지인들과의 DM 공유를 통해 폭발적으로 확산됩니다.</li>
+          <li><strong>틱톡 (TikTok):</strong> 1020 세대가 주도하며, 음악(댄스 챌린지), 극단적인 시각적 자극, 빠른 템포의 날것(Raw) 감성이 잘 먹힙니다.</li>
+        </ul>
+        
+        <h3>동시 공략 실전 가이드</h3>
+        <p>플랫폼 워터마크가 박힌 영상(예: 틱톡 로고가 찍힌 영상을 쇼츠에 업로드)은 각 플랫폼 알고리즘이 <strong>노출을 강력하게 제한</strong>합니다.</p>
+        <p>반드시 원본 영상을 폰이나 PC에 저장해 두고, 각 플랫폼 앱에 직접 업로드하세요. 이때, 각 플랫폼 내에서 자체적으로 유행하는 <strong>음악(BGM)과 스티커/효과를 앱 내부에서 한두 가지 정도 입혀주면</strong> 해당 플랫폼에 최적화된 영상으로 인식되어 더 좋은 성과를 낼 수 있습니다.</p>
+      `
+    },
+    {
+      id: 18, tag: 'SERIES', title: '구독을 부르는 파트(Part) 나누기 전략', desc: '"다음 내용은 파트2에서 확인하세요!" 시청자를 구독자로 만드는 시리즈물 기획의 정석.', image: 'https://picsum.photos/seed/s18/600/400',
+      content: `
+        <p>단발성으로 터진 쇼츠의 조회수가 수백만이어도, 구독자가 늘지 않는다면 속 빈 강정입니다. 뜨내기 시청자를 <strong>내 채널의 고정 구독자로 락인(Lock-in)</strong>시키는 가장 확실한 기획 방식이 바로 '시리즈(Series)' 전략입니다.</p>
+        
+        <h3>시리즈물 기획의 정석</h3>
+        <p>방대한 정보를 한 영상에 욱여넣지 마세요. <strong>"다이소에서 꼭 사야 할 숨은 꿀템 10가지"</strong>를 기획했다면, 5개만 Part 1에서 아주 상세하고 재밌게 보여주세요.</p>
+        <p>그리고 영상 마지막에 <em>"남은 5개의 역대급 꿀템은 구독 후 파트 2에서 확인하세요!"</em>라고 외치며 영상을 끝냅니다. 내용이 정말 유익했다면, 시청자는 파트 2를 놓치지 않기 위해 자발적으로 구독 버튼을 누릅니다.</p>
+        
+        <h3>주의할 점 (선 넘지 않기)</h3>
+        <ul>
+          <li><strong>충분한 가치 제공:</strong> 파트 1의 내용 자체가 부실한 상태에서 파트 2를 강요하면 시청자는 화를 내고 '관심 없음'을 누릅니다. 앞선 내용만으로도 충분히 만족스러워야 합니다.</li>
+          <li><strong>빠른 업로드:</strong> 파트 1이 알고리즘을 타기 시작했다면, 파트 2는 늦어도 1~2일 내에 업로드하여 흐름을 타야 합니다. 이미 업로드해 두고 예약 발행을 걸어두는 것을 추천합니다.</li>
+          <li><strong>재생목록 활용:</strong> 시리즈물 영상들을 하나의 '재생목록'으로 묶어두고, 댓글 창이나 설명란에 재생목록 링크를 달아 정주행을 유도하세요.</li>
+        </ul>
+      `
+    },
+    {
+      id: 19, tag: 'COMMUNITY', title: '커뮤니티 탭 활용하여 쇼츠 시청자 충성도 높이기', desc: '쇼츠는 휘발성이 강합니다. 시청자와의 유대감을 형성하기 위한 유튜브 커뮤니티 게시글 활용 꿀팁.', image: 'https://picsum.photos/seed/s19/600/400',
+      content: `
+        <p>쇼츠 콘텐츠는 뇌리에 남지 않고 빠르게 휘발되는 특성이 있습니다. 쇼츠만 계속 올리다 보면, 시청자들은 영상은 보면서도 내가 누구인지 채널 이름조차 기억하지 못합니다. 이때 <strong>유튜브 커뮤니티(Community) 탭</strong>은 시청자와 인간적인 유대감을 쌓는 최고의 무기입니다.</p>
+        
+        <h3>활발한 커뮤니티 탭 운영 팁</h3>
+        <ul>
+          <li><strong>투표(Poll) 기능 활용:</strong> 유튜브 알고리즘은 투표 게시물에 엄청난 노출을 밀어줍니다. "다음 쇼츠 주제로 어떤 게 좋을까요?", "오늘 저녁 메뉴 추천해주세요" 등 시청자가 가볍게 참여할 수 있는 텍스트/이미지 투표를 주 1~2회 올리세요.</li>
+          <li><strong>비하인드 씬 공개:</strong> 화려한 영상 뒤에 숨겨진 NG 장면, 편집하다 지쳐 잠든 모습, 대본 사진 등 <strong>크리에이터의 인간적인 모습(Human Touch)</strong>을 사진과 글로 공유하세요. 팬덤은 완벽함이 아니라 친근함에서 생깁니다.</li>
+          <li><strong>신규 영상 티저:</strong> "내일 오후 6시, 역대급 비밀을 공개합니다" 와 같이 움짤(GIF)이나 썸네일 일부를 모자이크 처리하여 올려 기대감을 증폭시키세요.</li>
+        </ul>
+        
+        <p>커뮤니티 게시글에 달린 댓글에 답글을 달아주세요. 나를 위해 직접 글을 쓰고 투표해 주는 100명의 찐팬이, 피드에서 스쳐 지나가는 1만 명의 조회수보다 채널을 오래 유지하는 강력한 기반이 됩니다.</p>
+      `
+    },
+    {
+      id: 20, tag: 'POLICY', title: '주의! 노란딱지 피하는 유튜브 커뮤니티 가이드', desc: '애써 키운 채널이 한순간에 날아가지 않도록, 반드시 알아야 할 저작권 및 커뮤니티 위반 규정.', image: 'https://picsum.photos/seed/s20/600/400',
+      content: `
+        <p>밤낮없이 고생해서 구독자 1만 명, 조회수 수백만을 달성했는데, 어느 날 아침 눈을 떠보니 채널이 정지되거나 <strong>수익 창출 박탈(노란 딱지)</strong>을 당한다면 어떨까요? 모르면 당하는 유튜브의 엄격한 가이드라인을 반드시 숙지해야 합니다.</p>
+        
+        <h3>1. 재사용된 콘텐츠 (무단 불펌 및 짜깁기)</h3>
+        <p>유튜브가 가장 강력하게 철퇴를 가하는 정책입니다. 타인의 유튜브 영상, 틱톡 영상, 영화/방송 클립을 다운로드하여 단순 컷편집 후 BGM만 깔아서 올리는 '불펌 채널'은 수익 창출 승인이 99.9% 거절됩니다.</p>
+        <p><strong>해결책:</strong> 타인의 소스를 사용하더라도, 본인의 얼굴이 나와서 해설(리액션)을 하거나, 완전히 새로운 관점의 자막과 나레이션을 풍부하게 추가하여 <strong>'새로운 교육적/엔터테인먼트적 가치(공정 이용)'</strong>를 창출해야만 수익이 보장됩니다.</p>
+        
+        <h3>2. 선정성 및 폭력성 기준 엄수</h3>
+        <p>쇼츠는 어린이와 청소년에게 무방비로 노출될 수 있어 일반 영상보다 규제가 훨씬 깐깐합니다. 과도한 노출, 잔혹한 사고 영상, 혐오감을 주는 이미지 등은 영상 업로드 즉시 AI가 필터링하여 '노란 딱지'를 붙이고 피드 노출을 막아버립니다. 썸네일과 초반 3초에서 시선을 끌기 위해 무리수를 두지 마세요.</p>
+        
+        <h3>3. 저작권 오디오 사용의 함정</h3>
+        <p>가급적 유튜브 쇼츠 앱 자체에서 제공하는 오디오 라이브러리(사운드 보관함) 음악을 사용하세요. 외부 편집 프로그램에서 상업적 이용이 불가능한 대중음악을 씌워서 업로드하면 저작권 침해 신고가 누적되어 채널이 통째로 날아갈 수 있습니다. (경고 3회 누적 시 계정 영구 삭제)</p>
+      `
+    }
+  ];
+
+  function renderHomeArticles() {
+    document.getElementById('homeArticlesSection').style.display = 'block';
+    document.getElementById('articleDetailSection').style.display = 'none';
+    document.getElementById('globalTop50Section').style.display = 'none';
+    document.getElementById('resultsHeader').style.display = 'none';
+    document.getElementById('vectorGrid').innerHTML = ''; // 검색결과 초기화
+
+    const grid = document.getElementById('homeArticlesGrid');
+    grid.innerHTML = MOCK_ARTICLES.map((article, i) => `
+      <div class="article-card" style="animation-delay:${(i % 10) * 40}ms" onclick="showArticleDetail(${article.id})">
+        <div class="article-thumb">
+          <img src="${article.image}" alt="${escHtml(article.title)}" loading="lazy" />
+        </div>
+        <div class="article-info">
+          <div class="article-tag">${escHtml(article.tag)}</div>
+          <div class="article-title">${escHtml(article.title)}</div>
+          <div class="article-desc">${escHtml(article.desc)}</div>
+          <div class="article-readmore">자세히 보기 →</div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function showArticleDetail(id) {
+    const article = MOCK_ARTICLES.find(a => a.id === id);
+    if (!article) return;
+
+    document.getElementById('homeArticlesSection').style.display = 'none';
+    document.getElementById('staticPagesSection').style.display = 'none';
+    
+    document.getElementById('detailTag').textContent = article.tag;
+    document.getElementById('detailTitle').textContent = article.title;
+    document.getElementById('detailCoverImg').src = article.image;
+    document.getElementById('detailContent').innerHTML = article.content;
+    
+    const detailSection = document.getElementById('articleDetailSection');
+    detailSection.style.display = 'block';
+    
+    // 스크롤 상단으로 이동
+    document.querySelector('.results-area').scrollTop = 0;
+  }
+  
+  function showHomeArticles() {
+    document.getElementById('articleDetailSection').style.display = 'none';
+    document.getElementById('homeArticlesSection').style.display = 'block';
+    document.getElementById('staticPagesSection').style.display = 'block';
+    document.querySelector('.results-area').scrollTop = 0;
+  }
+
+  function goHome() {
+    document.querySelectorAll('.cat-item').forEach(el => el.classList.remove('active'));
+    document.getElementById('searchInput').value = '';
+    document.getElementById('globalTop50Section').style.display = 'none';
+    document.getElementById('resultsHeader').style.display = 'none';
+    document.getElementById('vectorGrid').innerHTML = '';
+    showHomeArticles();
+  }
+
+  // ===== START =====
+  init();
+</script>
+</body>
+</html>
