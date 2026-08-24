@@ -26,6 +26,7 @@ COPY terms.html .
 COPY about.html .
 COPY contact.html .
 COPY yt-dlp.conf .
+COPY dist/TubeTrend_Helper.exe ./dist/TubeTrend_Helper.exe
 # cookies.txt는 보안상 git에 포함하지 않음
 # 서버 시작 시 YOUTUBE_COOKIES 환경변수에서 자동 생성됨 (server.py 참조)
 
