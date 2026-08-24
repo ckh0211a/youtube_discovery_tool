@@ -1225,41 +1225,33 @@ def download_helper_bundle():
     """웹 사용자용 TubeTrend 로컬 헬퍼 번들 다운로드 엔드포인트 (실시간 메모리 압축 스트리밍)"""
     import io
     import zipfile
-    from flask import send_file, Response
+    from flask import send_file
 
     base_dir = os.path.dirname(os.path.abspath(__file__))
     memory_file = io.BytesIO()
 
-    # 1. 배치 파일 기본 코드
+    # 1. 깔끔한 영문 및 안전 인코딩 배치 파일
     bat_code = """@echo off
-chcp 65001 > nul
-title TubeTrend Local Helper (초고속 무제한 다운로더 헬퍼)
+@chcp 65001 >nul
+title TubeTrend Local Helper
 echo ========================================================================
-echo   ⚡ TubeTrend Local Helper (튜브트렌드 초고속 다운로더 헬퍼) ⚡
+echo   TubeTrend Local Helper (Download ^& Script Server)
 echo ========================================================================
 echo.
-echo [1/3] 파이썬(Python) 환경을 확인하는 중입니다...
+echo [1/2] Checking Python environment...
 python --version >nul 2>&1
 if %errorlevel% neq 0 (
-    echo.
-    echo [오류] Python이 설치되어 있지 않습니다.
-    echo Python 공식 홈페이지(https://www.python.org)에서 Python을 설치해 주세요.
-    echo (설치 시 반드시 'Add python.exe to PATH' 체크박스를 선택해 주세요!)
-    echo.
+    echo [ERROR] Python is not installed. Please install Python 3.9+.
     pause
     exit /b
 )
 
-echo [2/3] 필수 라이브러리(Flask, yt-dlp, requests 등)를 점검 중입니다...
+echo [2/2] Checking required packages...
 pip install -q flask flask-cors yt-dlp requests youtube-transcript-api >nul 2>&1
 
-echo [3/3] 튜브트렌드 다운로더 헬퍼 서버를 시작합니다...
 echo.
-echo  ● 로컬 주소: http://127.0.0.1:5001
-echo  ● 웹사이트(tubetrend.xyz)에서 대본/영상 다운로드를 누르면
-echo    이 프로그램을 통해 차단 없이 즉시 초고속 다운로드됩니다!
-echo.
-echo  ※ 다운로드를 사용하는 동안 이 창을 닫지 마세요.
+echo Starting TubeTrend Helper Server on http://127.0.0.1:5001 ...
+echo (Do not close this window while using the website)
 echo ========================================================================
 echo.
 python TubeTrend_Helper.py
@@ -1268,15 +1260,15 @@ pause
 
     # 2. 설명서 파일
     readme_code = """========================================================================
-⚡ TubeTrend Local Helper 사용 방법 ⚡
+TubeTrend Local Helper Quick Guide
 ========================================================================
 
-1. 'TubeTrend_Helper.bat' 파일을 더블클릭하여 실행합니다.
-2. 검은색 실행창에 "정상 실행 중 (온라인)" 메시지가 뜨면 준비 완료입니다.
-3. 이제 웹 브라우저(tubetrend.xyz)에서 [대본 다운로드] 또는 [영상 다운로드]를 누르면
-   유튜브 차단 없이 내 PC로 즉시 초고속 다운로드됩니다!
+1. Double-click 'TubeTrend_Helper.bat' to start the local helper.
+2. When the black window shows "TubeTrend Helper Server", it's ready!
+3. Go back to your browser (tubetrend.xyz) and click Download Script/Video.
+   It will download directly to your PC without YouTube IP blocking!
 
-※ 다운로드를 사용하는 동안 실행창을 닫지 마세요.
+※ Do not close the command window while using the website.
 ========================================================================
 """
 
@@ -1286,12 +1278,25 @@ pause
         zf.writestr('start_helper.bat', '@echo off\r\ncall TubeTrend_Helper.bat\r\n'.encode('utf-8'))
         zf.writestr('README.txt', readme_code.encode('utf-8'))
 
-        # 2) 파이썬 및 부속 파일들 디스크에서 읽어 추가
-        for fname in ['TubeTrend_Helper.py', 'youtube_extractor.py', 'yt-dlp.conf', 'requirements.txt', 'app_icon.ico']:
-            fpath = os.path.join(base_dir, fname)
-            if os.path.exists(fpath):
-                with open(fpath, 'rb') as f:
-                    zf.writestr(fname, f.read())
+        # 2) 파이썬 및 부속 파일들 디스크에서 읽어 추가 (다양한 candidate 경로 지원)
+        files_to_pack = ['TubeTrend_Helper.py', 'youtube_extractor.py', 'yt-dlp.conf', 'requirements.txt', 'app_icon.ico']
+        for fname in files_to_pack:
+            candidates = [
+                os.path.join(base_dir, fname),
+                os.path.join(os.getcwd(), fname),
+                fname,
+                f'/app/{fname}'
+            ]
+            content = None
+            for cp in candidates:
+                if os.path.exists(cp):
+                    try:
+                        with open(cp, 'rb') as f:
+                            content = f.read()
+                        break
+                    except: pass
+            if content is not None:
+                zf.writestr(fname, content)
 
     memory_file.seek(0)
     return send_file(
