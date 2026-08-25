@@ -4951,15 +4951,15 @@
                 if (state.gridHtml) grid.classList.remove('hidden');
             }
 
-            const resultCount = document.getElementById('resultCountNumber');
-            if (resultCount) resultCount.innerText = state.resultCount;
-
             const resultsActions = document.getElementById('resultsActions');
             if (resultsActions) {
                 if (state.actionsHtml) resultsActions.innerHTML = state.actionsHtml; // [FIX] 버튼 상태 복원
                 if (state.showActions) resultsActions.classList.remove('hidden');
                 else resultsActions.classList.add('hidden');
             }
+
+            const resultCount = document.getElementById('resultCountNumber');
+            if (resultCount) resultCount.innerText = state.resultCount;
 
             for (const id in state.inputs) {
                 const el = document.getElementById(id);
