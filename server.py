@@ -21,6 +21,7 @@ import subprocess
 import ctypes
 import json
 import traceback
+import re
 
 def handle_exception(exc_type, exc_value, exc_traceback):
     if issubclass(exc_type, KeyboardInterrupt):
@@ -1511,6 +1512,84 @@ def init_db():
                     page_name TEXT,
                     timestamp TEXT
                 )''')
+    # [NEW] YouTube Insights Blog Posts Table
+    c.execute('''CREATE TABLE IF NOT EXISTS insight_posts (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    title TEXT NOT NULL,
+                    category TEXT DEFAULT '알고리즘 분석',
+                    summary TEXT,
+                    content TEXT NOT NULL,
+                    thumbnail TEXT,
+                    tags TEXT,
+                    author TEXT DEFAULT 'TubeTrend 에디터',
+                    views INTEGER DEFAULT 0,
+                    likes INTEGER DEFAULT 0,
+                    created_at TEXT,
+                    updated_at TEXT
+                )''')
+    
+    # Check if empty, seed default posts
+    c.execute('SELECT COUNT(*) FROM insight_posts')
+    if c.fetchone()[0] == 0:
+        now_str = datetime.now().strftime('%Y-%m-%d %H:%M')
+        seed_post_1 = (
+            '2026년 유튜브 알고리즘 완벽 공략법: 시청 지속 시간과 VPH의 상관관계',
+            '알고리즘 분석',
+            '유튜브 추천 시스템이 가장 주목하는 핵심 지표(VPH, 평균 시청 시간, 클릭률)를 분석하고 채널을 폭발적으로 성장시키는 실전 가이드입니다.',
+            '''<p class="lead">유튜브 알고리즘은 더 이상 단순한 조회수에 반응하지 않습니다. 2026년 최신 추천 피드 시스템의 핵심은 <strong>초반 30초의 시청 지속률(Retention)</strong>과 <strong>VPH(Views Per Hour, 시간당 조회수 가속도)</strong>에 집중되어 있습니다.</p>
+            <hr class="my-6 border-gray-200">
+            <h3>1. VPH(시간당 유입 속도)가 왜 알고리즘의 최우선 지표인가?</h3>
+            <p>영상이 업로드된 직후 1~2시간 동안 유입되는 속도가 채널 평균보다 3배 이상 높을 경우, 유튜브 시스템은 이를 '즉각적 트렌드 콘텐츠'로 분류하여 비구독자 홈 화면(Browse Features)에 대규모로 노출시킵니다.</p>
+            <blockquote class="border-l-4 border-red-500 pl-4 py-2 my-4 bg-red-50 text-gray-800 rounded-r">
+                <strong>💡 핵심 인사이트:</strong> 알림을 켠 충성 시청자층이 업로드 직후 즉시 클릭하고 끝까지 시청하도록 유도하는 <em>초반 1시간 골든타임</em>을 확보해야 합니다.
+            </blockquote>
+            <h3>2. 떡상 썸네일과 제목의 3원칙</h3>
+            <ul>
+                <li><strong>시각적 대비:</strong> 복잡한 배경 대신 피사체와 강렬한 텍스트 4글자 이내 배치</li>
+                <li><strong>호기심 갭(Curiosity Gap):</strong> 결과의 결말을 숨기고 '왜?'라는 의문을 유발하는 카피라이팅</li>
+                <li><strong>모바일 최적화:</strong> 스마트폰 화면에서 1초 만에 메시지가 인식되는 단순 명료한 구도</li>
+            </ul>
+            <p>지금 바로 채널의 VPH 분석 도구를 활용해 최근 업로드 영상들의 유입 가속도를 점검해보세요!</p>''',
+            'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&auto=format&fit=crop&q=80',
+            '#알고리즘,#VPH,#유튜브팁,#시청지속시간,#채널성장',
+            'TubeTrend 수석 분석관',
+            1280,
+            45,
+            now_str,
+            now_str
+        )
+        seed_post_2 = (
+            '초보 크리에이터도 10만 뷰 터지는 유튜브 쇼츠 기획의 3가지 법칙',
+            '쇼츠 전략',
+            '1초 만에 이탈하는 시청자를 사로잡는 오프닝 후킹 기술과 무한 반복 시청(Loop)을 유도하는 쇼츠 구조화 전략을 공개합니다.',
+            '''<p>쇼츠(Shorts) 시장에서 승패는 <strong>첫 1.5초</strong>에 결정됩니다. 시청자가 스와이프를 멈추게 만드는 3가지 핵심 기획 공식을 소개합니다.</p>
+            <div class="p-4 my-4 bg-gray-50 border border-gray-200 rounded-2xl">
+                <h4 class="font-bold text-red-600 mb-2">🔥 1. 시각적 후킹(Visual Hook) + 질문형 오프닝</h4>
+                <p class="text-sm text-gray-700">영상이 시작되자마자 결론의 가장 충격적인 장면 0.5초를 먼저 보여주거나, '이거 모르면 손해봅니다'와 같은 직관적 문제 제기로 시작하세요.</p>
+            </div>
+            <div class="p-4 my-4 bg-gray-50 border border-gray-200 rounded-2xl">
+                <h4 class="font-bold text-blue-600 mb-2">⚡ 2. 0.8초 단위의 화면 전환 템포</h4>
+                <p class="text-sm text-gray-700">카메라 앵글 변경, 줌인/줌아웃, 강조 자막 효과를 1초 간격으로 배치하여 시청자의 뇌가 지루함을 느낄 틈을 주지 않아야 합니다.</p>
+            </div>
+            <div class="p-4 my-4 bg-gray-50 border border-gray-200 rounded-2xl">
+                <h4 class="font-bold text-green-600 mb-2">🔁 3. 끝과 시작이 이어지는 완벽한 루프(Seamless Loop)</h4>
+                <p class="text-sm text-gray-700">영상의 마지막 문장이 첫 문장과 자연스럽게 이어지도록 설계하면 시청자가 2번 이상 시청하게 되어 쇼츠 알고리즘 추천 점수가 극대화됩니다.</p>
+            </div>''',
+            'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80',
+            '#쇼츠,#Shorts,#후킹,#유튜브기획,#알고리즘',
+            '소재채굴기 마스터',
+            950,
+            38,
+            now_str,
+            now_str
+        )
+        c.execute('''INSERT INTO insight_posts 
+                    (title, category, summary, content, thumbnail, tags, author, views, likes, created_at, updated_at) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', seed_post_1)
+        c.execute('''INSERT INTO insight_posts 
+                    (title, category, summary, content, thumbnail, tags, author, views, likes, created_at, updated_at) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', seed_post_2)
+
     conn.commit()
     conn.close()
 
@@ -1521,6 +1600,200 @@ def get_db_connection():
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
     return conn
+
+# ------------------ YOUTUBE INSIGHTS BLOG APIs ------------------
+INSIGHTS_IMG_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'downloads', 'insights_images')
+os.makedirs(INSIGHTS_IMG_DIR, exist_ok=True)
+
+@app.route('/api/insights/posts', methods=['GET'])
+def get_insight_posts():
+    """게시글 목록 조회 (카테고리/검색/페이지네이션 지원)"""
+    category = request.args.get('category', 'all')
+    search = request.args.get('search', '').strip()
+    
+    conn = get_db_connection()
+    c = conn.cursor()
+    
+    query = 'SELECT id, title, category, summary, thumbnail, tags, author, views, likes, created_at FROM insight_posts'
+    params = []
+    conditions = []
+    
+    if category and category != 'all':
+        conditions.append('category = ?')
+        params.append(category)
+        
+    if search:
+        conditions.append('(title LIKE ? OR summary LIKE ? OR tags LIKE ?)')
+        search_param = f'%{search}%'
+        params.extend([search_param, search_param, search_param])
+        
+    if conditions:
+        query += ' WHERE ' + ' AND '.join(conditions)
+        
+    query += ' ORDER BY id DESC'
+    
+    c.execute(query, params)
+    rows = c.fetchall()
+    posts = [dict(row) for row in rows]
+    conn.close()
+    
+    return jsonify({'success': True, 'posts': posts, 'count': len(posts)})
+
+@app.route('/api/insights/posts/<int:post_id>', methods=['GET'])
+def get_insight_post_detail(post_id):
+    """게시글 상세 조회 (조회수 1 증가)"""
+    conn = get_db_connection()
+    c = conn.cursor()
+    
+    # 조회수 증가
+    c.execute('UPDATE insight_posts SET views = views + 1 WHERE id = ?', (post_id,))
+    conn.commit()
+    
+    c.execute('SELECT * FROM insight_posts WHERE id = ?', (post_id,))
+    row = c.fetchone()
+    conn.close()
+    
+    if not row:
+        return jsonify({'success': False, 'message': '게시글을 찾을 수 없습니다.'}), 404
+        
+    return jsonify({'success': True, 'post': dict(row)})
+
+@app.route('/api/insights/posts', methods=['POST'])
+def create_insight_post():
+    """새 게시글 작성 및 발행"""
+    data = request.json or {}
+    title = data.get('title', '').strip()
+    content = data.get('content', '').strip()
+    
+    if not title:
+        return jsonify({'success': False, 'message': '제목을 입력해주세요.'}), 400
+    if not content:
+        return jsonify({'success': False, 'message': '본문 내용을 입력해주세요.'}), 400
+        
+    category = data.get('category', '알고리즘 분석')
+    summary = data.get('summary', '')
+    if not summary:
+        # HTML 태그 제거하여 요약문 자동 생성 (150자)
+        clean_text = re.sub('<[^<]+?>', '', content).strip()
+        summary = clean_text[:140] + ('...' if len(clean_text) > 140 else '')
+        
+    thumbnail = data.get('thumbnail', '')
+    if not thumbnail:
+        # 본문에서 첫 번째 img 태그 추출
+        img_match = re.search(r'<img[^>]+src=["\']([^"\']+)["\']', content)
+        if img_match:
+            thumbnail = img_match.group(1)
+        else:
+            thumbnail = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80'
+            
+    tags = data.get('tags', '')
+    author = data.get('author', '크리에이터')
+    now_str = datetime.now().strftime('%Y-%m-%d %H:%M')
+    
+    conn = get_db_connection()
+    c = conn.cursor()
+    c.execute('''INSERT INTO insight_posts 
+                (title, category, summary, content, thumbnail, tags, author, views, likes, created_at, updated_at) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, 0, 0, ?, ?)''',
+              (title, category, summary, content, thumbnail, tags, author, now_str, now_str))
+    new_id = c.lastrowid
+    conn.commit()
+    conn.close()
+    
+    return jsonify({'success': True, 'id': new_id, 'message': '게시글이 성공적으로 발행되었습니다.'})
+
+@app.route('/api/insights/posts/<int:post_id>', methods=['PUT'])
+def update_insight_post(post_id):
+    """게시글 수정"""
+    data = request.json or {}
+    title = data.get('title', '').strip()
+    content = data.get('content', '').strip()
+    
+    if not title:
+        return jsonify({'success': False, 'message': '제목을 입력해주세요.'}), 400
+    if not content:
+        return jsonify({'success': False, 'message': '본문 내용을 입력해주세요.'}), 400
+        
+    category = data.get('category', '알고리즘 분석')
+    summary = data.get('summary', '')
+    if not summary:
+        clean_text = re.sub('<[^<]+?>', '', content).strip()
+        summary = clean_text[:140] + ('...' if len(clean_text) > 140 else '')
+        
+    thumbnail = data.get('thumbnail', '')
+    if not thumbnail:
+        img_match = re.search(r'<img[^>]+src=["\']([^"\']+)["\']', content)
+        if img_match: thumbnail = img_match.group(1)
+        
+    tags = data.get('tags', '')
+    now_str = datetime.now().strftime('%Y-%m-%d %H:%M')
+    
+    conn = get_db_connection()
+    c = conn.cursor()
+    c.execute('''UPDATE insight_posts 
+                SET title = ?, category = ?, summary = ?, content = ?, thumbnail = ?, tags = ?, updated_at = ? 
+                WHERE id = ?''',
+              (title, category, summary, content, thumbnail, tags, now_str, post_id))
+    conn.commit()
+    conn.close()
+    
+    return jsonify({'success': True, 'message': '게시글이 수정되었습니다.'})
+
+@app.route('/api/insights/posts/<int:post_id>', methods=['DELETE'])
+def delete_insight_post(post_id):
+    """게시글 삭제"""
+    conn = get_db_connection()
+    c = conn.cursor()
+    c.execute('DELETE FROM insight_posts WHERE id = ?', (post_id,))
+    conn.commit()
+    conn.close()
+    
+    return jsonify({'success': True, 'message': '게시글이 삭제되었습니다.'})
+
+@app.route('/api/insights/posts/<int:post_id>/like', methods=['POST'])
+def like_insight_post(post_id):
+    """게시글 좋아요 증가"""
+    conn = get_db_connection()
+    c = conn.cursor()
+    c.execute('UPDATE insight_posts SET likes = likes + 1 WHERE id = ?', (post_id,))
+    c.execute('SELECT likes FROM insight_posts WHERE id = ?', (post_id,))
+    likes = c.fetchone()[0]
+    conn.commit()
+    conn.close()
+    return jsonify({'success': True, 'likes': likes})
+
+@app.route('/api/insights/upload-image', methods=['POST'])
+def upload_insight_image():
+    """에디터 이미지 업로드 핸들러"""
+    if 'image' not in request.files:
+        return jsonify({'success': False, 'message': '이미지 파일이 없습니다.'}), 400
+    file = request.files['image']
+    if file.filename == '':
+        return jsonify({'success': False, 'message': '선택된 파일이 없습니다.'}), 400
+        
+    try:
+        import uuid
+        ext = os.path.splitext(file.filename)[1].lower()
+        if ext not in ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg']:
+            ext = '.png'
+        new_filename = f"insight_{uuid.uuid4().hex[:12]}{ext}"
+        save_path = os.path.join(INSIGHTS_IMG_DIR, new_filename)
+        file.save(save_path)
+        
+        # 접근 가능한 URL 반환
+        img_url = f"/api/insights/images/{new_filename}"
+        return jsonify({'success': True, 'url': img_url})
+    except Exception as e:
+        return jsonify({'success': False, 'message': str(e)}), 500
+
+@app.route('/api/insights/images/<filename>', methods=['GET'])
+def serve_insight_image(filename):
+    """업로드된 인사이트 이미지 서빙"""
+    file_path = os.path.join(INSIGHTS_IMG_DIR, filename)
+    if os.path.exists(file_path):
+        from flask import send_file
+        return send_file(file_path)
+    return jsonify({'error': 'Image not found'}), 404
 
 # ------------------ TRACKING APIs ------------------
 @app.route('/api/track/login', methods=['POST'])
