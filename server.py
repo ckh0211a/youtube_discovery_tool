@@ -304,9 +304,13 @@ def serve_index():
     html_path = resource_path('youtube_discovery_tool.html')
     print("DEBUG html_path:", html_path, "Exists:", os.path.exists(html_path))
     if os.path.exists(html_path):
-        from flask import send_file
+        from flask import send_file, make_response
         try:
-            return send_file(html_path)
+            resp = make_response(send_file(html_path))
+            resp.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+            resp.headers['Pragma'] = 'no-cache'
+            resp.headers['Expires'] = '0'
+            return resp
         except Exception as e:
             return f"send_file error: {str(e)}", 500
     return "youtube_discovery_tool.html not found at " + html_path, 404

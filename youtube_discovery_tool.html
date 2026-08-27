@@ -4897,11 +4897,36 @@
         // [NEW] 모드별 상태 캐시 (결과 데이터 및 UI 상태 저장)
         const modeStateCache = {};
 
+        // [NEW] 통합 조회 갯수 표시 함수 (어떤 상황에서도 확실하게 갯수 렌더링)
+        window.updateResultCount = function(count) {
+            let num = 0;
+            if (typeof count === 'number' && !isNaN(count)) {
+                num = count;
+            } else if (typeof count === 'string') {
+                num = parseInt(count.replace(/[^0-9]/g, '')) || 0;
+            } else if (lastFilteredVideos && Array.isArray(lastFilteredVideos)) {
+                num = lastFilteredVideos.length;
+            } else if (currentVideos && Array.isArray(currentVideos)) {
+                num = currentVideos.length;
+            }
+
+            const countDisplay = document.getElementById('resultCountNumber');
+            const badge = document.getElementById('resultCountBadge');
+
+            if (countDisplay) {
+                countDisplay.innerText = num.toLocaleString();
+            } else if (badge) {
+                badge.innerHTML = `<i class="fas fa-layer-group text-gray-400 mr-1"></i> 조회 갯수: <span id="resultCountNumber" class="text-orange-600 font-mono text-lg ml-1 font-black">${num.toLocaleString()}</span>개`;
+            }
+        };
+
         function saveModeState(mode) {
             if (mode === undefined || mode === null) return;
             const grid = document.getElementById('resultsGrid');
-            const resultCount = document.getElementById('resultCountNumber');
             const resultsActions = document.getElementById('resultsActions');
+            const countNum = (lastFilteredVideos && Array.isArray(lastFilteredVideos) && lastFilteredVideos.length > 0) 
+                ? lastFilteredVideos.length 
+                : ((currentVideos && Array.isArray(currentVideos)) ? currentVideos.length : 0);
             
             modeStateCache[mode] = {
                 currentVideos: [...currentVideos],
@@ -4909,7 +4934,7 @@
                 currentResultsType: currentResultsType,
                 nextPageToken: nextPageToken,
                 gridHtml: grid ? grid.innerHTML : '',
-                resultCount: resultCount ? resultCount.innerText : '0',
+                resultCount: countNum,
                 showActions: resultsActions ? !resultsActions.classList.contains('hidden') : false,
                 actionsHtml: resultsActions ? resultsActions.innerHTML : '', // [FIX] 버튼 상태 저장
                 isGlobalTranslated: isGlobalTranslated, // [NEW] 번역 상태 저장
@@ -4958,8 +4983,8 @@
                 else resultsActions.classList.add('hidden');
             }
 
-            const resultCount = document.getElementById('resultCountNumber');
-            if (resultCount) resultCount.innerText = state.resultCount;
+            // [FIX] 카운트 복원 시 항상 안전한 updateResultCount 호출
+            updateResultCount(state.resultCount);
 
             for (const id in state.inputs) {
                 const el = document.getElementById(id);
@@ -5234,7 +5259,7 @@
             lastFilteredVideos = [];
             nextPageToken = ''; // [FIX] Reset pagination token
             document.getElementById('paginationContainer')?.classList.add('hidden'); // [FIX] Hide button on mode switch
-            const _rcn = document.getElementById('resultCountNumber'); if (_rcn) _rcn.innerText = '0'; // [FIX] Reset count display on mode switch
+            updateResultCount(0); // [FIX] Reset count display on mode switch
 
             const globalFilterAction = document.getElementById('globalFilterActionBar');
             const hideCommon = [0, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
@@ -12810,7 +12835,7 @@ ${newsContext}
 
             if (!currentVideos || currentVideos.length === 0) {
                 if (resultsGrid) resultsGrid.innerHTML = '<p class="col-span-full text-center text-gray-500 font-bold py-10">조건에 맞는 데이터가 없습니다.</p>';
-                const _rcn2 = document.getElementById('resultCountNumber'); if (_rcn2) _rcn2.innerText = '0'; // [FIX] Reset count when no data
+                updateResultCount(0); // [FIX] Reset count when no data
                 showLoading(false);
                 nextPageToken = ''; // [FIX] No results from source, clear token
                 renderPagination(); // [FIX] Ensure button is hidden
@@ -13180,8 +13205,7 @@ ${newsContext}
             renderResults(filtered, keyword, isTagModeActive, isConditionChange, '');
             showLoading(false);
             // [FIX] renderResults 호출 후 카운트를 명시적으로 재설정 (DOM 타이밍 이슈 방지)
-            const _rcnFix = document.getElementById('resultCountNumber');
-            if (_rcnFix && filtered.length > 0) _rcnFix.innerText = filtered.length.toLocaleString();
+            updateResultCount(filtered.length);
         }
 
         // Core: Render Results
@@ -13199,8 +13223,7 @@ ${newsContext}
             lastFilteredVideos = data; // Store latest filtered data
             
             // [NEW] Update result count display
-            const countDisplay = document.getElementById('resultCountNumber');
-            if (countDisplay) countDisplay.innerText = data.length.toLocaleString();
+            updateResultCount(data.length);
 
             // [NEW] Update Keyword Analysis Dashboard
             if (typeof updateKeywordAnalysisDashboard === 'function') {
@@ -13376,11 +13399,11 @@ ${newsContext}
                     requestAnimationFrame(renderNextChunk);
                 } else {
                     // [FIX] 마지막 청크 렌더링 완료 후 카운트를 다시 확실하게 업데이트
-                    const _cd = document.getElementById('resultCountNumber');
-                    if (_cd) _cd.innerText = totalCount.toLocaleString();
+                    updateResultCount(totalCount);
                 }
             }
             renderNextChunk();
+            updateResultCount(totalCount);
         }
 
         function createChannelCard(ch) {
