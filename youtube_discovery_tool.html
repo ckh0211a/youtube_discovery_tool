@@ -5234,6 +5234,7 @@
             lastFilteredVideos = [];
             nextPageToken = ''; // [FIX] Reset pagination token
             document.getElementById('paginationContainer')?.classList.add('hidden'); // [FIX] Hide button on mode switch
+            const _rcn = document.getElementById('resultCountNumber'); if (_rcn) _rcn.innerText = '0'; // [FIX] Reset count display on mode switch
 
             const globalFilterAction = document.getElementById('globalFilterActionBar');
             const hideCommon = [0, 4, 5, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
@@ -12809,6 +12810,7 @@ ${newsContext}
 
             if (!currentVideos || currentVideos.length === 0) {
                 if (resultsGrid) resultsGrid.innerHTML = '<p class="col-span-full text-center text-gray-500 font-bold py-10">조건에 맞는 데이터가 없습니다.</p>';
+                const _rcn2 = document.getElementById('resultCountNumber'); if (_rcn2) _rcn2.innerText = '0'; // [FIX] Reset count when no data
                 showLoading(false);
                 nextPageToken = ''; // [FIX] No results from source, clear token
                 renderPagination(); // [FIX] Ensure button is hidden
@@ -13177,6 +13179,9 @@ ${newsContext}
             // 조회조건 변경 시(isConditionChange=true)에는 메시지를 출력하지 않도록 명시적으로 skipToast=true 설정
             renderResults(filtered, keyword, isTagModeActive, isConditionChange, '');
             showLoading(false);
+            // [FIX] renderResults 호출 후 카운트를 명시적으로 재설정 (DOM 타이밍 이슈 방지)
+            const _rcnFix = document.getElementById('resultCountNumber');
+            if (_rcnFix && filtered.length > 0) _rcnFix.innerText = filtered.length.toLocaleString();
         }
 
         // Core: Render Results
@@ -13347,6 +13352,7 @@ ${newsContext}
             // [OPTIMIZATION] Chunked rendering for speed
             const chunkSize = 24;
             let currentIndex = 0;
+            const totalCount = data.length; // [FIX] 캡처 후 비동기 렌더링 완료 시 카운트 재설정
 
             function renderNextChunk() {
                 const fragment = document.createDocumentFragment();
@@ -13368,6 +13374,10 @@ ${newsContext}
 
                 if (currentIndex < data.length) {
                     requestAnimationFrame(renderNextChunk);
+                } else {
+                    // [FIX] 마지막 청크 렌더링 완료 후 카운트를 다시 확실하게 업데이트
+                    const _cd = document.getElementById('resultCountNumber');
+                    if (_cd) _cd.innerText = totalCount.toLocaleString();
                 }
             }
             renderNextChunk();
