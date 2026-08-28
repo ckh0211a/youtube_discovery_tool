@@ -1597,7 +1597,7 @@ init_db()
 
 def get_db_connection():
     db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'analytics.db')
-    conn = sqlite3.connect(db_path)
+    conn = sqlite3.connect(db_path, timeout=30.0, check_same_thread=False)
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -1608,159 +1608,187 @@ os.makedirs(INSIGHTS_IMG_DIR, exist_ok=True)
 @app.route('/api/insights/posts', methods=['GET'])
 def get_insight_posts():
     """게시글 목록 조회 (카테고리/검색/페이지네이션 지원)"""
-    category = request.args.get('category', 'all')
-    search = request.args.get('search', '').strip()
-    
-    conn = get_db_connection()
-    c = conn.cursor()
-    
-    query = 'SELECT id, title, category, summary, thumbnail, tags, author, views, likes, created_at FROM insight_posts'
-    params = []
-    conditions = []
-    
-    if category and category != 'all':
-        conditions.append('category = ?')
-        params.append(category)
+    try:
+        category = request.args.get('category', 'all')
+        search = request.args.get('search', '').strip()
         
-    if search:
-        conditions.append('(title LIKE ? OR summary LIKE ? OR tags LIKE ?)')
-        search_param = f'%{search}%'
-        params.extend([search_param, search_param, search_param])
+        conn = get_db_connection()
+        c = conn.cursor()
         
-    if conditions:
-        query += ' WHERE ' + ' AND '.join(conditions)
+        query = 'SELECT id, title, category, summary, thumbnail, tags, author, views, likes, created_at FROM insight_posts'
+        params = []
+        conditions = []
         
-    query += ' ORDER BY id DESC'
-    
-    c.execute(query, params)
-    rows = c.fetchall()
-    posts = [dict(row) for row in rows]
-    conn.close()
-    
-    return jsonify({'success': True, 'posts': posts, 'count': len(posts)})
+        if category and category != 'all':
+            conditions.append('category = ?')
+            params.append(category)
+            
+        if search:
+            conditions.append('(title LIKE ? OR summary LIKE ? OR tags LIKE ? OR content LIKE ?)')
+            search_param = f'%{search}%'
+            params.extend([search_param, search_param, search_param, search_param])
+            
+        if conditions:
+            query += ' WHERE ' + ' AND '.join(conditions)
+            
+        query += ' ORDER BY id DESC'
+        
+        c.execute(query, params)
+        rows = c.fetchall()
+        posts = [dict(row) for row in rows]
+        conn.close()
+        
+        return jsonify({'success': True, 'posts': posts, 'count': len(posts)})
+    except Exception as e:
+        print(f"[Insights Error] get_insight_posts: {e}")
+        return jsonify({'success': False, 'message': str(e), 'posts': []}), 500
 
 @app.route('/api/insights/posts/<int:post_id>', methods=['GET'])
 def get_insight_post_detail(post_id):
     """게시글 상세 조회 (조회수 1 증가)"""
-    conn = get_db_connection()
-    c = conn.cursor()
-    
-    # 조회수 증가
-    c.execute('UPDATE insight_posts SET views = views + 1 WHERE id = ?', (post_id,))
-    conn.commit()
-    
-    c.execute('SELECT * FROM insight_posts WHERE id = ?', (post_id,))
-    row = c.fetchone()
-    conn.close()
-    
-    if not row:
-        return jsonify({'success': False, 'message': '게시글을 찾을 수 없습니다.'}), 404
+    try:
+        conn = get_db_connection()
+        c = conn.cursor()
         
-    return jsonify({'success': True, 'post': dict(row)})
+        # 조회수 증가
+        try:
+            c.execute('UPDATE insight_posts SET views = views + 1 WHERE id = ?', (post_id,))
+            conn.commit()
+        except Exception as ue:
+            print(f"[Insights] View update error: {ue}")
+        
+        c.execute('SELECT id, title, category, summary, content, thumbnail, tags, author, views, likes, created_at, updated_at FROM insight_posts WHERE id = ?', (post_id,))
+        row = c.fetchone()
+        conn.close()
+        
+        if not row:
+            return jsonify({'success': False, 'message': '게시글을 찾을 수 없습니다.'}), 404
+            
+        return jsonify({'success': True, 'post': dict(row)})
+    except Exception as e:
+        print(f"[Insights Error] get_insight_post_detail: {e}")
+        return jsonify({'success': False, 'message': f'게시글 로드 실패: {str(e)}'}), 500
 
 @app.route('/api/insights/posts', methods=['POST'])
 def create_insight_post():
     """새 게시글 작성 및 발행"""
-    data = request.json or {}
-    title = data.get('title', '').strip()
-    content = data.get('content', '').strip()
-    
-    if not title:
-        return jsonify({'success': False, 'message': '제목을 입력해주세요.'}), 400
-    if not content:
-        return jsonify({'success': False, 'message': '본문 내용을 입력해주세요.'}), 400
+    try:
+        data = request.json or {}
+        title = data.get('title', '').strip()
+        content = data.get('content', '').strip()
         
-    category = data.get('category', '알고리즘 분석')
-    summary = data.get('summary', '')
-    if not summary:
-        # HTML 태그 제거하여 요약문 자동 생성 (150자)
-        clean_text = re.sub('<[^<]+?>', '', content).strip()
-        summary = clean_text[:140] + ('...' if len(clean_text) > 140 else '')
-        
-    thumbnail = data.get('thumbnail', '')
-    if not thumbnail:
-        # 본문에서 첫 번째 img 태그 추출
-        img_match = re.search(r'<img[^>]+src=["\']([^"\']+)["\']', content)
-        if img_match:
-            thumbnail = img_match.group(1)
-        else:
-            thumbnail = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80'
+        if not title:
+            return jsonify({'success': False, 'message': '제목을 입력해주세요.'}), 400
+        if not content:
+            return jsonify({'success': False, 'message': '본문 내용을 입력해주세요.'}), 400
             
-    tags = data.get('tags', '')
-    author = data.get('author', '크리에이터')
-    now_str = datetime.now().strftime('%Y-%m-%d %H:%M')
-    
-    conn = get_db_connection()
-    c = conn.cursor()
-    c.execute('''INSERT INTO insight_posts 
-                (title, category, summary, content, thumbnail, tags, author, views, likes, created_at, updated_at) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, 0, 0, ?, ?)''',
-              (title, category, summary, content, thumbnail, tags, author, now_str, now_str))
-    new_id = c.lastrowid
-    conn.commit()
-    conn.close()
-    
-    return jsonify({'success': True, 'id': new_id, 'message': '게시글이 성공적으로 발행되었습니다.'})
+        category = data.get('category', '알고리즘 분석')
+        summary = data.get('summary', '')
+        if not summary:
+            # HTML 태그 제거하여 요약문 자동 생성 (150자)
+            clean_text = re.sub('<[^<]+?>', '', content).strip()
+            summary = clean_text[:140] + ('...' if len(clean_text) > 140 else '')
+            
+        thumbnail = data.get('thumbnail', '')
+        if not thumbnail:
+            # 본문에서 첫 번째 img 태그 추출
+            img_match = re.search(r'<img[^>]+src=["\']([^"\']+)["\']', content)
+            if img_match:
+                thumbnail = img_match.group(1)
+            else:
+                thumbnail = 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80'
+                
+        tags = data.get('tags', '')
+        author = data.get('author', '크리에이터')
+        now_str = datetime.now().strftime('%Y-%m-%d %H:%M')
+        
+        conn = get_db_connection()
+        c = conn.cursor()
+        c.execute('''INSERT INTO insight_posts 
+                    (title, category, summary, content, thumbnail, tags, author, views, likes, created_at, updated_at) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, 0, 0, ?, ?)''',
+                  (title, category, summary, content, thumbnail, tags, author, now_str, now_str))
+        new_id = c.lastrowid
+        conn.commit()
+        conn.close()
+        
+        return jsonify({'success': True, 'id': new_id, 'message': '게시글이 성공적으로 발행되었습니다.'})
+    except Exception as e:
+        print(f"[Insights Error] create_insight_post: {e}")
+        return jsonify({'success': False, 'message': f'발행 오류: {str(e)}'}), 500
 
 @app.route('/api/insights/posts/<int:post_id>', methods=['PUT'])
 def update_insight_post(post_id):
     """게시글 수정"""
-    data = request.json or {}
-    title = data.get('title', '').strip()
-    content = data.get('content', '').strip()
-    
-    if not title:
-        return jsonify({'success': False, 'message': '제목을 입력해주세요.'}), 400
-    if not content:
-        return jsonify({'success': False, 'message': '본문 내용을 입력해주세요.'}), 400
+    try:
+        data = request.json or {}
+        title = data.get('title', '').strip()
+        content = data.get('content', '').strip()
         
-    category = data.get('category', '알고리즘 분석')
-    summary = data.get('summary', '')
-    if not summary:
-        clean_text = re.sub('<[^<]+?>', '', content).strip()
-        summary = clean_text[:140] + ('...' if len(clean_text) > 140 else '')
+        if not title:
+            return jsonify({'success': False, 'message': '제목을 입력해주세요.'}), 400
+        if not content:
+            return jsonify({'success': False, 'message': '본문 내용을 입력해주세요.'}), 400
+            
+        category = data.get('category', '알고리즘 분석')
+        summary = data.get('summary', '')
+        if not summary:
+            clean_text = re.sub('<[^<]+?>', '', content).strip()
+            summary = clean_text[:140] + ('...' if len(clean_text) > 140 else '')
+            
+        thumbnail = data.get('thumbnail', '')
+        if not thumbnail:
+            img_match = re.search(r'<img[^>]+src=["\']([^"\']+)["\']', content)
+            if img_match: thumbnail = img_match.group(1)
+            
+        tags = data.get('tags', '')
+        now_str = datetime.now().strftime('%Y-%m-%d %H:%M')
         
-    thumbnail = data.get('thumbnail', '')
-    if not thumbnail:
-        img_match = re.search(r'<img[^>]+src=["\']([^"\']+)["\']', content)
-        if img_match: thumbnail = img_match.group(1)
+        conn = get_db_connection()
+        c = conn.cursor()
+        c.execute('''UPDATE insight_posts 
+                    SET title = ?, category = ?, summary = ?, content = ?, thumbnail = ?, tags = ?, updated_at = ? 
+                    WHERE id = ?''',
+                  (title, category, summary, content, thumbnail, tags, now_str, post_id))
+        conn.commit()
+        conn.close()
         
-    tags = data.get('tags', '')
-    now_str = datetime.now().strftime('%Y-%m-%d %H:%M')
-    
-    conn = get_db_connection()
-    c = conn.cursor()
-    c.execute('''UPDATE insight_posts 
-                SET title = ?, category = ?, summary = ?, content = ?, thumbnail = ?, tags = ?, updated_at = ? 
-                WHERE id = ?''',
-              (title, category, summary, content, thumbnail, tags, now_str, post_id))
-    conn.commit()
-    conn.close()
-    
-    return jsonify({'success': True, 'message': '게시글이 수정되었습니다.'})
+        return jsonify({'success': True, 'message': '게시글이 수정되었습니다.'})
+    except Exception as e:
+        print(f"[Insights Error] update_insight_post: {e}")
+        return jsonify({'success': False, 'message': f'수정 오류: {str(e)}'}), 500
 
 @app.route('/api/insights/posts/<int:post_id>', methods=['DELETE'])
 def delete_insight_post(post_id):
     """게시글 삭제"""
-    conn = get_db_connection()
-    c = conn.cursor()
-    c.execute('DELETE FROM insight_posts WHERE id = ?', (post_id,))
-    conn.commit()
-    conn.close()
-    
-    return jsonify({'success': True, 'message': '게시글이 삭제되었습니다.'})
+    try:
+        conn = get_db_connection()
+        c = conn.cursor()
+        c.execute('DELETE FROM insight_posts WHERE id = ?', (post_id,))
+        conn.commit()
+        conn.close()
+        
+        return jsonify({'success': True, 'message': '게시글이 삭제되었습니다.'})
+    except Exception as e:
+        print(f"[Insights Error] delete_insight_post: {e}")
+        return jsonify({'success': False, 'message': f'삭제 오류: {str(e)}'}), 500
 
 @app.route('/api/insights/posts/<int:post_id>/like', methods=['POST'])
 def like_insight_post(post_id):
     """게시글 좋아요 증가"""
-    conn = get_db_connection()
-    c = conn.cursor()
-    c.execute('UPDATE insight_posts SET likes = likes + 1 WHERE id = ?', (post_id,))
-    c.execute('SELECT likes FROM insight_posts WHERE id = ?', (post_id,))
-    likes = c.fetchone()[0]
-    conn.commit()
-    conn.close()
-    return jsonify({'success': True, 'likes': likes})
+    try:
+        conn = get_db_connection()
+        c = conn.cursor()
+        c.execute('UPDATE insight_posts SET likes = likes + 1 WHERE id = ?', (post_id,))
+        c.execute('SELECT likes FROM insight_posts WHERE id = ?', (post_id,))
+        row = c.fetchone()
+        likes = row[0] if row else 1
+        conn.commit()
+        conn.close()
+        return jsonify({'success': True, 'likes': likes})
+    except Exception as e:
+        print(f"[Insights Error] like_insight_post: {e}")
+        return jsonify({'success': False, 'message': str(e)}), 500
 
 @app.route('/api/insights/upload-image', methods=['POST'])
 def upload_insight_image():
