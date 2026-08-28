@@ -1561,22 +1561,310 @@ def init_db():
         seed_post_2 = (
             '초보 크리에이터도 10만 뷰 터지는 유튜브 쇼츠 기획의 3가지 법칙',
             '쇼츠 전략',
-            '1초 만에 이탈하는 시청자를 사로잡는 오프닝 후킹 기술과 무한 반복 시청(Loop)을 유도하는 쇼츠 구조화 전략을 공개합니다.',
-            '''<p>쇼츠(Shorts) 시장에서 승패는 <strong>첫 1.5초</strong>에 결정됩니다. 시청자가 스와이프를 멈추게 만드는 3가지 핵심 기획 공식을 소개합니다.</p>
-            <div class="p-4 my-4 bg-gray-50 border border-gray-200 rounded-2xl">
-                <h4 class="font-bold text-red-600 mb-2">🔥 1. 시각적 후킹(Visual Hook) + 질문형 오프닝</h4>
-                <p class="text-sm text-gray-700">영상이 시작되자마자 결론의 가장 충격적인 장면 0.5초를 먼저 보여주거나, '이거 모르면 손해봅니다'와 같은 직관적 문제 제기로 시작하세요.</p>
+            '1초 만에 이탈하는 시청자를 사로잡는 오프닝 후킹 공식, 0.8초 템포 편집, 무한 반복 시청(Seamless Loop)을 유도하는 5,000자 분량의 실전 쇼츠 완벽 가이드북입니다.',
+            '''<div class="space-y-8 text-gray-800 leading-relaxed text-[16px]">
+
+    <!-- 도입부 리드문 -->
+    <div class="p-6 bg-gradient-to-r from-rose-50 to-orange-50 rounded-2xl border-l-4 border-rose-500 shadow-sm">
+        <p class="text-lg font-bold text-gray-900 mb-2 leading-snug">
+            🚀 "열심히 편집해서 올렸는데 왜 내 쇼츠는 항상 조회수 500~1,000회에서 멈출까?"
+        </p>
+        <p class="text-sm text-gray-700 leading-relaxed">
+            유튜브 쇼츠(Shorts) 시장은 단순한 노력이나 운으로 승부하는 공간이 아닙니다. 쇼츠 피드는 시청자가 손가락 하나로 0.5초 만에 다음 영상을 넘겨버리는 <strong>'초단기 도파민 전쟁터'</strong>입니다. 수많은 초보 크리에이터가 영상의 화질과 자막 폰트에만 매달릴 때, 10만 뷰, 100만 뷰를 터뜨리는 프로들은 철저히 <strong>'알고리즘의 행동 데이터 공식'</strong>에 맞춰 기획합니다. 이번 글에서는 초보 크리에이터도 당장 적용할 수 있는 10만 뷰 폭발 쇼츠 기획의 3대 핵심 법칙을 5,000자 분량의 완벽한 실전 가이드로 총정리해 드립니다.
+        </p>
+    </div>
+
+    <!-- 섹션 1: 쇼츠 알고리즘의 본질 이해하기 -->
+    <div class="space-y-4">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-rose-500">PART 1.</span> 쇼츠 알고리즘의 본질: 왜 내 영상은 500뷰의 늪에 빠질까?
+        </h2>
+        <p>
+            유튜브 롱폼 영상은 시청자가 썸네일과 제목을 보고 클릭하는 **클릭률(CTR)**이 핵심이지만, 쇼츠는 알고리즘이 피드에 강제로 영상을 밀어 넣어주는 **강제 배정 시스템**입니다. 따라서 쇼츠 알고리즘이 영상을 평가하는 기준은 완전히 다릅니다.
+        </p>
+        
+        <div class="my-6 rounded-2xl overflow-hidden shadow-md">
+            <img src="https://images.unsplash.com/photo-1598550476439-6847785fdd53?w=1200&auto=format&fit=crop&q=80" alt="스마트폰 영상 크리에이터 촬영 현장" class="w-full h-auto object-cover max-h-[420px]">
+            <p class="text-center text-xs text-gray-500 py-2 bg-gray-50">▲ 쇼츠의 성패는 촬영 장비의 가격이 아니라 시청자의 이탈을 방어하는 기획 구조에 달려 있습니다.</p>
+        </div>
+
+        <p>
+            유튜브 스튜디오 분석(Analytics)에 들어가면 쇼츠 알고리즘의 생사를 결정짓는 단 두 가지의 절대 지표가 있습니다.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
+            <div class="p-5 bg-rose-50/60 rounded-2xl border border-rose-200">
+                <h4 class="font-black text-rose-700 text-base mb-2 flex items-center gap-1.5">
+                    <i class="fas fa-eye"></i> 1. 조회율 (Viewed vs Swiped Away)
+                </h4>
+                <p class="text-xs text-gray-700 leading-relaxed mb-2">
+                    알고리즘이 시청자 100명에게 쇼츠를 노출했을 때, 스와이프(넘기기)하지 않고 본 시청자의 비율입니다.
+                </p>
+                <div class="bg-white p-2.5 rounded-xl border border-rose-100 text-xs font-bold text-rose-600">
+                    🎯 목표 수치: 최소 75% 이상 (10만 뷰 이상은 80~85% 필수)
+                </div>
             </div>
-            <div class="p-4 my-4 bg-gray-50 border border-gray-200 rounded-2xl">
-                <h4 class="font-bold text-blue-600 mb-2">⚡ 2. 0.8초 단위의 화면 전환 템포</h4>
-                <p class="text-sm text-gray-700">카메라 앵글 변경, 줌인/줌아웃, 강조 자막 효과를 1초 간격으로 배치하여 시청자의 뇌가 지루함을 느낄 틈을 주지 않아야 합니다.</p>
+
+            <div class="p-5 bg-blue-50/60 rounded-2xl border border-blue-200">
+                <h4 class="font-black text-blue-700 text-base mb-2 flex items-center gap-1.5">
+                    <i class="fas fa-stopwatch"></i> 2. 평균 시청 지속률 (APVD)
+                </h4>
+                <p class="text-xs text-gray-700 leading-relaxed mb-2">
+                    영상 전체 길이 대비 시청자가 머문 시간의 비율입니다. 30초 영상에서 시청자가 30초를 모두 보면 100%입니다.
+                </p>
+                <div class="bg-white p-2.5 rounded-xl border border-blue-100 text-xs font-bold text-blue-600">
+                    🎯 목표 수치: 100% ~ 130% 이상 (반복 시청 유도 필요)
+                </div>
             </div>
-            <div class="p-4 my-4 bg-gray-50 border border-gray-200 rounded-2xl">
-                <h4 class="font-bold text-green-600 mb-2">🔁 3. 끝과 시작이 이어지는 완벽한 루프(Seamless Loop)</h4>
-                <p class="text-sm text-gray-700">영상의 마지막 문장이 첫 문장과 자연스럽게 이어지도록 설계하면 시청자가 2번 이상 시청하게 되어 쇼츠 알고리즘 추천 점수가 극대화됩니다.</p>
-            </div>''',
-            'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=800&auto=format&fit=crop&q=80',
-            '#쇼츠,#Shorts,#후킹,#유튜브기획,#알고리즘',
+        </div>
+
+        <p>
+            초보 크리에이터의 쇼츠가 500뷰에서 딱 멈추는 이유는 간단합니다. 초반 100~200명에게 테스트 노출을 했을 때 조회율이 60% 미만이거나 평균 지속률이 70% 이하로 떨어져, 유튜브 시스템이 <em>"이 영상은 시청자를 쇼츠 피드에 오래 머물게 하지 못하는 품질 낮은 콘텐츠"</em>라고 낙인찍고 노출을 즉각 차단하기 때문입니다.
+        </p>
+    </div>
+
+    <!-- 섹션 2: 제1법칙 1.5초 시각적/청각적 후킹 -->
+    <div class="space-y-4 pt-6">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-rose-500">RULE 1.</span> 1.5초 룰(Rule): 뇌의 엄지손가락을 멈추게 만드는 '초강력 후킹 공식'
+        </h2>
+        <p>
+            쇼츠 시청자의 손가락은 무의식적으로 화면을 위로 넘길 준비가 되어 있습니다. 인간의 뇌가 시각 정보를 인지하고 흥미 여부를 판단하는 데 걸리는 시간은 불과 <strong>0.3초~1.5초</strong>입니다. 이 골든타임을 놓치면 뒤에 아무리 명작이 숨어있어도 아무도 보지 않습니다.
+        </p>
+
+        <div class="p-5 bg-amber-50 border border-amber-200 rounded-2xl">
+            <h4 class="font-bold text-amber-900 text-base mb-2">❌ 절대 하지 말아야 할 초보 크리에이터의 3대 오프닝 실수</h4>
+            <ul class="list-disc list-inside space-y-1.5 text-xs text-amber-800">
+                <li><strong>"안녕하세요 OO튜브입니다"</strong> ➔ 친목 인사는 이탈률 90%를 부르는 최악의 오프닝입니다.</li>
+                <li><strong>3초짜리 인트로 모션 그래픽/로고</strong> ➔ 시청자는 로고가 나오는 순간 즉시 스와이프합니다.</li>
+                <li><strong>배경 설명부터 차근차근 시작하기</strong> ➔ 결론이나 가장 흥미진진한 장면부터 먼저 보여주어야 합니다.</li>
+            </ul>
+        </div>
+
+        <h3 class="text-lg font-bold text-gray-900 pt-2">🔥 10만 뷰를 보장하는 4가지 후킹 프레임워크</h3>
+        <div class="space-y-3">
+            <div class="p-4 bg-gray-50 border-l-4 border-rose-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">1) 역피라미드 결론 선공개 (Climax Teaser)</p>
+                <p class="text-xs text-gray-600">영상의 맨 마지막에 나올 가장 충격적이거나 놀라운 장면 0.5초를 영상 시작 0초에 번쩍 삽입한 후 본 내용으로 진입합니다. (예: 완성된 요리의 폭발적인 비주얼을 먼저 0.5초 보여준 뒤 조리 과정 시작)</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-blue-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">2) 손실 회피 및 직관적 문제 제기 (Loss Aversion Hook)</p>
+                <p class="text-xs text-gray-600">인간은 이득을 얻는 것보다 손해를 피하는 데 2.5배 더 민감하게 반응합니다. <em>"이거 모르면 유튜브 수익 80% 날아갑니다", "99%가 매일 잘못하고 있는 스마트폰 충전법"</em>과 같이 즉각적인 위기감을 형성하세요.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-purple-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">3) 인지적 불협화음 유발 (Curiosity Gap Hook)</p>
+                <p class="text-xs text-gray-600">상식과 정반대되는 사실을 던져 뇌에 물음표를 만듭니다. <em>"물 많이 마시면 오히려 살이 찌는 충격적인 이유", "아이폰보다 갤럭시가 해외에서 더 찬사받는 단 한 가지 기능"</em>처럼 기존 상식을 깨뜨리세요.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-emerald-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">4) 청각적 시그니처 사운드 (Audio Shock Hook)</p>
+                <p class="text-xs text-gray-600">첫 음성이 시작되기 전 0.1초의 공백도 두지 마세요. 날카로운 효과음(Whoosh, Ding, Glitch sound)과 함께 빠른 속도감의 보이스오버(VO)가 0.0초부터 동시에 터져 나와야 합니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 섹션 3: 제2법칙 0.8초 화면 전환 템포 -->
+    <div class="space-y-4 pt-6">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-rose-500">RULE 2.</span> 도파민 루프(Dopamine Loop): 0.8초 전환 템포와 시각적 리듬감
+        </h2>
+        <p>
+            후킹에 성공해 첫 3초를 넘겼다면, 이제는 영상 끝까지 이탈하지 못하도록 <strong>'지루함을 느낄 뇌의 빈틈'</strong>을 원천 봉쇄해야 합니다. 틱톡과 릴스, 쇼츠에 길들여진 현대인의 집중력 지속 시간(Attention Span)은 약 8초에 불과합니다.
+        </p>
+
+        <div class="my-6 rounded-2xl overflow-hidden shadow-md">
+            <img src="https://images.unsplash.com/photo-1536240478700-b869070f9279?w=1200&auto=format&fit=crop&q=80" alt="영상 편집 타임라인 소프트웨어 작업" class="w-full h-auto object-cover max-h-[420px]">
+            <p class="text-center text-xs text-gray-500 py-2 bg-gray-50">▲ 1컷이 2초 이상 지속되지 않도록 컷편집, 인서트 영상, 줌인/줌아웃을 촘촘히 배치하는 것이 핵심입니다.</p>
+        </div>
+
+        <h3 class="text-lg font-bold text-gray-900">🎬 시청 지속률 100%를 만드는 실전 편집 기술 4선</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-3">
+            <div class="p-4 bg-white rounded-2xl border border-gray-200 shadow-sm">
+                <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center font-bold mb-2">1</div>
+                <h4 class="font-bold text-gray-900 text-sm mb-1">0.8초 ~ 1.5초 컷 체인지 원칙</h4>
+                <p class="text-xs text-gray-600 leading-relaxed">
+                    동일한 앵글의 정지 화면이 2초 이상 유지되면 시청자의 뇌는 콘텐츠를 '지루하다'고 인지합니다. 카메라 각도 전환, 줌인(Zoom-in), 줌아웃(Zoom-out), 좌우 패닝 등을 1초 단위로 번갈아 적용하세요.
+                </p>
+            </div>
+
+            <div class="p-4 bg-white rounded-2xl border border-gray-200 shadow-sm">
+                <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center font-bold mb-2">2</div>
+                <h4 class="font-bold text-gray-900 text-sm mb-1">키네틱 타이포그래피 (움직이는 자막)</h4>
+                <p class="text-xs text-gray-600 leading-relaxed">
+                    단순한 줄글 자막 대신, 말하는 단어 단위로 팝업(Pop-up)되거나 색상이 강조되는 다이내믹 자막을 사용하세요. 노란색, 형광 녹색, 흰색의 3색 배치가 시인성이 가장 뛰어납니다.
+                </p>
+            </div>
+
+            <div class="p-4 bg-white rounded-2xl border border-gray-200 shadow-sm">
+                <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold mb-2">3</div>
+                <h4 class="font-bold text-gray-900 text-sm mb-1">B-Roll(인서트 영상)과 짤(Meme)의 배치</h4>
+                <p class="text-xs text-gray-600 leading-relaxed">
+                    설명하는 내용과 연관된 0.5초짜리 짧은 밈(GIF)이나 상황 재연 컷, 아이콘 애니메이션을 대화 중간중간 삽입하여 시각적 신선도를 지속적으로 공급합니다.
+                </p>
+            </div>
+
+            <div class="p-4 bg-white rounded-2xl border border-gray-200 shadow-sm">
+                <div class="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center font-bold mb-2">4</div>
+                <h4 class="font-bold text-gray-900 text-sm mb-1">BGM 비트 매칭 & 시선 중심 유지(Center Focus)</h4>
+                <p class="text-xs text-gray-600 leading-relaxed">
+                    신나는 템포의 배경음악 비트에 맞춰 컷 전환을 동기화하고, 시청자의 시선이 화면 정중앙 60% 영역 안에서 벗어나지 않도록 핵심 텍스트와 오브젝트를 중앙에 정렬하세요.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 섹션 4: 제3법칙 무한 루프(Seamless Loop) 엔딩 설계 -->
+    <div class="space-y-4 pt-6">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-rose-500">RULE 3.</span> 무한 반복을 부르는 '완벽한 루프(Seamless Loop)' 설계 공식
+        </h2>
+        <p>
+            쇼츠 알고리즘에서 가장 강력한 치트키는 바로 <strong>시청 지속률 120%~150%</strong>를 달성하는 것입니다. 30초짜리 영상을 시청자가 끝나지 않은 줄 알고 1.5번~2번 반복 시청하게 만드는 마법 같은 기법이 바로 <strong>'심리스 루프(Seamless Loop)'</strong>입니다.
+        </p>
+
+        <div class="p-6 bg-slate-900 text-white rounded-2xl shadow-xl space-y-4">
+            <h3 class="text-lg font-bold text-rose-400 flex items-center gap-2">
+                <i class="fas fa-sync-alt"></i> 10만 뷰 크리에이터들이 쓰는 '수미상관 문장 루프' 실제 템플릿
+            </h3>
+            <p class="text-xs text-gray-300 leading-relaxed">
+                영상의 마지막 문장의 끝말을 영상의 맨 첫 문장의 시작말과 문법적으로 완벽하게 이어지도록 스크립트를 작성합니다. 시청자는 영상이 끝났는지도 모른 채 처음부터 다시 보게 됩니다.
+            </p>
+
+            <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 text-xs space-y-3 font-mono">
+                <div>
+                    <span class="text-emerald-400 font-bold">[첫 문장 오프닝]</span>
+                    <p class="text-white mt-1">"...라는 소문이 돌고 있는 가장 충격적인 이유는 바로 이것 때문입니다."</p>
+                </div>
+                <div class="border-t border-slate-700 pt-2">
+                    <span class="text-yellow-400 font-bold">[본문 전개...]</span>
+                    <p class="text-gray-400 mt-1">(3가지 핵심 근거 설명)</p>
+                </div>
+                <div class="border-t border-slate-700 pt-2">
+                    <span class="text-rose-400 font-bold">[마지막 문장 엔딩]</span>
+                    <p class="text-white mt-1">"따라서 전 세계 사람들이 매일 같이 밤마다 아이폰을 버리고 갤럭시로 갈아타는 중..."</p>
+                </div>
+                <div class="bg-rose-950/60 p-3 rounded-lg border border-rose-500/40 text-rose-200">
+                    💡 <strong>루프 연결 결과:</strong> "...아이폰을 버리고 갤럭시로 갈아타는 중..." ➔ (즉시 첫 장면으로 연결) ➔ "...라는 소문이 돌고 있는 가장 충격적인 이유는 바로 이것 때문입니다." (자연스러운 1개의 완전한 문장 완성!)
+                </div>
+            </div>
+        </div>
+
+        <h3 class="text-lg font-bold text-gray-900 pt-3">🔄 비주얼 루프(Visual Loop) 기법 2가지</h3>
+        <ul class="list-disc list-inside space-y-2 text-sm text-gray-700">
+            <li><strong>동작의 일치:</strong> 마지막 프레임에서 손을 아래로 내리는 동작을 했다면, 첫 프레임에서도 동일한 손 위치에서 시작하여 화면이 끊김 없이 순환되게 만듭니다.</li>
+            <li><strong>오디오의 연결:</strong> 마지막에 브금(BGM)을 페이드아웃(Fade-out)시키지 않고, 첫 오디오 트랙의 비트와 동일한 박자로 끝내어 음악이 무한 재생되도록 만듭니다.</li>
+        </ul>
+    </div>
+
+    <!-- 섹션 5: 장르별 쇼츠 대본 템플릿 & 체크리스트 -->
+    <div class="space-y-4 pt-6">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-rose-500">PART 2.</span> 실전 워크북: 복사해서 바로 쓰는 10만 뷰 대본 템플릿
+        </h2>
+        <p>
+            어떤 분야(지식 정보, 리뷰, 일상, 경제, 자기계발)에도 100% 적용할 수 있는 표준 <strong>'6단계 쇼츠 스토리보드 프레임워크'</strong>입니다.
+        </p>
+
+        <div class="overflow-x-auto my-4">
+            <table class="w-full text-xs text-left border border-gray-200 rounded-xl overflow-hidden">
+                <thead class="bg-gray-100 text-gray-800 font-bold border-b border-gray-200">
+                    <tr>
+                        <th class="p-3">타임코드</th>
+                        <th class="p-3">단계</th>
+                        <th class="p-3">화면 연출 (Video)</th>
+                        <th class="p-3">오디오 & 대본 (Audio)</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 text-gray-700">
+                    <tr class="hover:bg-gray-50">
+                        <td class="p-3 font-bold text-rose-600">0.0s ~ 1.5s</td>
+                        <td class="p-3 font-bold">1. 훅 (Hook)</td>
+                        <td class="p-3">가장 충격적인 결론 컷 + 큼직한 핵심 질문 자막</td>
+                        <td class="p-3 font-medium">"이거 모르면 평생 100만원씩 손해봅니다!"</td>
+                    </tr>
+                    <tr class="hover:bg-gray-50">
+                        <td class="p-3 font-bold text-blue-600">1.5s ~ 6.0s</td>
+                        <td class="p-3 font-bold">2. 공감 & 문제 제기</td>
+                        <td class="p-3">답답해하는 표정 짤 + 일상적인 사례 인서트</td>
+                        <td class="p-3 font-medium">"다들 이런 경험 한 번쯤 있으실 텐데요..."</td>
+                    </tr>
+                    <tr class="hover:bg-gray-50">
+                        <td class="p-3 font-bold text-purple-600">6.0s ~ 18.0s</td>
+                        <td class="p-3 font-bold">3. 핵심 솔루션 1~2</td>
+                        <td class="p-3">빠른 템포의 스크린샷 녹화 화면 + 강조 키워드</td>
+                        <td class="p-3 font-medium">"첫 번째 방법은 설정에서 이것만 끄면 됩니다."</td>
+                    </tr>
+                    <tr class="hover:bg-gray-50">
+                        <td class="p-3 font-bold text-emerald-600">18.0s ~ 28.0s</td>
+                        <td class="p-3 font-bold">4. 반전 꿀팁 / 3번째 솔루션</td>
+                        <td class="p-3">가장 중요한 핵심 정보 클로즈업 줌인</td>
+                        <td class="p-3 font-medium">"하지만 진짜 결정적인 핵심은 바로 세 번째인데요,"</td>
+                    </tr>
+                    <tr class="hover:bg-gray-50">
+                        <td class="p-3 font-bold text-amber-600">28.0s ~ 33.0s</td>
+                        <td class="p-3 font-bold">5. 댓글 참여 유도 (CTA)</td>
+                        <td class="p-3">댓글창 그래픽 애니메이션 + 공유 화살표</td>
+                        <td class="p-3 font-medium">"여러분은 어떤 방식이 더 편하신가요? 댓글로 알려주세요!"</td>
+                    </tr>
+                    <tr class="hover:bg-gray-50">
+                        <td class="p-3 font-bold text-rose-700">33.0s ~ 35.0s</td>
+                        <td class="p-3 font-bold">6. 루프 엔딩</td>
+                        <td class="p-3">첫 장면과 이어지는 자연스러운 엔딩 컷</td>
+                        <td class="p-3 font-medium">"주변 친구들에게 공유해주고 싶은 충격적인 사실이..." (➔ 1초로 루프)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="p-5 bg-blue-50 border border-blue-200 rounded-2xl mt-4">
+            <h4 class="font-bold text-blue-900 text-sm mb-2 flex items-center gap-1.5">
+                <i class="fas fa-check-square"></i> 업로드 전 필수 자가 점검 체크리스트 5
+            </h4>
+            <ul class="space-y-1.5 text-xs text-blue-800">
+                <li>☑️ <strong>세이프존(Safe Zone) 준수:</strong> 우측 아이콘(좋아요/댓글), 하단 제목/사운드 영역에 자막이 가려지지 않았는가?</li>
+                <li>☑️ <strong>오프닝 무음 구간:</strong> 영상 시작 시 0.1초의 공백 없이 즉시 음성과 사운드가 터져 나오는가?</li>
+                <li>☑️ <strong>전체 길이 최적화:</strong> 메시지 전달에 불필요한 단어를 모두 덜어내어 30~45초 안으로 압축했는가?</li>
+                <li>☑️ <strong>댓글 참여 유도 장치:</strong> 찬반이 갈리거나 시청자가 의견을 남기고 싶게 만드는 논쟁점이 있는가?</li>
+                <li>☑️ <strong>모바일 가독성:</strong> 스마트폰 최저 밝기에서도 자막과 피사체가 한눈에 선명히 보이는가?</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- 섹션 6: 에필로그 & TubeTrend 활용법 -->
+    <div class="space-y-4 pt-6">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-rose-500">PART 3.</span> 떡상하는 소재 발굴: 튜브트렌드(TubeTrend) 200% 활용법
+        </h2>
+        <p>
+            아무리 기획과 편집 기술이 완벽해도, <strong>'대중이 관심 없는 소재'</strong>를 다루면 조회수는 터지지 않습니다. 10만 뷰 쇼츠를 지속적으로 만들어내는 가장 빠른 지름길은 이미 유튜브에서 폭발적인 반응을 얻고 있는 <strong>'검증된 떡상 소재'</strong>를 벤치마킹하는 것입니다.
+        </p>
+
+        <div class="my-6 rounded-2xl overflow-hidden shadow-md">
+            <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&auto=format&fit=crop&q=80" alt="유튜브 데이터 분석 및 트렌드 대시보드" class="w-full h-auto object-cover max-h-[420px]">
+            <p class="text-center text-xs text-gray-500 py-2 bg-gray-50">▲ 감에 의존하지 마세요. 실시간 데이터와 VPH 성과도가 검증된 소재를 발굴해야 승률이 올라갑니다.</p>
+        </div>
+
+        <div class="p-5 bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-2xl space-y-3">
+            <h4 class="font-black text-purple-900 text-base">💡 TubeTrend에서 10만 뷰 소재 채굴하는 3단계 루틴</h4>
+            <ol class="list-decimal list-inside space-y-2 text-xs text-purple-900">
+                <li><strong>실시간 떡상 TOP 50 & 쇼핑 쇼츠 메뉴:</strong> 현재 내 분야에서 시간당 조회수(VPH)가 폭발하고 있는 최신 인기 쇼츠의 후킹 멘트와 구조를 분석합니다.</li>
+                <li><strong>대본 추출 및 AI 쇼츠 요약:</strong> 잘 터진 영상의 스크립트를 원클릭으로 추출하여 어떤 문장 구조로 호기심을 유발했는지 프레임워크를 벤치마킹합니다.</li>
+                <li><strong>나만의 차별점 1가지 추가:</strong> 기존 떡상 영상의 핵심 정보에 나만의 경험, 새로운 시각, 최신 업데이트 정보를 더해 더 발전된 버전의 쇼츠를 기획합니다.</li>
+            </ol>
+        </div>
+
+        <div class="pt-6 border-t border-gray-200 text-center space-y-3">
+            <p class="font-bold text-gray-800 text-lg">
+                "성공하는 크리에이터는 감으로 만들지 않고, 데이터와 공식으로 설계합니다."
+            </p>
+            <p class="text-xs text-gray-500 max-w-xl mx-auto leading-relaxed">
+                오늘 배운 <strong>[1.5초 시각적 후킹]</strong>, <strong>[0.8초 전환 템포]</strong>, <strong>[완벽한 심리스 루프]</strong> 3대 공식을 바로 다음 쇼츠 제작에 적용해 보세요. 여러분의 채널 분석 그래프가 우상향 곡선을 그리기 시작할 것입니다.
+            </p>
+        </div>
+    </div>
+
+</div>''',
+            'https://images.unsplash.com/photo-1574717024653-61fd2cf4d44d?w=1200&auto=format&fit=crop&q=80',
+            '#쇼츠전략,#10만뷰,#유튜브기획,#쇼츠알고리즘,#후킹기술,#무한루프',
             '소재채굴기 마스터',
             950,
             38,
@@ -1589,6 +1877,22 @@ def init_db():
         c.execute('''INSERT INTO insight_posts 
                     (title, category, summary, content, thumbnail, tags, author, views, likes, created_at, updated_at) 
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', seed_post_2)
+    else:
+        # DB가 이미 존재해도 2번 글의 내용이 구버전이면 최신으로 자동 갱신
+        try:
+            c.execute('''UPDATE insight_posts SET 
+                            thumbnail = ?,
+                            content = ?,
+                            summary = ?,
+                            tags = ?
+                         WHERE id = 2 AND length(content) < 2000''', (
+                seed_post_2[4],
+                seed_post_2[3],
+                seed_post_2[2],
+                seed_post_2[5]
+            ))
+        except Exception as up_e:
+            print(f"[Init DB] Seed update note: {up_e}")
 
     conn.commit()
     conn.close()
