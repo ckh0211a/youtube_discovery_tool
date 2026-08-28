@@ -3019,47 +3019,372 @@ def init_db():
         "title": "알고리즘 추천을 독점하는 홈트·피트니스 유튜브의 루틴 설계와 타임랩스 연출법",
         "category": "채널 운영",
         "author": "피트니스 미디어 코치",
-        "tags": "#홈트유튜브,#피트니스,#운동루틴,#타이머UI,#동기부여,#다이어트",
-        "thumbnail": "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1200&auto=format&fit=crop&q=80",
-        "summary": "시청자가 화면을 켜놓고 '함께 운동하게 만드는' 영상은 시청 지속 시간이 100%를 초과하여 알고리즘의 무한 추천을 받습니다. 시각적 운동 타이머 UI, 타깃 근육 해부학 그래픽, 칼로리 소모량 표시를 활용한 킬러 루틴 설계법을 공개합니다.",
+        "tags": "\#홈트유튜브,\#피트니스채널,\#타임랩스,\#루틴설계,\#유튜브알고리즘,\#채널운영",
+        "thumbnail": "https://images\.unsplash\.com/photo\-1517836357463\-d25dfeac3438\?w=1200\&auto=format\&fit=crop\&q=80",
+        "summary": "TPM\ 프레임워크\ 루틴\ 설계,\ 타임랩스\ 배속별\ 연출\ 공식,\ 클릭률\ 12%를\ 만드는\ 홈트\ 썸네일·제목\ 공식,\ 90일\ 구독자\ 로드맵까지\ 담은\ 홈트·피트니스\ 유튜브\ 채널\ 완벽\ 가이드입니다\.",
         "views": 2320,
         "likes": 130,
-        "content": '''
-<div class="space-y-8 text-gray-800 leading-relaxed text-[16px]">
-    <div class="p-6 bg-gradient-to-r from-teal-950 to-slate-900 text-white rounded-2xl border-l-4 border-teal-400 shadow-xl">
-        <p class="text-xl font-black text-teal-300 mb-2 leading-snug">
-            💪 "피트니스 영상의 궁극적인 목표는 시청자를 '관객'이 아닌 '참여자'로 만드는 것입니다."
+        "content": '''<div class="space-y-8 text-gray-800 leading-relaxed text-[16px]">
+
+    <!-- 도입부 리드문 -->
+    <div class="p-6 bg-gradient-to-r from-blue-50 to-cyan-50 rounded-2xl border-l-4 border-blue-500 shadow-sm">
+        <p class="text-lg font-bold text-gray-900 mb-2 leading-snug">
+            💪 "운동 영상을 올리는데 왜 내 채널만 조회수 1,000회에서 멈출까?"
         </p>
-        <p class="text-sm text-gray-300 leading-relaxed">
-            운동 영상을 끝까지 보게 만드는 핵심은 <strong>'시각적 피드백과 동기부여'</strong>입니다. 남녀노소 누구나 매일 재생목록에 넣어두고 반복 시청하는 10분 홈트 루틴 비디오 제작 공식입니다.
+        <p class="text-sm text-gray-700 leading-relaxed">
+            홈트(홈 트레이닝)·피트니스 유튜브는 지금 이 순간에도 수백 개의 채널이 새로 생겨나는 <strong>초경쟁 레드오션 시장</strong>입니다. 하지만 아이러니하게도 이 카테고리는 유튜브 알고리즘이 가장 사랑하는 장르 중 하나입니다. 시청자가 반복적으로 같은 루틴을 따라 하며 자동으로 재시청률이 올라가고, '운동 루틴 따라하기'라는 콘텐츠 특성상 시청 지속 시간이 긴 편이기 때문입니다. 문제는 <strong>전략 없이 그냥 운동하는 모습만 올리면 알고리즘에 외면당한다</strong>는 점입니다. 이번 글에서는 조회수 10만~100만을 달성한 홈트·피트니스 채널들이 공통적으로 사용하는 <strong>루틴 설계 공식</strong>과 <strong>타임랩스 연출법</strong>을 낱낱이 파헤쳐 드립니다.
         </p>
     </div>
 
+    <!-- 섹션 1: 알고리즘이 홈트 영상을 좋아하는 이유 -->
     <div class="space-y-4">
         <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
-            <span class="text-teal-600">PART 1.</span> 시청 지속률 95%를 보장하는 4대 피트니스 UI 요소
+            <span class="text-blue-500">PART 1.</span> 알고리즘이 홈트·피트니스 영상을 '독점 추천'하는 결정적 이유
         </h2>
-        <div class="my-6 rounded-2xl overflow-hidden shadow-md">
-            <img src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1200&auto=format&fit=crop&q=80" alt="피트니스 트레이닝 및 운동 공간" class="w-full h-auto object-cover max-h-[420px]">
-            <p class="text-center text-xs text-gray-500 py-2 bg-gray-50">▲ 직관적인 인터벌 타이머와 자극 부위 표시가 시청자의 운동 완주율을 극대화합니다.</p>
+        <p>
+            유튜브 알고리즘은 단순히 좋아요나 댓글 숫자를 보는 시스템이 아닙니다. 핵심은 <strong>'시청자를 유튜브 플랫폼에 얼마나 오래 붙잡아 두느냐'</strong>입니다. 이 관점에서 홈트·피트니스 콘텐츠는 구조적으로 유리한 위치에 있습니다.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-4">
+            <div class="p-5 bg-blue-50/70 rounded-2xl border border-blue-200 text-center">
+                <div class="text-3xl mb-2">🔁</div>
+                <h4 class="font-black text-blue-700 text-sm mb-1">반복 시청 유발</h4>
+                <p class="text-xs text-gray-600 leading-relaxed">따라 하는 루틴 영상은 시청자가 운동할 때마다 같은 영상을 다시 재생합니다. 재시청률이 높아지면 알고리즘은 '인기 있는 영상'으로 판단해 추천량을 폭발적으로 늘립니다.</p>
+            </div>
+            <div class="p-5 bg-emerald-50/70 rounded-2xl border border-emerald-200 text-center">
+                <div class="text-3xl mb-2">⏱️</div>
+                <h4 class="font-black text-emerald-700 text-sm mb-1">긴 시청 지속시간</h4>
+                <p class="text-xs text-gray-600 leading-relaxed">20분~40분짜리 운동 루틴 영상을 끝까지 따라 하면 시청 지속 시간이 자동으로 극대화됩니다. 알고리즘은 이를 고품질 콘텐츠의 신호로 인식합니다.</p>
+            </div>
+            <div class="p-5 bg-rose-50/70 rounded-2xl border border-rose-200 text-center">
+                <div class="text-3xl mb-2">📅</div>
+                <h4 class="font-black text-rose-700 text-sm mb-1">주기적 시청 패턴</h4>
+                <p class="text-xs text-gray-600 leading-relaxed">운동을 매일·매주 하는 습관이 있는 시청자는 구독하고 알림 설정을 켜는 비율이 다른 장르보다 현저히 높습니다. 구독자 활성도가 알고리즘 신호를 강화합니다.</p>
+            </div>
         </div>
-        <div class="space-y-3">
-            <div class="p-4 bg-gray-50 border-l-4 border-teal-500 rounded-r-xl">
-                <p class="font-bold text-gray-900 text-sm mb-1">1) 45초 운동 / 15초 휴식의 시각적 프로그레스 바</p>
-                <p class="text-xs text-gray-600">화면 상단이나 측면에 남은 시간과 세트를 도넛 차트 또는 게이지 바로 명확히 표시하여 지루함을 덜어주세요.</p>
+
+        <div class="p-5 bg-amber-50 border border-amber-200 rounded-2xl">
+            <h4 class="font-bold text-amber-900 text-base mb-2">⚠️ 그런데 왜 대부분의 홈트 채널은 조회수 1,000회에 갇히는가?</h4>
+            <p class="text-sm text-amber-800 leading-relaxed">
+                홈트·피트니스 시장이 알고리즘에게 유리한 구조임에도 불구하고 대부분의 채널이 성장하지 못하는 이유는 딱 하나입니다. <strong>루틴의 '목적 설계'가 없다는 것</strong>입니다. 단순히 "오늘의 운동 루틴"이라는 제목으로 영상을 올리면, 시청자는 검색을 통해 내 영상을 찾아올 이유가 없습니다. 알고리즘도 어떤 시청자에게 이 영상을 추천해야 할지 방향을 잡지 못합니다. <em>타깃, 문제, 해결책</em>이 명확한 루틴 설계만이 알고리즘의 추천을 독점할 수 있습니다.
+            </p>
+        </div>
+    </div>
+
+    <!-- 섹션 2: 루틴 설계 공식 -->
+    <div class="space-y-4 pt-6">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-blue-500">PART 2.</span> 알고리즘을 독점하는 5단계 루틴 설계 공식 (TPM 프레임워크)
+        </h2>
+        <p>
+            성공적인 홈트·피트니스 채널은 루틴을 기획할 때 단순히 "어떤 운동을 몇 세트 할까?"가 아니라 <strong>알고리즘과 시청자 심리를 동시에 만족시키는 TPM 프레임워크</strong>를 활용합니다. TPM은 <strong>T</strong>arget(타깃), <strong>P</strong>roblem(문제), <strong>M</strong>ethod(방법)의 약자입니다.
+        </p>
+
+        <div class="my-6 rounded-2xl overflow-hidden shadow-md">
+            <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&auto=format&fit=crop&q=80" alt="홈트레이닝 루틴 촬영 세팅" class="w-full h-auto object-cover max-h-[420px]">
+            <p class="text-center text-xs text-gray-500 py-2 bg-gray-50">▲ 성공하는 홈트 채널은 '무엇을 운동하느냐'보다 '누구의 어떤 고민을 해결하느냐'를 먼저 설계합니다.</p>
+        </div>
+
+        <div class="space-y-4">
+            <div class="p-5 bg-gray-50 border-l-4 border-blue-500 rounded-r-2xl">
+                <h4 class="font-black text-gray-900 text-base mb-2">① T (Target): 나의 루틴을 소비할 '단 한 명'을 특정하라</h4>
+                <p class="text-sm text-gray-700 leading-relaxed mb-3">
+                    "누구나 따라 할 수 있는 전신 운동"은 아무도 클릭하지 않습니다. <strong>타깃이 좁을수록 클릭률은 올라갑니다.</strong> 유튜브 알고리즘은 키워드와 시청자 데이터를 결합해 영상을 추천하는데, 타깃이 구체적인 영상일수록 해당 시청자에게 도달하는 정밀도가 높아집니다.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="bg-red-50 border border-red-200 rounded-xl p-3">
+                        <p class="text-xs font-bold text-red-600 mb-1">❌ 낮은 클릭률 타깃 예시</p>
+                        <ul class="text-xs text-red-700 space-y-1 list-disc list-inside">
+                            <li>전신 운동 루틴</li>
+                            <li>초보자 홈트레이닝</li>
+                            <li>30분 유산소 운동</li>
+                        </ul>
+                    </div>
+                    <div class="bg-green-50 border border-green-200 rounded-xl p-3">
+                        <p class="text-xs font-bold text-green-600 mb-1">✅ 높은 클릭률 타깃 예시</p>
+                        <ul class="text-xs text-green-700 space-y-1 list-disc list-inside">
+                            <li>30대 직장인 출근 전 10분 복근 루틴</li>
+                            <li>무릎이 안 좋은 분을 위한 맨몸 하체 운동</li>
+                            <li>폐경 이후 여성 근감소 예방 루틴</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
-            <div class="p-4 bg-gray-50 border-l-4 border-emerald-500 rounded-r-xl">
-                <p class="font-bold text-gray-900 text-sm mb-1">2) 자극 근육 부위(Target Muscle) 3D 하이라이트</p>
-                <p class="text-xs text-gray-600">지금 하는 동작이 엉덩이(둔근)인지 복근인지 직관적인 신체 그래픽에 빨간색으로 하이라이트 표시하세요.</p>
+
+            <div class="p-5 bg-gray-50 border-l-4 border-emerald-500 rounded-r-2xl">
+                <h4 class="font-black text-gray-900 text-base mb-2">② P (Problem): 시청자의 '진짜 고통'을 제목에 박아라</h4>
+                <p class="text-sm text-gray-700 leading-relaxed">
+                    유튜브 검색창에서 사람들이 실제로 치는 키워드를 분석해보면 공통점이 있습니다. 모두 <strong>불편하거나 고통스러운 상황에서 해방되고 싶은 욕구</strong>를 담고 있습니다. "살 빼고 싶다"보다 "뱃살 없애고 싶다"가 더 구체적이고, "뱃살 없애고 싶다"보다 "앉아있으면 접히는 아랫배 없애는 법"이 10배 더 많은 클릭을 받습니다. 검색자의 고통을 제목과 썸네일에 직접적으로 언급하는 것이 핵심입니다.
+                </p>
             </div>
-            <div class="p-4 bg-gray-50 border-l-4 border-blue-500 rounded-r-xl">
-                <p class="font-bold text-gray-900 text-sm mb-1">3) 다음 동작 3초 전 미리보기(Next Exercise PIP)</p>
-                <p class="text-xs text-gray-600">휴식 시간 15초 동안 화면 귀퉁이에 다음 동작을 미리 보여주어 시청자가 끊김 없이 준비할 수 있도록 배려하세요.</p>
+
+            <div class="p-5 bg-gray-50 border-l-4 border-purple-500 rounded-r-2xl">
+                <h4 class="font-black text-gray-900 text-base mb-2">③ M (Method): 루틴에 '독자 방법론'이라는 브랜딩을 입혀라</h4>
+                <p class="text-sm text-gray-700 leading-relaxed mb-2">
+                    같은 스쿼트 운동이라도 <strong>내 채널만의 이름과 스토리를 붙이는 순간 희소성이 생깁니다.</strong> 브랜딩된 루틴은 시청자의 기억에 남고, 다른 채널과 명확히 차별화됩니다. 특히 타임랩스 연출과 결합하면 시각적 임팩트가 극대화됩니다.
+                </p>
+                <div class="bg-purple-50 border border-purple-200 rounded-xl p-3">
+                    <p class="text-xs font-bold text-purple-700 mb-2">💡 방법론 브랜딩 예시</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-purple-800">
+                        <div>→ "OO식 4분 타바타 지방분해 루틴"</div>
+                        <div>→ "새벽 기상 3종 세트 AMRAP 도전"</div>
+                        <div>→ "척추 교정 5단계 스트레칭 시퀀스"</div>
+                        <div>→ "K-바디 메이킹 12주 단계별 프로그램"</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
-'''
+
+    <!-- 섹션 3: 타임랩스 연출법 -->
+    <div class="space-y-4 pt-6">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-blue-500">PART 3.</span> 조회수를 2배로 끌어올리는 타임랩스(Time-lapse) 연출의 모든 것
+        </h2>
+        <p>
+            홈트·피트니스 유튜브에서 타임랩스는 단순히 "빠르게 감은 영상"이 아닙니다. <strong>타임랩스는 시청 이탈을 방지하고 반복 시청을 유도하며, 시청자에게 '진짜로 변화했구나'라는 강렬한 시각적 증거를 제공하는 최강의 연출 기법</strong>입니다. 성공한 피트니스 채널들이 타임랩스를 공통적으로 활용하는 이유가 여기에 있습니다.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 my-4">
+            <div class="p-5 bg-gradient-to-br from-cyan-50 to-blue-50 rounded-2xl border border-cyan-200">
+                <h4 class="font-bold text-cyan-900 text-base mb-3">🎬 타임랩스 활용 상황 3가지</h4>
+                <div class="space-y-3">
+                    <div class="flex items-start gap-2">
+                        <span class="text-cyan-500 font-bold text-sm mt-0.5">01</span>
+                        <div>
+                            <p class="text-xs font-bold text-gray-900">루틴 전체 요약 하이라이트</p>
+                            <p class="text-xs text-gray-600">30분 운동 루틴을 1~2분으로 압축해 영상 초반에 배치. 시청자가 "저 정도면 나도 할 수 있겠다"는 동기를 부여합니다.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-2">
+                        <span class="text-cyan-500 font-bold text-sm mt-0.5">02</span>
+                        <div>
+                            <p class="text-xs font-bold text-gray-900">세트 간 휴식 구간 압축</p>
+                            <p class="text-xs text-gray-600">운동 세트와 세트 사이의 60~90초 휴식 구간을 8~10배속 타임랩스로 처리해 지루한 공백을 제거하고 몰입도를 유지합니다.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-2">
+                        <span class="text-cyan-500 font-bold text-sm mt-0.5">03</span>
+                        <div>
+                            <p class="text-xs font-bold text-gray-900">30일·90일 변화 비포&애프터</p>
+                            <p class="text-xs text-gray-600">매일의 운동 시작 전 모습을 1~2초씩 촬영하고 연결해 극적인 체형 변화 타임랩스를 완성합니다. 이 유형은 썸네일과 함께 클릭률을 극적으로 끌어올립니다.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-5 bg-gradient-to-br from-rose-50 to-orange-50 rounded-2xl border border-rose-200">
+                <h4 class="font-bold text-rose-900 text-base mb-3">⚙️ 타임랩스 촬영·편집 실전 세팅</h4>
+                <div class="space-y-2 text-xs text-gray-700">
+                    <div class="flex gap-2 items-start">
+                        <span class="font-bold text-rose-600 w-16 shrink-0">촬영 배속</span>
+                        <span>스마트폰 기본 타임랩스(30~60배속)보다 일반 촬영 후 편집에서 4~8배속이 자연스럽습니다. DaVinci Resolve, CapCut 편집 권장</span>
+                    </div>
+                    <div class="flex gap-2 items-start">
+                        <span class="font-bold text-rose-600 w-16 shrink-0">앵글 고정</span>
+                        <span>타임랩스는 카메라 흔들림이 치명적입니다. 삼각대 필수 사용, 광각 렌즈로 전신이 프레임 안에 들어오도록 세팅하세요.</span>
+                    </div>
+                    <div class="flex gap-2 items-start">
+                        <span class="font-bold text-rose-600 w-16 shrink-0">조명 통일</span>
+                        <span>촬영 날마다 조명이 바뀌면 타임랩스 연결 시 색감이 튀어 이질감이 생깁니다. 링라이트나 패널 조명으로 조건을 통일하세요.</span>
+                    </div>
+                    <div class="flex gap-2 items-start">
+                        <span class="font-bold text-rose-600 w-16 shrink-0">BGM 싱크</span>
+                        <span>배속이 빨라진 구간에 BPM이 높은 에너제틱 BGM을 깔면 시청자의 심박수가 자연스럽게 올라가 몰입감이 극대화됩니다.</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-5 bg-indigo-50 border border-indigo-200 rounded-2xl">
+            <h4 class="font-bold text-indigo-900 text-base mb-3">📊 타임랩스 배속별 효과 가이드</h4>
+            <div class="overflow-x-auto">
+                <table class="w-full text-xs text-gray-700 border-collapse">
+                    <thead>
+                        <tr class="bg-indigo-100">
+                            <th class="p-2 text-left font-bold rounded-tl-lg">배속</th>
+                            <th class="p-2 text-left font-bold">활용 구간</th>
+                            <th class="p-2 text-left font-bold rounded-tr-lg">심리 효과</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-indigo-100">
+                        <tr class="hover:bg-indigo-50/50">
+                            <td class="p-2 font-bold text-indigo-700">2~3배속</td>
+                            <td class="p-2">동작 설명 후 실제 수행 연결</td>
+                            <td class="p-2">자연스러운 템포 업, 이탈 방지</td>
+                        </tr>
+                        <tr class="hover:bg-indigo-50/50">
+                            <td class="p-2 font-bold text-indigo-700">4~6배속</td>
+                            <td class="p-2">세트 간 휴식·환경 세팅 구간</td>
+                            <td class="p-2">지루함 제거, 긴장감 유지</td>
+                        </tr>
+                        <tr class="hover:bg-indigo-50/50">
+                            <td class="p-2 font-bold text-indigo-700">8~10배속</td>
+                            <td class="p-2">루틴 요약·비포&애프터 연결</td>
+                            <td class="p-2">드라마틱한 변화 강조, 공유 욕구 자극</td>
+                        </tr>
+                        <tr class="hover:bg-indigo-50/50">
+                            <td class="p-2 font-bold text-indigo-700">30배속 이상</td>
+                            <td class="p-2">30일~90일 체형 변화 컴파일</td>
+                            <td class="p-2">강렬한 비포&애프터, 바이럴 유발</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- 섹션 4: 썸네일·제목 공식 -->
+    <div class="space-y-4 pt-6">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-blue-500">PART 4.</span> 클릭률 12% 이상을 만드는 홈트 채널 전용 썸네일·제목 공식
+        </h2>
+        <p>
+            아무리 루틴 설계가 완벽하고 타임랩스 연출이 뛰어나도, 시청자가 클릭하지 않으면 아무 의미가 없습니다. 유튜브 평균 클릭률(CTR)은 4~6%인데, 성공한 홈트 채널들은 공통적으로 <strong>8~15%의 클릭률</strong>을 기록합니다. 그 비결은 썸네일과 제목의 정밀한 결합에 있습니다.
+        </p>
+
+        <div class="space-y-3">
+            <div class="p-4 bg-gray-50 border-l-4 border-yellow-400 rounded-r-2xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">🖼️ 썸네일 황금 법칙 3가지</p>
+                <ul class="text-xs text-gray-700 space-y-2 list-disc list-inside leading-relaxed">
+                    <li><strong>감정이 담긴 표정</strong>: 운동 중 힘드한 표정(공감) 또는 결과물인 탄탄한 몸(열망)을 전면에 배치. 무표정 정면 샷은 CTR을 낮춥니다.</li>
+                    <li><strong>숫자와 기간을 텍스트로 삽입</strong>: "7일", "4주", "하루 10분"처럼 구체적인 수치가 담긴 텍스트 오버레이는 CTR을 평균 23% 상승시킵니다.</li>
+                    <li><strong>비포&애프터의 절반만 보여주기</strong>: '비포' 이미지는 보여주되 '애프터'는 제목으로 암시만 하면, 호기심이 극대화되어 클릭을 유도합니다.</li>
+                </ul>
+            </div>
+
+            <div class="p-4 bg-gray-50 border-l-4 border-green-400 rounded-r-2xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">✍️ 알고리즘 친화적 제목 공식 4패턴</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
+                    <div class="bg-white border border-gray-200 rounded-xl p-3 text-xs">
+                        <p class="font-bold text-emerald-600 mb-1">패턴 ①: [기간] + [타깃] + [결과]</p>
+                        <p class="text-gray-600 italic">"4주만에 뱃살 빠진 30대 직장인의 점심시간 10분 루틴"</p>
+                    </div>
+                    <div class="bg-white border border-gray-200 rounded-xl p-3 text-xs">
+                        <p class="font-bold text-emerald-600 mb-1">패턴 ②: [금지 사항] + [올바른 방법]</p>
+                        <p class="text-gray-600 italic">"스쿼트 이렇게 하면 무릎 망합니다 | 관절 지키는 폼 교정 루틴"</p>
+                    </div>
+                    <div class="bg-white border border-gray-200 rounded-xl p-3 text-xs">
+                        <p class="font-bold text-emerald-600 mb-1">패턴 ③: [챌린지] + [시청자 참여 유도]</p>
+                        <p class="text-gray-600 italic">"저랑 같이 7일 아침 루틴 도전해요 (매일 10분 맨몸 운동)"</p>
+                    </div>
+                    <div class="bg-white border border-gray-200 rounded-xl p-3 text-xs">
+                        <p class="font-bold text-emerald-600 mb-1">패턴 ④: [숫자] + [운동명] + [효과]</p>
+                        <p class="text-gray-600 italic">"딱 5가지 동작으로 하루에 지방 300kcal 태우는 홈트 루틴"</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 섹션 5: 채널 루틴화 전략 -->
+    <div class="space-y-4 pt-6">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-blue-500">PART 5.</span> 알고리즘이 채널을 '전문가 채널'로 인증하게 만드는 루틴화 업로드 전략
+        </h2>
+        <p>
+            개별 영상이 아무리 잘 만들어져도, <strong>채널 자체의 일관성과 주기성이 없으면 알고리즘은 채널을 전문 채널로 분류하지 않습니다.</strong> 홈트·피트니스 카테고리에서 알고리즘의 '채널 단위 추천'을 받으려면 콘텐츠를 시리즈화하고 업로드 주기를 루틴화해야 합니다.
+        </p>
+
+        <div class="my-6 rounded-2xl overflow-hidden shadow-md">
+            <img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?w=1200&auto=format&fit=crop&q=80" alt="피트니스 콘텐츠 기획 및 촬영 준비" class="w-full h-auto object-cover max-h-[360px]">
+            <p class="text-center text-xs text-gray-500 py-2 bg-gray-50">▲ 알고리즘이 채널을 전문 채널로 분류하려면 일관된 주제와 업로드 주기가 필수입니다.</p>
+        </div>
+
+        <div class="p-5 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl border border-blue-200">
+            <h4 class="font-bold text-blue-900 text-base mb-3">📅 주 3회 업로드의 황금 콘텐츠 믹스 공식</h4>
+            <div class="space-y-3">
+                <div class="flex items-center gap-4 p-3 bg-white rounded-xl border border-blue-100">
+                    <div class="w-14 h-14 bg-blue-100 rounded-xl flex flex-col items-center justify-center shrink-0">
+                        <span class="text-xs font-bold text-blue-700">월요일</span>
+                        <span class="text-lg">🔥</span>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-gray-900">알고리즘용 도전·챌린지 영상 (10~15분)</p>
+                        <p class="text-xs text-gray-600">클릭률이 높은 도전 포맷으로 신규 시청자를 유입. "7일 챌린지", "30일 도전"처럼 시리즈를 구성해 구독 유도를 극대화합니다.</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 p-3 bg-white rounded-xl border border-blue-100">
+                    <div class="w-14 h-14 bg-emerald-100 rounded-xl flex flex-col items-center justify-center shrink-0">
+                        <span class="text-xs font-bold text-emerald-700">수요일</span>
+                        <span class="text-lg">📚</span>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-gray-900">검색 최적화용 정보 루틴 영상 (20~40분)</p>
+                        <p class="text-xs text-gray-600">시청자가 검색해서 찾아오는 긴 루틴 영상. 타임랩스를 활용해 전체 루틴을 구조화하고 시청 지속 시간을 극대화합니다.</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4 p-3 bg-white rounded-xl border border-blue-100">
+                    <div class="w-14 h-14 bg-rose-100 rounded-xl flex flex-col items-center justify-center shrink-0">
+                        <span class="text-xs font-bold text-rose-700">금요일</span>
+                        <span class="text-lg">💬</span>
+                    </div>
+                    <div>
+                        <p class="text-sm font-bold text-gray-900">커뮤니티 참여형 Q&A·폼 교정 영상 (10~20분)</p>
+                        <p class="text-xs text-gray-600">구독자 질문과 댓글에 답하는 쌍방향 콘텐츠. 댓글 참여도와 공유율을 높여 알고리즘의 인게이지먼트 점수를 강화합니다.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="p-5 bg-amber-50 border border-amber-200 rounded-2xl">
+            <h4 class="font-bold text-amber-900 text-base mb-2">🏆 초보 채널이 첫 1만 구독자에 도달하는 90일 로드맵</h4>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs">
+                <div class="bg-white rounded-xl p-3 border border-amber-100">
+                    <p class="font-bold text-amber-700 mb-1">1~30일: 채널 정체성 구축</p>
+                    <ul class="text-gray-600 space-y-1 list-disc list-inside">
+                        <li>TPM 프레임워크로 타깃 설정</li>
+                        <li>동일 포맷·썸네일 스타일 유지</li>
+                        <li>최소 12개 영상 업로드(기반 구축)</li>
+                    </ul>
+                </div>
+                <div class="bg-white rounded-xl p-3 border border-amber-100">
+                    <p class="font-bold text-amber-700 mb-1">31~60일: 알고리즘 신호 강화</p>
+                    <ul class="text-gray-600 space-y-1 list-disc list-inside">
+                        <li>타임랩스 비포&애프터 영상 제작</li>
+                        <li>고성능 영상의 Shorts 클립 제작</li>
+                        <li>댓글 100% 응답으로 충성 구독자 형성</li>
+                    </ul>
+                </div>
+                <div class="bg-white rounded-xl p-3 border border-amber-100">
+                    <p class="font-bold text-amber-700 mb-1">61~90일: 확산 및 브랜딩</p>
+                    <ul class="text-gray-600 space-y-1 list-disc list-inside">
+                        <li>자체 루틴 시리즈 플레이리스트 완성</li>
+                        <li>커뮤니티 탭으로 챌린지 독려</li>
+                        <li>타 채널 콜라보로 외부 유입 확보</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 마무리 CTA -->
+    <div class="text-center py-8 px-4 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl text-white mt-6 shadow-xl">
+        <div class="text-4xl mb-3">🚀</div>
+        <h3 class="text-xl font-black mb-3">지금 당장 실행 가능한 3가지 체크리스트</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-5 text-sm">
+            <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+                <div class="text-2xl mb-1">🎯</div>
+                <p class="font-bold mb-1">Step 1</p>
+                <p class="text-xs opacity-90">TPM 프레임워크로 다음 영상의 타깃·문제·방법론 한 줄 문장으로 정리하기</p>
+            </div>
+            <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+                <div class="text-2xl mb-1">🎬</div>
+                <p class="font-bold mb-1">Step 2</p>
+                <p class="text-xs opacity-90">다음 루틴 촬영 시 세트 간 휴식 구간을 4~6배속 타임랩스로 편집하기</p>
+            </div>
+            <div class="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/20">
+                <div class="text-2xl mb-1">📊</div>
+                <p class="font-bold mb-1">Step 3</p>
+                <p class="text-xs opacity-90">유튜브 스튜디오에서 기존 영상의 조회율과 평균 지속시간을 확인하고 이탈 구간 찾기</p>
+            </div>
+        </div>
+        <p class="text-xs opacity-80 max-w-xl mx-auto leading-relaxed">
+            알고리즘은 여러분의 노력을 배신하지 않습니다. <strong>TPM 루틴 설계</strong>와 <strong>타임랩스 연출</strong>, <strong>일관된 업로드 전략</strong>을 결합하면 홈트·피트니스 채널도 충분히 알고리즘의 독점 추천을 받을 수 있습니다. 오늘부터 하나씩 적용해 보세요.
+        </p>
+    </div>
+
+</div>'''
     }
 ]
 
