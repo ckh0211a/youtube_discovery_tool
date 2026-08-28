@@ -19803,6 +19803,33 @@ ${commentsText}
         ? 'http://127.0.0.1:5001' 
         : '';
 
+    // Safe Loading & Toast Helpers
+    function safeShowLoading(show, text = '') {
+        try {
+            if (typeof window.showLoading === 'function') {
+                window.showLoading(show, text, null, true);
+            } else if (typeof showLoading === 'function') {
+                showLoading(show, text, null, true);
+            }
+        } catch (e) {
+            console.warn('[Insight Loading Error Ignored]:', e);
+        }
+    }
+
+    function safeShowToast(msg, type = 'info') {
+        try {
+            if (typeof window.showToast === 'function') {
+                window.showToast(msg, type);
+            } else if (typeof showToast === 'function') {
+                showToast(msg, type);
+            } else {
+                console.log(`[Toast ${type}]: ${msg}`);
+            }
+        } catch (e) {
+            console.log(`[Toast ${type}]: ${msg}`);
+        }
+    }
+
     window.currentInsightCategory = 'all';
     window.currentInsightSearch = '';
     window.currentEditingPostId = null;
@@ -19834,7 +19861,7 @@ ${commentsText}
             }
         } catch (err) {
             console.error('Failed to load insight posts:', err);
-            grid.innerHTML = `<div class="col-span-full py-16 text-center text-red-400 font-bold">게시글을 불러오는 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.</div>`;
+            grid.innerHTML = `<div class="col-span-full py-16 text-center text-red-400 font-bold">게시글 목록을 불러오는 중 오류가 발생했습니다.</div>`;
         }
     };
 
@@ -19931,66 +19958,82 @@ ${commentsText}
     // 5. View Post Detail
     window.viewInsightPost = async function(postId) {
         try {
-            showLoading(true, '게시글을 불러오는 중...');
+            safeShowLoading(true, '게시글을 불러오는 중...');
             const res = await fetch(`${BACKEND_BASE}/api/insights/posts/${postId}`).then(r => r.json());
-            showLoading(false);
+            safeShowLoading(false);
 
             if (!res.success || !res.post) {
-                alert(res.message || '게시글을 불러올 수 없습니다.');
+                alert(res.message || '게시글을 찾을 수 없습니다.');
                 return;
             }
 
             const post = res.post;
             window.currentViewingPost = post;
 
-            // Bind Elements
-            document.getElementById('insightDetailCategory').innerText = post.category || '인사이트';
-            document.getElementById('insightDetailDate').innerText = post.created_at || '';
-            document.getElementById('insightDetailTitle').innerText = post.title;
-            document.getElementById('insightDetailAuthor').innerText = post.author || 'TubeTrend 에디터';
-            document.getElementById('insightDetailViews').innerText = post.views || 0;
-            document.getElementById('insightDetailLikes').innerText = post.likes || 0;
-            document.getElementById('insightDetailLikeBtnCount').innerText = post.likes || 0;
+            // Bind Elements safely
+            const setElemText = (id, txt) => {
+                const el = document.getElementById(id);
+                if (el) el.innerText = txt;
+            };
+
+            setElemText('insightDetailCategory', post.category || '인사이트');
+            setElemText('insightDetailDate', (post.created_at || '').split(' ')[0]);
+            setElemText('insightDetailTitle', post.title || '');
+            setElemText('insightDetailAuthor', post.author || 'TubeTrend 에디터');
+            setElemText('insightDetailViews', post.views || 0);
+            setElemText('insightDetailLikes', post.likes || 0);
+            setElemText('insightDetailLikeBtnCount', post.likes || 0);
 
             const thumbWrap = document.getElementById('insightDetailThumbWrap');
             const thumbImg = document.getElementById('insightDetailThumb');
-            if (post.thumbnail) {
-                thumbImg.src = post.thumbnail;
-                thumbWrap.classList.remove('hidden');
-            } else {
-                thumbWrap.classList.add('hidden');
+            if (thumbWrap && thumbImg) {
+                if (post.thumbnail) {
+                    thumbImg.src = post.thumbnail;
+                    thumbWrap.classList.remove('hidden');
+                } else {
+                    thumbWrap.classList.add('hidden');
+                }
             }
 
-            document.getElementById('insightDetailBody').innerHTML = post.content || '';
+            const bodyElem = document.getElementById('insightDetailBody');
+            if (bodyElem) {
+                bodyElem.innerHTML = post.content || '';
+            }
 
             // Tags
             const tagsContainer = document.getElementById('insightDetailTags');
-            if (post.tags) {
-                const tagList = post.tags.split(',').filter(t => t.trim());
-                tagsContainer.innerHTML = tagList.map(t => `
-                    <span class="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-bold hover:bg-gray-200 transition">
-                        ${t.trim().startsWith('#') ? t.trim() : '#' + t.trim()}
-                    </span>`).join('');
-            } else {
-                tagsContainer.innerHTML = '';
+            if (tagsContainer) {
+                if (post.tags) {
+                    const tagList = post.tags.split(',').filter(t => t.trim());
+                    tagsContainer.innerHTML = tagList.map(t => `
+                        <span class="bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-bold hover:bg-gray-200 transition">
+                            ${t.trim().startsWith('#') ? t.trim() : '#' + t.trim()}
+                        </span>`).join('');
+                } else {
+                    tagsContainer.innerHTML = '';
+                }
             }
 
             // Switch View
-            document.getElementById('insightsListView').classList.add('hidden');
-            document.getElementById('insightsDetailView').classList.remove('hidden');
+            const listView = document.getElementById('insightsListView');
+            const detailView = document.getElementById('insightsDetailView');
+            if (listView) listView.classList.add('hidden');
+            if (detailView) detailView.classList.remove('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
 
         } catch (err) {
-            showLoading(false);
+            safeShowLoading(false);
             console.error('Error opening post detail:', err);
-            alert('게시글을 불러오는 중 오류가 발생했습니다.');
+            alert('게시글을 불러오는 중 오류가 발생했습니다: ' + (err.message || ''));
         }
     };
 
     // 6. Back to List View
     window.backToInsightsList = function() {
-        document.getElementById('insightsDetailView').classList.add('hidden');
-        document.getElementById('insightsListView').classList.remove('hidden');
+        const detailView = document.getElementById('insightsDetailView');
+        const listView = document.getElementById('insightsListView');
+        if (detailView) detailView.classList.add('hidden');
+        if (listView) listView.classList.remove('hidden');
         loadInsightPosts();
     };
 
@@ -20001,9 +20044,11 @@ ${commentsText}
         try {
             const res = await fetch(`${BACKEND_BASE}/api/insights/posts/${postId}/like`, { method: 'POST' }).then(r => r.json());
             if (res.success) {
-                document.getElementById('insightDetailLikes').innerText = res.likes;
-                document.getElementById('insightDetailLikeBtnCount').innerText = res.likes;
-                showToast('게시글에 좋아요를 눌렀습니다! ❤️', 'success');
+                const el1 = document.getElementById('insightDetailLikes');
+                const el2 = document.getElementById('insightDetailLikeBtnCount');
+                if (el1) el1.innerText = res.likes;
+                if (el2) el2.innerText = res.likes;
+                safeShowToast('게시글에 좋아요를 눌렀습니다! ❤️', 'success');
             }
         } catch (err) {
             console.error('Failed to like post:', err);
@@ -20014,7 +20059,7 @@ ${commentsText}
     window.shareInsightPostUrl = function() {
         const url = window.location.href;
         navigator.clipboard.writeText(url).then(() => {
-            showToast('게시글 링크가 클립보드에 복사되었습니다! 🔗', 'success');
+            safeShowToast('게시글 링크가 클립보드에 복사되었습니다! 🔗', 'success');
         });
     };
 
@@ -20033,7 +20078,7 @@ ${commentsText}
         try {
             const res = await fetch(`${BACKEND_BASE}/api/insights/posts/${postId}`, { method: 'DELETE' }).then(r => r.json());
             if (res.success) {
-                showToast('게시글이 삭제되었습니다.', 'info');
+                safeShowToast('게시글이 삭제되었습니다.', 'info');
                 backToInsightsList();
             } else {
                 alert(res.message || '삭제에 실패했습니다.');
@@ -20061,45 +20106,45 @@ ${commentsText}
 
         if (postId) {
             // Edit Mode
-            modalTitle.innerText = '유튜브 인사이트 포스트 수정';
-            btnPublish.innerHTML = '<i class="fas fa-check"></i> <span>수정완료</span>';
+            if (modalTitle) modalTitle.innerText = '유튜브 인사이트 포스트 수정';
+            if (btnPublish) btnPublish.innerHTML = '<i class="fas fa-check"></i> <span>수정완료</span>';
             
             if (window.currentViewingPost && window.currentViewingPost.id === postId) {
                 const p = window.currentViewingPost;
-                titleInput.value = p.title || '';
-                catSelect.value = p.category || '알고리즘 분석';
-                authorInput.value = p.author || '크리에이터';
-                thumbInput.value = p.thumbnail || '';
-                tagsInput.value = p.tags || '';
-                contentDiv.innerHTML = p.content || '';
+                if (titleInput) titleInput.value = p.title || '';
+                if (catSelect) catSelect.value = p.category || '알고리즘 분석';
+                if (authorInput) authorInput.value = p.author || '크리에이터';
+                if (thumbInput) thumbInput.value = p.thumbnail || '';
+                if (tagsInput) tagsInput.value = p.tags || '';
+                if (contentDiv) contentDiv.innerHTML = p.content || '';
             } else {
                 try {
                     const res = await fetch(`${BACKEND_BASE}/api/insights/posts/${postId}`).then(r => r.json());
                     if (res.success && res.post) {
                         const p = res.post;
-                        titleInput.value = p.title || '';
-                        catSelect.value = p.category || '알고리즘 분석';
-                        authorInput.value = p.author || '크리에이터';
-                        thumbInput.value = p.thumbnail || '';
-                        tagsInput.value = p.tags || '';
-                        contentDiv.innerHTML = p.content || '';
+                        if (titleInput) titleInput.value = p.title || '';
+                        if (catSelect) catSelect.value = p.category || '알고리즘 분석';
+                        if (authorInput) authorInput.value = p.author || '크리에이터';
+                        if (thumbInput) thumbInput.value = p.thumbnail || '';
+                        if (tagsInput) tagsInput.value = p.tags || '';
+                        if (contentDiv) contentDiv.innerHTML = p.content || '';
                     }
                 } catch(e){}
             }
         } else {
             // New Post Mode
-            modalTitle.innerText = '유튜브 인사이트 포스트 작성';
-            btnPublish.innerHTML = '<i class="fas fa-paper-plane"></i> <span>발행하기</span>';
-            titleInput.value = '';
-            catSelect.value = '알고리즘 분석';
-            authorInput.value = '크리에이터';
-            thumbInput.value = '';
-            tagsInput.value = '';
-            contentDiv.innerHTML = '<p>유튜브 크리에이터들을 위한 알찬 인사이트와 노하우를 자유롭게 작성하세요.</p>';
+            if (modalTitle) modalTitle.innerText = '유튜브 인사이트 포스트 작성';
+            if (btnPublish) btnPublish.innerHTML = '<i class="fas fa-paper-plane"></i> <span>발행하기</span>';
+            if (titleInput) titleInput.value = '';
+            if (catSelect) catSelect.value = '알고리즘 분석';
+            if (authorInput) authorInput.value = '크리에이터';
+            if (thumbInput) thumbInput.value = '';
+            if (tagsInput) tagsInput.value = '';
+            if (contentDiv) contentDiv.innerHTML = '<p>유튜브 크리에이터들을 위한 알찬 인사이트와 노하우를 자유롭게 작성하세요.</p>';
         }
 
         updateWordCount();
-        modal.classList.remove('hidden');
+        if (modal) modal.classList.remove('hidden');
     };
 
     window.closeInsightEditor = function() {
@@ -20110,25 +20155,28 @@ ${commentsText}
     // WYSIWYG Command Execution
     window.execEditor = function(command, value = null) {
         document.execCommand(command, false, value);
-        document.getElementById('insightEditContent').focus();
+        const contentDiv = document.getElementById('insightEditContent');
+        if (contentDiv) contentDiv.focus();
     };
 
     window.formatEditorBlock = function(tag) {
         if (!tag) return;
         document.execCommand('formatBlock', false, `<${tag}>`);
-        document.getElementById('insightEditContent').focus();
+        const contentDiv = document.getElementById('insightEditContent');
+        if (contentDiv) contentDiv.focus();
     };
 
     window.formatEditorFontSize = function(size) {
         if (!size) return;
         document.execCommand('fontSize', false, size);
-        document.getElementById('insightEditContent').focus();
+        const contentDiv = document.getElementById('insightEditContent');
+        if (contentDiv) contentDiv.focus();
     };
 
     // Insert Naver Blog Style Elements
     window.insertEditorQuote = function(type) {
         const contentDiv = document.getElementById('insightEditContent');
-        contentDiv.focus();
+        if (contentDiv) contentDiv.focus();
         let html = '';
         if (type === 'quote') {
             html = `<div class="p-5 my-5 bg-rose-50/70 border-l-4 border-rose-500 rounded-r-2xl text-gray-800 font-medium select-text">
@@ -20144,13 +20192,15 @@ ${commentsText}
     };
 
     window.insertEditorDivider = function() {
-        document.getElementById('insightEditContent').focus();
+        const contentDiv = document.getElementById('insightEditContent');
+        if (contentDiv) contentDiv.focus();
         const html = `<hr class="my-8 border-t-2 border-dashed border-gray-200"><p><br></p>`;
         document.execCommand('insertHTML', false, html);
     };
 
     window.insertEditorCallout = function() {
-        document.getElementById('insightEditContent').focus();
+        const contentDiv = document.getElementById('insightEditContent');
+        if (contentDiv) contentDiv.focus();
         const html = `
             <div class="p-5 my-5 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3.5 select-text">
                 <i class="fas fa-lightbulb text-amber-500 text-2xl mt-0.5 flex-shrink-0"></i>
@@ -20178,7 +20228,8 @@ ${commentsText}
             return;
         }
 
-        document.getElementById('insightEditContent').focus();
+        const contentDiv = document.getElementById('insightEditContent');
+        if (contentDiv) contentDiv.focus();
         const html = `
             <div class="my-6 rounded-2xl overflow-hidden shadow-xl aspect-video w-full max-w-2xl mx-auto border border-gray-200">
                 <iframe src="https://www.youtube.com/embed/${videoId}" class="w-full h-full" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -20199,22 +20250,23 @@ ${commentsText}
         const formData = new FormData();
         formData.append('image', file);
 
-        showLoading(true, '대표 썸네일 업로드 중...');
+        safeShowLoading(true, '대표 썸네일 업로드 중...');
         try {
             const res = await fetch(`${BACKEND_BASE}/api/insights/upload-image`, {
                 method: 'POST',
                 body: formData
             }).then(r => r.json());
-            showLoading(false);
+            safeShowLoading(false);
 
             if (res.success && res.url) {
-                document.getElementById('insightEditThumb').value = res.url;
-                showToast('대표 썸네일이 업로드되었습니다.', 'success');
+                const el = document.getElementById('insightEditThumb');
+                if (el) el.value = res.url;
+                safeShowToast('대표 썸네일이 업로드되었습니다.', 'success');
             } else {
                 alert(res.message || '이미지 업로드 실패');
             }
         } catch (err) {
-            showLoading(false);
+            safeShowLoading(false);
             alert('이미지 업로드 중 오류가 발생했습니다.');
         }
     };
@@ -20226,24 +20278,25 @@ ${commentsText}
         const formData = new FormData();
         formData.append('image', file);
 
-        showLoading(true, '본문 이미지 업로드 중...');
+        safeShowLoading(true, '본문 이미지 업로드 중...');
         try {
             const res = await fetch(`${BACKEND_BASE}/api/insights/upload-image`, {
                 method: 'POST',
                 body: formData
             }).then(r => r.json());
-            showLoading(false);
+            safeShowLoading(false);
 
             if (res.success && res.url) {
-                document.getElementById('insightEditContent').focus();
+                const contentDiv = document.getElementById('insightEditContent');
+                if (contentDiv) contentDiv.focus();
                 const html = `<img src="${res.url}" alt="Uploaded Image" class="my-5 rounded-2xl max-w-full shadow-lg border border-gray-100"><p><br></p>`;
                 document.execCommand('insertHTML', false, html);
-                showToast('본문에 이미지가 삽입되었습니다.', 'success');
+                safeShowToast('본문에 이미지가 삽입되었습니다.', 'success');
             } else {
                 alert(res.message || '이미지 업로드 실패');
             }
         } catch (err) {
-            showLoading(false);
+            safeShowLoading(false);
             alert('이미지 업로드 중 오류가 발생했습니다.');
         }
     };
@@ -20260,41 +20313,55 @@ ${commentsText}
 
     // Save Draft
     window.saveInsightDraft = function() {
+        const titleEl = document.getElementById('insightEditTitle');
+        const catEl = document.getElementById('insightEditCategory');
+        const authorEl = document.getElementById('insightEditAuthor');
+        const thumbEl = document.getElementById('insightEditThumb');
+        const tagsEl = document.getElementById('insightEditTags');
+        const contentEl = document.getElementById('insightEditContent');
+
         const draft = {
-            title: document.getElementById('insightEditTitle').value,
-            category: document.getElementById('insightEditCategory').value,
-            author: document.getElementById('insightEditAuthor').value,
-            thumbnail: document.getElementById('insightEditThumb').value,
-            tags: document.getElementById('insightEditTags').value,
-            content: document.getElementById('insightEditContent').innerHTML,
+            title: titleEl ? titleEl.value : '',
+            category: catEl ? catEl.value : '',
+            author: authorEl ? authorEl.value : '',
+            thumbnail: thumbEl ? thumbEl.value : '',
+            tags: tagsEl ? tagsEl.value : '',
+            content: contentEl ? contentEl.innerHTML : '',
             savedAt: new Date().toISOString()
         };
         localStorage.setItem('insight_draft', JSON.stringify(draft));
-        showToast('임시저장이 완료되었습니다. 💾', 'info');
+        safeShowToast('임시저장이 완료되었습니다. 💾', 'info');
     };
 
     // Publish / Save Post
     window.publishInsightPost = async function() {
-        const title = document.getElementById('insightEditTitle').value.trim();
-        const category = document.getElementById('insightEditCategory').value;
-        const author = document.getElementById('insightEditAuthor').value.trim() || '크리에이터';
-        const thumbnail = document.getElementById('insightEditThumb').value.trim();
-        const tags = document.getElementById('insightEditTags').value.trim();
-        const content = document.getElementById('insightEditContent').innerHTML.trim();
+        const titleEl = document.getElementById('insightEditTitle');
+        const catEl = document.getElementById('insightEditCategory');
+        const authorEl = document.getElementById('insightEditAuthor');
+        const thumbEl = document.getElementById('insightEditThumb');
+        const tagsEl = document.getElementById('insightEditTags');
+        const contentEl = document.getElementById('insightEditContent');
+
+        const title = titleEl ? titleEl.value.trim() : '';
+        const category = catEl ? catEl.value : '알고리즘 분석';
+        const author = authorEl ? (authorEl.value.trim() || '크리에이터') : '크리에이터';
+        const thumbnail = thumbEl ? thumbEl.value.trim() : '';
+        const tags = tagsEl ? tagsEl.value.trim() : '';
+        const content = contentEl ? contentEl.innerHTML.trim() : '';
 
         if (!title) {
             alert('제목을 입력해주세요.');
-            document.getElementById('insightEditTitle').focus();
+            if (titleEl) titleEl.focus();
             return;
         }
         if (!content || content === '<p><br></p>') {
             alert('본문 내용을 입력해주세요.');
-            document.getElementById('insightEditContent').focus();
+            if (contentEl) contentEl.focus();
             return;
         }
 
         const payload = { title, category, author, thumbnail, tags, content };
-        showLoading(true, window.currentEditingPostId ? '게시글 수정 중...' : '게시글 발행 중...');
+        safeShowLoading(true, window.currentEditingPostId ? '게시글 수정 중...' : '게시글 발행 중...');
 
         try {
             let res;
@@ -20313,10 +20380,10 @@ ${commentsText}
                     body: JSON.stringify(payload)
                 }).then(r => r.json());
             }
-            showLoading(false);
+            safeShowLoading(false);
 
             if (res.success) {
-                showToast(window.currentEditingPostId ? '게시글이 수정되었습니다! ✨' : '게시글이 성공적으로 발행되었습니다! 🎉', 'success');
+                safeShowToast(window.currentEditingPostId ? '게시글이 수정되었습니다! ✨' : '게시글이 성공적으로 발행되었습니다! 🎉', 'success');
                 closeInsightEditor();
                 if (window.currentEditingPostId) {
                     viewInsightPost(window.currentEditingPostId);
@@ -20327,7 +20394,7 @@ ${commentsText}
                 alert(res.message || '발행에 실패했습니다.');
             }
         } catch (err) {
-            showLoading(false);
+            safeShowLoading(false);
             console.error('Publish error:', err);
             alert('발행 처리 중 오류가 발생했습니다.');
         }
@@ -20355,20 +20422,20 @@ ${commentsText}
                     if (file.type.startsWith('image/')) {
                         const formData = new FormData();
                         formData.append('image', file);
-                        showLoading(true, '드롭된 이미지 업로드 중...');
+                        safeShowLoading(true, '드롭된 이미지 업로드 중...');
                         try {
                             const res = await fetch(`${BACKEND_BASE}/api/insights/upload-image`, {
                                 method: 'POST',
                                 body: formData
                             }).then(r => r.json());
-                            showLoading(false);
+                            safeShowLoading(false);
                             if (res.success && res.url) {
                                 contentDiv.focus();
                                 const imgHtml = `<img src="${res.url}" alt="Dropped Image" class="my-5 rounded-2xl max-w-full shadow-lg border border-gray-100"><p><br></p>`;
                                 document.execCommand('insertHTML', false, imgHtml);
                             }
                         } catch(err) {
-                            showLoading(false);
+                            safeShowLoading(false);
                         }
                     }
                 }
