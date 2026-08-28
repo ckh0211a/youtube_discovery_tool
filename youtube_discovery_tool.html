@@ -20078,6 +20078,55 @@ ${commentsText}
             const bodyElem = document.getElementById('insightDetailBody');
             if (bodyElem) {
                 bodyElem.innerHTML = post.content || '';
+
+                // ── inline 색상 강제 정규화 (흰 배경 뷰어용) ──
+                // AI/에디터가 생성한 inline style color를 제거하고 읽기 좋은 색상으로 교체
+                requestAnimationFrame(() => {
+                    // 제목 계열 (h1~h6) 및 그 자손 → 진한 검정
+                    bodyElem.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(el => {
+                        el.style.removeProperty('color');
+                        el.style.setProperty('color', '#111827', 'important');
+                        el.querySelectorAll('*').forEach(child => {
+                            // 파란색 계열 강조 span은 유지, 나머지 연한 색은 진하게
+                            const inlineColor = child.style.color;
+                            if (inlineColor) {
+                                // rgba/rgb로 투명하거나 연한 색인 경우 제거
+                                const isLight = /rgba?\s*\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,?\s*(0\.\d+|0)?\s*\)/.test(inlineColor)
+                                    ? (() => {
+                                        const m = inlineColor.match(/[\d.]+/g);
+                                        if (!m) return false;
+                                        const r = +m[0], g = +m[1], b = +m[2], a = m[3] !== undefined ? +m[3] : 1;
+                                        const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+                                        return lum > 0.75 || a < 0.5;
+                                    })()
+                                    : false;
+                                if (isLight) {
+                                    child.style.setProperty('color', '#111827', 'important');
+                                }
+                            } else {
+                                child.style.setProperty('color', '#111827', 'important');
+                            }
+                        });
+                    });
+                    // 본문 p, li → 진한 회색
+                    bodyElem.querySelectorAll('p, li').forEach(el => {
+                        const inlineColor = el.style.color;
+                        if (!inlineColor || /rgba?\s*\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,?\s*(0\.\d*[0-4]|0)?\s*\)/.test(inlineColor)) {
+                            el.style.setProperty('color', '#374151', 'important');
+                        }
+                        el.querySelectorAll('span, em, strong, b, i, a').forEach(child => {
+                            const cc = child.style.color;
+                            if (!cc) return;
+                            const m = cc.match(/[\d.]+/g);
+                            if (!m) return;
+                            const r = +m[0], g = +m[1], b2 = +m[2], a = m[3] !== undefined ? +m[3] : 1;
+                            const lum = (0.299 * r + 0.587 * g + 0.114 * b2) / 255;
+                            if (lum > 0.72 || a < 0.5) {
+                                child.style.setProperty('color', '#374151', 'important');
+                            }
+                        });
+                    });
+                });
             }
 
             // Tags
