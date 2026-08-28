@@ -5811,7 +5811,34 @@
                 const insightsSection = document.getElementById('insightsSection');
                 if (insightsSection) insightsSection.classList.remove('hidden');
                 if (grid) grid.classList.add('hidden');
-                loadInsightPosts();
+
+                // 무조건 목록 뷰(insightsListView) 열기 및 상세 뷰/에디터 초기화
+                const listView = document.getElementById('insightsListView');
+                const detailView = document.getElementById('insightsDetailView');
+                const editorModal = document.getElementById('insightsEditorModal');
+                if (listView) listView.classList.remove('hidden');
+                if (detailView) detailView.classList.add('hidden');
+                if (editorModal) editorModal.classList.add('hidden');
+
+                // 카테고리 탭 전체로 리셋
+                document.querySelectorAll('#insightCategoryTabs .insight-cat-btn').forEach(btn => {
+                    if (btn.getAttribute('data-cat') === 'all') {
+                        btn.className = 'insight-cat-btn active bg-rose-500 text-white px-4 py-2 rounded-xl text-xs font-black shadow-md transition-all';
+                    } else {
+                        btn.className = 'insight-cat-btn bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-xl text-xs font-bold transition-all';
+                    }
+                });
+
+                const searchInput = document.getElementById('insightSearchInput');
+                if (searchInput) searchInput.value = '';
+
+                if (typeof window.loadInsightPosts === 'function') {
+                    window.loadInsightPosts('all', '');
+                } else if (typeof loadInsightPosts === 'function') {
+                    loadInsightPosts('all', '');
+                }
+
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             }
         }
 
