@@ -5464,9 +5464,13 @@
 
             currentSearchMode = mode;
 
-            // [NEW] 유튜브 인사이트 섹션 초기 숨김
+            // [NEW] 유튜브 인사이트 섹션 초기 숨김 및 뷰 리셋
             const insightsSection = document.getElementById('insightsSection');
             if (insightsSection) insightsSection.classList.add('hidden');
+            const detailViewEl = document.getElementById('insightsDetailView');
+            const listViewEl = document.getElementById('insightsListView');
+            if (detailViewEl) detailViewEl.classList.add('hidden');
+            if (listViewEl) listViewEl.classList.remove('hidden');
             window._forcedChannelId = null; // [FIX] Clear any previous channel-specific restriction when switching modes
             const dashArea = document.getElementById('dashboardArea');
             const kwSection = document.getElementById('keywordSearchSection');
