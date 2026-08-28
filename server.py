@@ -1528,11 +1528,8 @@ def init_db():
                     updated_at TEXT
                 )''')
     
-    # Check if empty, seed default posts
-    c.execute('SELECT COUNT(*) FROM insight_posts')
-    if c.fetchone()[0] == 0:
-        now_str = datetime.now().strftime('%Y-%m-%d %H:%M')
-        seed_post_1 = (
+    now_str = datetime.now().strftime('%Y-%m-%d %H:%M')
+    seed_post_1 = (
             '2026년 유튜브 알고리즘 완벽 공략법: 시청 지속 시간과 VPH의 상관관계',
             '알고리즘 분석',
             '유튜브 추천 시스템이 가장 주목하는 2대 핵심 지표인 VPH(시간당 유입 가속도)와 시청 지속 시간(Retention)의 복리 시너지 메커니즘을 5,000자 분량으로 완벽 해부한 실전 알고리즘 가이드북입니다.',
@@ -1783,7 +1780,7 @@ def init_db():
             now_str,
             now_str
         )
-        seed_post_2 = (
+    seed_post_2 = (
             '초보 크리에이터도 10만 뷰 터지는 유튜브 쇼츠 기획의 3가지 법칙',
             '쇼츠 전략',
             '1초 만에 이탈하는 시청자를 사로잡는 오프닝 후킹 공식, 0.8초 템포 편집, 무한 반복 시청(Seamless Loop)을 유도하는 5,000자 분량의 실전 쇼츠 완벽 가이드북입니다.',
@@ -2096,39 +2093,1044 @@ def init_db():
             now_str,
             now_str
         )
+    c.execute('SELECT COUNT(*) FROM insight_posts')
+    if c.fetchone()[0] == 0:
         c.execute('''INSERT INTO insight_posts 
                     (title, category, summary, content, thumbnail, tags, author, views, likes, created_at, updated_at) 
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', seed_post_1)
         c.execute('''INSERT INTO insight_posts 
                     (title, category, summary, content, thumbnail, tags, author, views, likes, created_at, updated_at) 
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', seed_post_2)
-    else:
-        # DB가 이미 존재해도 2번 글의 내용이 구버전이면 최신으로 자동 갱신
+
+    # Sync all 18 extra posts into database
+    posts_data = [
+    # 01. 쇼핑 & 제휴 마케팅
+    {
+        "title": "구독자 1,000명으로 월 300만원 버는 유튜브 쇼핑 & 제휴 마케팅 수익화 공식",
+        "category": "수익화 팁",
+        "author": "수익화 전략가 제이",
+        "tags": "#유튜브수익화,#쿠팡파트너스,#유튜브쇼핑,#제휴마케팅,#부업,#월300",
+        "thumbnail": "https://images.unsplash.com/photo-1556742049-0a67e55722c0?w=1200&auto=format&fit=crop&q=80",
+        "summary": "조회수 1회당 1~2원 주는 구글 애드센스에만 매달리지 마세요. 구독자 1,000명으로도 쿠팡 파트너스, 스마트스토어 연동, 쇼핑 쇼츠를 통해 월 300만 원 이상의 순수익을 창출하는 실전 제휴 커머스 설계법을 공개합니다.",
+        "views": 1840,
+        "likes": 92,
+        "content": '''
+<div class="space-y-8 text-gray-800 leading-relaxed text-[16px]">
+    <div class="p-6 bg-gradient-to-r from-emerald-900 to-teal-950 text-white rounded-2xl border-l-4 border-emerald-400 shadow-xl">
+        <p class="text-xl font-black text-emerald-300 mb-2 leading-snug">
+            💰 "조회수 10만 회 터져도 수익은 고작 10만 원? 이제 수익 모델의 판을 바꿔야 합니다."
+        </p>
+        <p class="text-sm text-gray-300 leading-relaxed">
+            많은 초보 크리에이터가 '구독자 10만 명'을 달성해야만 돈을 벌 수 있다는 착각에 빠져 있습니다. 하지만 유튜브 애드센스(조회수 광고) 수익은 1조회수당 평균 1~3원에 불과합니다. 반면, <strong>'구매 의도가 명확한 타깃 시청자'</strong>를 대상으로 제휴 마케팅과 유튜브 쇼핑 시스템을 구축하면, 구독자 1,000명만으로도 대기업 직장인 월급 이상의 현금 파이프라인을 만들 수 있습니다.
+        </p>
+    </div>
+
+    <div class="space-y-4">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-emerald-600">PART 1.</span> 조회수 수익 vs 커머스 제휴 수익의 극적인 차이
+        </h2>
+        <p>
+            유튜브에서 돈을 버는 방식은 크게 <strong>수동적 광고 수익(AdSense)</strong>과 <strong>능동적 커머스 수익(Affiliate Commerce)</strong>으로 나뉩니다.
+        </p>
+        <div class="my-6 rounded-2xl overflow-hidden shadow-md">
+            <img src="https://images.unsplash.com/photo-1556740738-b6a63e27c4df?w=1200&auto=format&fit=crop&q=80" alt="온라인 결제 및 이커머스 매출 대시보드" class="w-full h-auto object-cover max-h-[420px]">
+            <p class="text-center text-xs text-gray-500 py-2 bg-gray-50">▲ 조회수 1만 회의 영상이라도 구매 전환율이 3%라면 300건의 판매 수수료가 발생합니다.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
+            <div class="p-5 bg-gray-50 rounded-2xl border border-gray-200">
+                <h4 class="font-bold text-gray-700 text-sm mb-1">❌ 일반 엔터 채널 (조회수 10만 회)</h4>
+                <p class="text-xs text-gray-600">RPM 1.5원 기준 ➔ <strong>약 150,000원 수익</strong></p>
+                <p class="text-[11px] text-gray-400 mt-1">시청 후 즉시 이탈, 재구매 없음</p>
+            </div>
+            <div class="p-5 bg-emerald-50 rounded-2xl border border-emerald-200">
+                <h4 class="font-bold text-emerald-800 text-sm mb-1">✅ 리뷰/정보 채널 (조회수 1만 회 + 제휴 링크)</h4>
+                <p class="text-xs text-emerald-700">10만원 제품 150개 판매 (수수료 3%) ➔ <strong>450,000원 + 광고수익</strong></p>
+                <p class="text-[11px] text-emerald-600 mt-1">조회수는 1/10이지만 수익은 3배 이상 폭발</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="space-y-4 pt-6">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-emerald-600">PART 2.</span> 구매 전환율 8%를 만드는 3단계 제휴 퍼널 설계
+        </h2>
+        <div class="space-y-3">
+            <div class="p-4 bg-gray-50 border-l-4 border-emerald-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">1단계: 문제 해결형 키워드 공략 (Buying Intent Keyword)</p>
+                <p class="text-xs text-gray-600">"아이폰16 리뷰" 같은 포괄적 키워드가 아닌 "원룸 자취생 가성비 로봇청소기 추천 TOP 3"처럼 지갑을 열 준비가 된 검색자를 타깃팅하세요.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-teal-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">2단계: 솔직한 단점 2가지 먼저 공개 (신뢰도 형성)</p>
+                <p class="text-xs text-gray-600">장점만 나열하면 시청자는 '광고'라고 느끼고 이탈합니다. "이 제품의 치명적인 단점은 OO이지만, OO한 분들에게는 대체 불가능한 이유"를 논리적으로 설명하세요.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-blue-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">3단계: 고정 댓글과 더보기란의 링크 클릭 유도 (CTA)</p>
+                <p class="text-xs text-gray-600">"최저가 할인 링크는 고정 댓글 1번에 남겨두었습니다"라는 멘트를 영상 70% 지점에 자연스럽게 삽입하세요.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="space-y-4 pt-6">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-emerald-600">PART 3.</span> 2026 최신 유튜브 쇼핑(YouTube Shopping) 기능 활용법
+        </h2>
+        <p>
+            유튜브는 이제 자체 스토어 연동 및 <strong>'제품 태그(Product Tagging)'</strong> 기능을 전 세계적으로 확장하고 있습니다. 영상 화면에 직접 구매 버튼이 오버레이되므로 시청자가 영상을 보면서 즉시 제품을 결제할 수 있습니다.
+        </p>
+        <div class="p-5 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl">
+            <h4 class="font-bold text-emerald-900 text-sm mb-2">📌 초보자가 당장 시작할 수 있는 제휴 플랫폼 3선</h4>
+            <ul class="list-disc list-inside space-y-1 text-xs text-emerald-800">
+                <li><strong>쿠팡 파트너스:</strong> 일상용품, 가전, 서적 등 한국에서 가장 높은 전환율 보장 (기본 3% 커미션)</li>
+                <li><strong>알리익스프레스 어필리에이트:</strong> 초저가 기발한 아이디어 상품 리뷰 쇼츠와 완벽한 궁합 (최대 9% 커미션)</li>
+                <li><strong>카페24 / 쇼피파이 유튜브 쇼핑 연동:</strong> 자체 브랜드 굿즈나 무재고 드랍쉬핑 상품을 영상 하단에 직접 판매</li>
+            </ul>
+        </div>
+    </div>
+</div>
+'''
+    },
+
+    # 02. 첫 1만 구독자
+    {
+        "title": "0명에서 첫 1만 구독자까지 30일 만에 돌파하는 채널 브랜딩 & 니치 타깃팅 로드맵",
+        "category": "채널 운영",
+        "author": "채널 그로스 디렉터",
+        "tags": "#채널성장,#구독자1만,#유튜브브랜딩,#알고리즘색인,#니치마켓",
+        "thumbnail": "https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1200&auto=format&fit=crop&q=80",
+        "summary": "구독자가 0명일 때는 대기업이나 100만 유튜버처럼 브로드한 주제로 방송하면 100% 망합니다. 알고리즘이 내 채널의 정체성을 단 3초 만에 인식하게 만드는 초세부 니치(Niche) 포지셔닝과 30일 성장 프레임워크를 공개합니다.",
+        "views": 2150,
+        "likes": 110,
+        "content": '''
+<div class="space-y-8 text-gray-800 leading-relaxed text-[16px]">
+    <div class="p-6 bg-gradient-to-r from-blue-900 to-indigo-950 text-white rounded-2xl border-l-4 border-blue-400 shadow-xl">
+        <p class="text-xl font-black text-blue-300 mb-2 leading-snug">
+            🚀 "아무도 보지 않는 채널에 혼자 영상을 올리는 외로움을 끝내드립니다."
+        </p>
+        <p class="text-sm text-gray-300 leading-relaxed">
+            유튜브를 시작하는 크리에이터의 95%는 첫 1,000명을 모으지 못하고 3개월 안에 포기합니다. 문제는 영상 퀄리티가 아니라 <strong>'알고리즘이 내 채널이 무슨 채널인지 모른다'</strong>는 데 있습니다. 채널의 핵심 타깃을 좁히고 알고리즘에 정확한 색인(Index)을 심어주는 30일 로드맵을 제시합니다.
+        </p>
+    </div>
+
+    <div class="space-y-4">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-blue-600">STEP 1.</span> 100만 유튜버를 따라하지 마라: '마이크로 니치(Micro-Niche)'의 법칙
+        </h2>
+        <p>
+            '요리 채널'을 만들면 백종원과 경쟁해야 합니다. 하지만 '자취생을 위한 5분 전자레인지 요리'를 만들면 당신이 1등이 됩니다.
+        </p>
+        <div class="my-6 rounded-2xl overflow-hidden shadow-md">
+            <img src="https://images.unsplash.com/photo-1552664730-d307ca884978?w=1200&auto=format&fit=crop&q=80" alt="타깃 고객 세그먼트 분석 미팅" class="w-full h-auto object-cover max-h-[420px]">
+            <p class="text-center text-xs text-gray-500 py-2 bg-gray-50">▲ 타깃 시청자가 명확할수록 시청자의 구독 전환율(Subscription Conversion Rate)은 5배 상승합니다.</p>
+        </div>
+        <div class="p-4 bg-blue-50 border border-blue-200 rounded-2xl text-xs space-y-2">
+            <p class="font-bold text-blue-900 text-sm">🎯 초보 채널 타깃 좁히기 공식 예시</p>
+            <p>• 운동 채널 ❌ ➔ <strong>거북목·허리 통증 직장인을 위한 3분 의자 스트레칭</strong> ⭕</p>
+            <p>• 재테크 채널 ❌ ➔ <strong>사회초년생 월급 200만원으로 1억 모으는 통장 쪼개기</strong> ⭕</p>
+            <p>• IT 리뷰 채널 ❌ ➔ <strong>대학생 가성비 노트북 및 아이패드 생산성 앱 추천</strong> ⭕</p>
+        </div>
+    </div>
+
+    <div class="space-y-4 pt-6">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-blue-600">STEP 2.</span> 첫 30일 1만 구독자 달성 3단계 액션 플랜
+        </h2>
+        <div class="space-y-3">
+            <div class="p-4 bg-gray-50 border-l-4 border-blue-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">1주차: 채널 정체성 구축 & 롱폼 3편 동시 업로드</p>
+                <p class="text-xs text-gray-600">첫 영상을 보고 들어온 시청자가 다음 영상을 이어서 볼 수 있도록 최소 3편의 연관 영상을 미리 준비하여 연속 시청 세션을 유도하세요.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-indigo-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">2~3주차: 롱폼 1편당 쇼츠 3편으로 트래픽 깔때기(Funnel) 가동</p>
+                <p class="text-xs text-gray-600">롱폼 영상의 가장 흥미진진한 하이라이트를 쇼츠로 재편집하고, 쇼츠의 '관련 동영상' 링크 기능으로 롱폼 유입을 폭발시키세요.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-purple-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">4주차: 데이터 기반 피드백 & 떡상 영상 2탄 시리즈 제작</p>
+                <p class="text-xs text-gray-600">조회수가 가장 높게 나온 영상의 키워드와 썸네일 구조를 그대로 복제하여 2탄, 3탄 시리즈를 연속 발행하세요.</p>
+            </div>
+        </div>
+    </div>
+</div>
+'''
+    },
+
+    # 03. 트렌드 분석
+    {
+        "title": "2026년 급상승 유튜브 키워드 발굴법: 빅데이터와 VPH로 떡상 소재 선점하기",
+        "category": "트렌드 분석",
+        "author": "빅데이터 트렌드 랩",
+        "tags": "#트렌드분석,#VPH,#키워드발굴,#소재채굴,#유튜브빅데이터,#급상승",
+        "thumbnail": "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?w=1200&auto=format&fit=crop&q=80",
+        "summary": "남들이 다루고 나서 뒤늦게 따라가면 조회수는 이미 끝물입니다. 구글 트렌드, 네이버 데이터랩, 그리고 TubeTrend의 VPH 가속도 엔진을 결합하여 3일 뒤 대중이 열광할 메가 트렌드 키워드를 선점하는 비법을 공개합니다.",
+        "views": 1690,
+        "likes": 88,
+        "content": '''
+<div class="space-y-8 text-gray-800 leading-relaxed text-[16px]">
+    <div class="p-6 bg-gradient-to-r from-amber-900 to-orange-950 text-white rounded-2xl border-l-4 border-amber-400 shadow-xl">
+        <p class="text-xl font-black text-amber-300 mb-2 leading-snug">
+            📈 "유튜브 성공의 80%는 촬영과 편집이 아니라 '주제 선정'에서 결정됩니다."
+        </p>
+        <p class="text-sm text-gray-300 leading-relaxed">
+            아무리 할리우드급 영상미와 명품 편집을 갖춰도 아무도 검색하지 않는 주제라면 조회수는 100회에 머뭅니다. 반대로 <strong>'지금 대중의 도파민이 쏠리는 트렌드 키워드'</strong>를 선점하면 휴대폰으로 대충 찍어도 50만 뷰가 터집니다.
+        </p>
+    </div>
+
+    <div class="space-y-4">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-amber-600">PART 1.</span> 죽은 키워드 vs 살아 숨쉬는 폭발 키워드 구분법
+        </h2>
+        <p>
+            단순히 검색량이 많은 메인 키워드(예: 다이어트, 주식)는 대형 방송국과 100만 유튜버가 상위 노출을 독점하고 있습니다. 신규 채널은 <strong>'검색량 급상승 + 경쟁 강도 낮음'</strong>의 틈새 파도(Surfing Trend)를 타야 합니다.
+        </p>
+        <div class="my-6 rounded-2xl overflow-hidden shadow-md">
+            <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&auto=format&fit=crop&q=80" alt="트렌드 그래프와 검색어 급상승 차트" class="w-full h-auto object-cover max-h-[420px]">
+            <p class="text-center text-xs text-gray-500 py-2 bg-gray-50">▲ 실시간 데이터 지표를 통해 검색량 곡선이 가파르게 상승하는 변곡점을 찾아내야 합니다.</p>
+        </div>
+    </div>
+
+    <div class="space-y-4 pt-6">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-amber-600">PART 2.</span> TubeTrend VPH 엔진을 활용한 3단계 소재 채굴법
+        </h2>
+        <div class="space-y-3">
+            <div class="p-4 bg-gray-50 border-l-4 border-amber-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">1단계: 구독자 수 대비 조회수 500% 이상인 '이상 급상승 영상' 필터링</p>
+                <p class="text-xs text-gray-600">구독자 3천 명인 채널의 영상이 30만 뷰를 기록했다면, 그 영상의 '주제와 썸네일'이 알고리즘의 심장을 저격했다는 확실한 증거입니다.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-orange-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">2단계: 해외 인기 영상(미국/일본)의 국내 시차 공략</p>
+                <p class="text-xs text-gray-600">해외에서 1~2주 전 폭발한 트렌드 소재를 국내 유튜브 시장에 최초로 번역·로컬라이징하여 선점하세요.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-red-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">3단계: 나만의 앵글(Perspective) 결합하여 재해석</p>
+                <p class="text-xs text-gray-600">단순 복사가 아닌, "직접 7일간 실험해 보았습니다" 혹은 "전문가가 반박하는 3가지 이유"처럼 차별화된 앵글을 더하세요.</p>
+            </div>
+        </div>
+    </div>
+</div>
+'''
+    },
+
+    # 04. 썸네일 & 심리
+    {
+        "title": "클릭률(CTR) 15%를 돌파하는 뇌과학 기반 썸네일 디자인과 호기심 갭 카피라이팅",
+        "category": "알고리즘 분석",
+        "author": "비주얼 사이콜로지스트",
+        "tags": "#썸네일디자인,#클릭률,#CTR,#카피라이팅,#뇌과학,#호기심갭",
+        "thumbnail": "https://images.unsplash.com/photo-1542744094-3a31727221eb?w=1200&auto=format&fit=crop&q=80",
+        "summary": "아무리 훌륭한 영상도 클릭되지 않으면 존재하지 않는 것과 같습니다. 인간의 뇌가 시각 정보를 처리하는 0.1초 동안 무의식적으로 손가락을 누르게 만드는 뇌과학 기반 썸네일 구도와 3단 대비 색상 공식을 전수합니다.",
+        "views": 2400,
+        "likes": 135,
+        "content": '''
+<div class="space-y-8 text-gray-800 leading-relaxed text-[16px]">
+    <div class="p-6 bg-gradient-to-r from-red-900 to-rose-950 text-white rounded-2xl border-l-4 border-rose-400 shadow-xl">
+        <p class="text-xl font-black text-rose-300 mb-2 leading-snug">
+            🎯 "썸네일은 영상의 요약본이 아니라, 시청자의 뇌를 자극하는 '클릭 티켓'입니다."
+        </p>
+        <p class="text-sm text-gray-300 leading-relaxed">
+            시청자는 유튜브 홈 피드를 내릴 때 썸네일을 <strong>'읽는' 것이 아니라 '스캔'</strong>합니다. 모바일 화면에서 0.5초 만에 시선을 사로잡는 시각적 단일 초점 원칙과 호기심 갭(Curiosity Gap) 카피라이팅의 정수를 공개합니다.
+        </p>
+    </div>
+
+    <div class="space-y-4">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-rose-600">RULE 1.</span> 3인치 스마트폰 화면을 지배하는 '시각적 단일 초점'
+        </h2>
+        <p>
+            많은 초보 크리에이터가 썸네일에 배경, 인물, 제품, 긴 텍스트 등 온갖 요소를 다 집어넣어 시선을 분산시킵니다. 썸네일에는 <strong>'딱 1개의 주인공 오브젝트'</strong>와 <strong>'4글자 이내의 단어'</strong>만 남겨야 합니다.
+        </p>
+        <div class="my-6 rounded-2xl overflow-hidden shadow-md">
+            <img src="https://images.unsplash.com/photo-1542744094-24638eff58bb?w=1200&auto=format&fit=crop&q=80" alt="디자인 작업 화면과 색상 대비 분석" class="w-full h-auto object-cover max-h-[420px]">
+            <p class="text-center text-xs text-gray-500 py-2 bg-gray-50">▲ 명도 대비와 채도 대비를 높여 어두운 유튜브 다크모드 화면에서도 눈에 확 띄게 설계해야 합니다.</p>
+        </div>
+    </div>
+
+    <div class="space-y-4 pt-6">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-rose-600">RULE 2.</span> 호기심 갭(Curiosity Gap) 카피라이팅 3대 공식
+        </h2>
+        <div class="space-y-3">
+            <div class="p-4 bg-gray-50 border-l-4 border-rose-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">1) 결말 은폐형: "결국 이렇게 됐습니다..."</p>
+                <p class="text-xs text-gray-600">과정이나 결과를 보여주지 않고 극적인 감정의 결말만을 암시하여 결과를 직접 확인하고 싶게 만듭니다.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-red-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">2) 상식 파괴형: "절대 사지 마세요"</p>
+                <p class="text-xs text-gray-600">대다수가 추천하는 인기 제품이나 유행에 정면으로 반박하는 강렬한 부정어 텍스트를 배치합니다.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-amber-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">3) 숫자 구체화형: "3분 만에 100만원"</p>
+                <p class="text-xs text-gray-600">모호한 표현 대신 뇌가 즉시 계산할 수 있는 직관적인 숫자를 배치하여 신뢰도와 호기심을 극대화합니다.</p>
+            </div>
+        </div>
+    </div>
+</div>
+'''
+    },
+
+    # 05. AI 쇼츠 자동화
+    {
+        "title": "30초 만에 끝내는 AI 쇼츠 파이프라인: 기획부터 컷편집, 고품질 TTS 음성까지",
+        "category": "쇼츠 전략",
+        "author": "AI 크리에이티브 엔지니어",
+        "tags": "#AI쇼츠,#자동화,#ChatGPT,#Typecast,#캡컷,#1인크리에이터",
+        "thumbnail": "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&auto=format&fit=crop&q=80",
+        "summary": "하루 8시간씩 영상 편집하던 시대는 끝났습니다. ChatGPT로 대본을 생성하고, Midjourney로 이미지를 뽑아내며, Typecast AI 음성과 캡컷 자동 자막을 연동하여 1시간 만에 쇼츠 5편을 양산하는 자동화 파이프라인을 공개합니다.",
+        "views": 3100,
+        "likes": 172,
+        "content": '''
+<div class="space-y-8 text-gray-800 leading-relaxed text-[16px]">
+    <div class="p-6 bg-gradient-to-r from-purple-900 to-indigo-950 text-white rounded-2xl border-l-4 border-purple-400 shadow-xl">
+        <p class="text-xl font-black text-purple-300 mb-2 leading-snug">
+            🤖 "1인 크리에이터가 10명의 프로덕션 팀을 이기는 유일한 무기는 'AI 자동화'입니다."
+        </p>
+        <p class="text-sm text-gray-300 leading-relaxed">
+            쇼츠 알고리즘은 꾸준한 주간 3~5회 이상의 고빈도 발행을 선호합니다. 혼자서 기획, 대본, 녹음, 편집을 다 하다가 지쳐 떨어지지 마세요. 검증된 4단계 AI 도구 체인(Toolchain)으로 제작 시간을 90% 단축하는 방법을 소개합니다.
+        </p>
+    </div>
+
+    <div class="space-y-4">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-purple-600">STEP 1.</span> 4단계 AI 쇼츠 고속 제작 파이프라인
+        </h2>
+        <div class="my-6 rounded-2xl overflow-hidden shadow-md">
+            <img src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1200&auto=format&fit=crop&q=80" alt="인공지능 소프트웨어 작업 인터페이스" class="w-full h-auto object-cover max-h-[420px]">
+            <p class="text-center text-xs text-gray-500 py-2 bg-gray-50">▲ 생성형 AI를 결합하여 아이디어 도출부터 완제품 렌더링까지 원스톱으로 처리합니다.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="p-4 bg-purple-50 rounded-2xl border border-purple-200 text-xs">
+                <h4 class="font-bold text-purple-900 text-sm mb-1">1. 기획 & 대본 (ChatGPT / Claude)</h4>
+                <p class="text-gray-700">"1.5초 후킹 + 3가지 근거 + 루프 엔딩" 프롬프트로 35초 분량 대본 10초 만에 추출</p>
+            </div>
+            <div class="p-4 bg-blue-50 rounded-2xl border border-blue-200 text-xs">
+                <h4 class="font-bold text-blue-900 text-sm mb-1">2. 보이스오버 (Typecast / ElevenLabs)</h4>
+                <p class="text-gray-700">감정이 실린 자연스러운 성우 음성 1.15배속 세팅으로 오디오 렌더링</p>
+            </div>
+            <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-200 text-xs">
+                <h4 class="font-bold text-emerald-900 text-sm mb-1">3. 비주얼 생성 (Midjourney / Runway)</h4>
+                <p class="text-gray-700">각 문장별 9:16 비율의 시각적 충격 이미지 및 4초 비디오 클립 생성</p>
+            </div>
+            <div class="p-4 bg-amber-50 rounded-2xl border border-amber-200 text-xs">
+                <h4 class="font-bold text-amber-900 text-sm mb-1">4. 자동 컷 & 자막 (CapCut / Vrew)</h4>
+                <p class="text-gray-700">음성 인식 자동 자막 생성 + 키워드 강조 색상 + 트랜지션 효과 일괄 적용</p>
+            </div>
+        </div>
+    </div>
+</div>
+'''
+    },
+
+    # 06. 고단가 광고 RPM
+    {
+        "title": "유튜브 조회수 수익(RPM) 5배 올리는 고단가 카테고리 타깃팅과 8분 광고 배치법",
+        "category": "수익화 팁",
+        "author": "유튜브 애드센스 컨설턴트",
+        "tags": "#RPM,#애드센스수익,#미드롤광고,#고단가키워드,#수익5배",
+        "thumbnail": "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=1200&auto=format&fit=crop&q=80",
+        "summary": "같은 100만 뷰인데 누구는 50만 원 벌고 누구는 300만 원을 법니다. 금융, 부동산, B2B 테크 등 글로벌 고단가 CPM 카테고리의 비밀과 시청 이탈 없이 8분 롱폼 영상에 미드롤(중간광고)을 최적화하는 공식을 공개합니다.",
+        "views": 1980,
+        "likes": 105,
+        "content": '''
+<div class="space-y-8 text-gray-800 leading-relaxed text-[16px]">
+    <div class="p-6 bg-gradient-to-r from-green-900 to-emerald-950 text-white rounded-2xl border-l-4 border-emerald-400 shadow-xl">
+        <p class="text-xl font-black text-emerald-300 mb-2 leading-snug">
+            💵 "조회수에 목매지 마세요. 중요한 것은 '1,000회당 내 주머니에 들어오는 순수익(RPM)'입니다."
+        </p>
+        <p class="text-sm text-gray-300 leading-relaxed">
+            유튜브 수익은 단순히 '조회수 × 고정 단가'가 아닙니다. 어떤 시청자가 어떤 주제의 영상을 보느냐에 따라 1,000회당 수익(RPM)은 500원에서 15,000원까지 <strong>최대 30배 차이</strong>가 납니다. 내 채널의 광고 단가를 극대화하는 실전 테크닉을 소개합니다.
+        </p>
+    </div>
+
+    <div class="space-y-4">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-emerald-600">PART 1.</span> 카테고리별 RPM 천차만별 비교표
+        </h2>
+        <div class="my-6 rounded-2xl overflow-hidden shadow-md">
+            <img src="https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=1200&auto=format&fit=crop&q=80" alt="금융 및 수익 분석 차트" class="w-full h-auto object-cover max-h-[420px]">
+            <p class="text-center text-xs text-gray-500 py-2 bg-gray-50">▲ 고소득 성인층이 주로 시청하는 카테고리일수록 광고주들의 입찰 단가가 폭등합니다.</p>
+        </div>
+        <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left border border-gray-200 rounded-xl overflow-hidden">
+                <thead class="bg-gray-100 font-bold text-gray-800">
+                    <tr><th class="p-3">카테고리</th><th class="p-3">주요 타깃층</th><th class="p-3">평균 RPM (1,000뷰당)</th></tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200 text-gray-700">
+                    <tr><td class="p-3 font-bold">주식·부동산·절세·보험</td><td class="p-3">3050 직장인/사업자</td><td class="p-3 text-emerald-600 font-bold">8,000원 ~ 18,000원 (최상급)</td></tr>
+                    <tr><td class="p-3 font-bold">IT·전자기기·소프트웨어</td><td class="p-3">2040 직장인/얼리어답터</td><td class="p-3 text-blue-600 font-bold">4,000원 ~ 8,000원 (상급)</td></tr>
+                    <tr><td class="p-3 font-bold">일상 브이로그·먹방</td><td class="p-3">전 연령층</td><td class="p-3 text-gray-600">1,500원 ~ 3,000원 (중급)</td></tr>
+                    <tr><td class="p-3 font-bold">게임 하이라이트·유머</td><td class="p-3">1020 학생층</td><td class="p-3 text-red-500">500원 ~ 1,200원 (최하급)</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="space-y-4 pt-6">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-emerald-600">PART 2.</span> 8분 이상 영상의 '황금 미드롤(중간광고) 배치 공식'
+        </h2>
+        <div class="p-4 bg-gray-50 border-l-4 border-emerald-500 rounded-r-xl text-xs space-y-2">
+            <p class="font-bold text-gray-900 text-sm">💡 이탈률 0% 미드롤 배치 원칙</p>
+            <p>• 영상 시작 후 <strong>첫 2분 30초 이전에는 절대 중간광고를 넣지 마세요</strong> (오프닝 이탈 방지).</p>
+            <p>• 말의 문장이 끝나는 호흡 구간, 주제가 다음 챕터로 넘어가는 전환 슬라이드 타이밍에 광고를 배치하세요.</p>
+            <p>• 8~10분 영상 기준 <strong>중간광고 2~3개</strong>가 시청자 피로도와 수익의 황금 균형점입니다.</p>
+        </div>
+    </div>
+</div>
+'''
+    },
+
+    # 07. 지식 정보형 스토리보드
+    {
+        "title": "지루한 설명은 가라! 시청 지속률 60%를 넘기는 지식·교양 영상 스토리보드 작법",
+        "category": "채널 운영",
+        "author": "콘텐츠 스토리 닥터",
+        "tags": "#지식유튜브,#스토리보드,#시청지속률,#교양콘텐츠,#인포그래픽",
+        "thumbnail": "https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=1200&auto=format&fit=crop&q=80",
+        "summary": "역사, 과학, 인문학, 시사 지식 영상이 교과서 읽어주는 강의처럼 지루해지는 순간 시청자는 도망칩니다. 넷플릭스 다큐멘터리식 4막 서사 구조와 시각적 인포그래픽 연출로 15분 롱폼을 끝까지 보게 만드는 대본 작법을 공개합니다.",
+        "views": 1540,
+        "likes": 84,
+        "content": '''
+<div class="space-y-8 text-gray-800 leading-relaxed text-[16px]">
+    <div class="p-6 bg-gradient-to-r from-slate-900 to-blue-950 text-white rounded-2xl border-l-4 border-cyan-400 shadow-xl">
+        <p class="text-xl font-black text-cyan-300 mb-2 leading-snug">
+            📖 "정보 전달의 핵심은 '지식의 양'이 아니라 '도파민 터지는 서사'입니다."
+        </p>
+        <p class="text-sm text-gray-300 leading-relaxed">
+            시청자는 공부하러 유튜브에 오지 않습니다. 흥미진진한 이야기를 들으러 옵니다. 지루한 백과사전식 나열을 한 편의 긴장감 넘치는 스릴러 영화로 탈바꿈시키는 <strong>'지식 스토리텔링 4막 공식'</strong>을 공개합니다.
+        </p>
+    </div>
+
+    <div class="space-y-4">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-cyan-600">PART 1.</span> 지식 영상의 4막 구조 (The 4-Act Storytelling)
+        </h2>
+        <div class="my-6 rounded-2xl overflow-hidden shadow-md">
+            <img src="https://images.unsplash.com/photo-1456513080510-7bf3a84b82f8?w=1200&auto=format&fit=crop&q=80" alt="도서관 및 리서치 자료 분석" class="w-full h-auto object-cover max-h-[420px]">
+            <p class="text-center text-xs text-gray-500 py-2 bg-gray-50">▲ 방대한 팩트 자료를 긴장감 있는 하나의 서사 줄기로 엮어내는 것이 기획력입니다.</p>
+        </div>
+        <div class="space-y-3">
+            <div class="p-4 bg-gray-50 border-l-4 border-cyan-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">1막: 도발적 미스터리 제시 (Hook & Mystery)</p>
+                <p class="text-xs text-gray-600">"왜 1945년 그날, 세계 최고의 천재 과학자들은 사막 한가운데서 눈물을 흘렸을까요?"처럼 결론의 모순적 장면으로 시작합니다.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-blue-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">2막: 숨겨진 갈등과 난관 (Conflict & Obstacle)</p>
+                <p class="text-xs text-gray-600">주인공이나 역사적 인물이 마주했던 절체절명의 위기와 치열한 경쟁 과정을 속도감 있게 전개합니다.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-indigo-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">3막: 충격적인 진실의 발견 (Climax & Twist)</p>
+                <p class="text-xs text-gray-600">대중이 잘못 알고 있던 상식을 뒤엎는 핵심적인 팩트와 반전 데이터를 클라이맥스로 터뜨립니다.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-purple-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">4막: 현대적 시사점과 여운 (Insight & Takeaway)</p>
+                <p class="text-xs text-gray-600">"그렇다면 이 역사가 2026년을 살아가는 우리에게 주는 진짜 교훈은 무엇일까요?"로 시청자 스스로 생각하게 만듭니다.</p>
+            </div>
+        </div>
+    </div>
+</div>
+'''
+    },
+
+    # 08. IT 테크 리뷰
+    {
+        "title": "협찬과 조회수를 동시에 잡는 전자제품·IT 전문 리뷰 영상 제작 가이드",
+        "category": "트렌드 분석",
+        "author": "테크 랩 디렉터",
+        "tags": "#IT리뷰,#전자기기,#테크유튜브,#협찬유치,#벤치마크",
+        "thumbnail": "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1200&auto=format&fit=crop&q=80",
+        "summary": "단순히 스펙표 읽어주는 언박싱 영상은 100만 원짜리 카메라로 찍어도 조회수가 나오지 않습니다. 제조사 광고주가 먼저 협찬을 제안하고 시청자가 구매 결정을 내리게 만드는 실전 비교 테스트 연출법을 공개합니다.",
+        "views": 1720,
+        "likes": 95,
+        "content": '''
+<div class="space-y-8 text-gray-800 leading-relaxed text-[16px]">
+    <div class="p-6 bg-gradient-to-r from-slate-900 to-indigo-900 text-white rounded-2xl border-l-4 border-indigo-400 shadow-xl">
+        <p class="text-xl font-black text-indigo-300 mb-2 leading-snug">
+            💻 "시청자는 제품의 '스펙'을 궁금해하지 않습니다. '내 돈 주고 살 만한가'를 알고 싶을 뿐입니다."
+        </p>
+        <p class="text-sm text-gray-300 leading-relaxed">
+            성공하는 IT 유튜버는 제조사 홈페이지에 있는 긱벤치 점수나 배터리 용량 수치를 읊지 않습니다. 철저히 <strong>'실사용자 시점의 극한 테스트'</strong>와 <strong>'명확한 타깃 추천'</strong>으로 신뢰도를 구축합니다.
+        </p>
+    </div>
+
+    <div class="space-y-4">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-indigo-600">PART 1.</span> 10만 뷰 테크 리뷰의 3대 필수 연출
+        </h2>
+        <div class="my-6 rounded-2xl overflow-hidden shadow-md">
+            <img src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1200&auto=format&fit=crop&q=80" alt="최신 IT 기기 및 작업 공간" class="w-full h-auto object-cover max-h-[420px]">
+            <p class="text-center text-xs text-gray-500 py-2 bg-gray-50">▲ 매크로 렌즈를 활용한 초근접 마감 디테일 샷이 리뷰의 전문성을 결정짓습니다.</p>
+        </div>
+        <div class="space-y-3">
+            <div class="p-4 bg-gray-50 border-l-4 border-indigo-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">1) 일주일 실사용 후기(Real-World Stress Test)</p>
+                <p class="text-xs text-gray-600">언박싱 첫인상이 아닌, "출퇴근길 지하철에서 써봤더니...", "여름철 야외 발열 테스트" 등 극한 환경에서의 실제 체감 데이터를 보여주세요.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-blue-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">2) 전작 또는 경쟁사 제품과의 1:1 블라인드 비교</p>
+                <p class="text-xs text-gray-600">화면 분할(Split Screen)을 통해 카메라 화질, 스피커 음질, 렌더링 속도를 시청자가 눈과 귀로 직접 판별하게 만드세요.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-emerald-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">3) 명확한 구매 가이드: "이런 분만 사세요!"</p>
+                <p class="text-xs text-gray-600">영상 마지막에 "돈 아끼고 전작 사도 되는 사람 vs 무조건 이번 신제품 사야 하는 사람"을 깔끔하게 1줄 정리하세요.</p>
+            </div>
+        </div>
+    </div>
+</div>
+'''
+    },
+
+    # 09. 게임 카테고리
+    {
+        "title": "레드오션 게임 유튜브에서 살아남는 3가지 킬러 전략: 공략, 하이라이트, 밈(Meme) 편집",
+        "category": "쇼츠 전략",
+        "author": "게임 크리에이터 코치",
+        "tags": "#게임유튜브,#쇼츠편집,#게임공략,#하이라이트,#밈편집",
+        "thumbnail": "https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1200&auto=format&fit=crop&q=80",
+        "summary": "말없이 게임만 플레이하는 풀버전 영상은 구독자 0명 채널에선 조회수 1회도 나오지 않습니다. 0.5초 밈(Meme) 컷편집, 뉴비를 위한 핵심 꿀팁 공략, 도파민 터지는 하이라이트 쇼츠로 구독자를 쓸어담는 전략을 공개합니다.",
+        "views": 2680,
+        "likes": 140,
+        "content": '''
+<div class="space-y-8 text-gray-800 leading-relaxed text-[16px]">
+    <div class="p-6 bg-gradient-to-r from-purple-900 to-pink-950 text-white rounded-2xl border-l-4 border-pink-400 shadow-xl">
+        <p class="text-xl font-black text-pink-300 mb-2 leading-snug">
+            🎮 "게임 실력이 프로게이머급이 아니어도 10만 구독자 채널을 만들 수 있습니다."
+        </p>
+        <p class="text-sm text-gray-300 leading-relaxed">
+            유튜브 게임 카테고리는 전 세계에서 가장 치열한 레드오션이지만, 반대로 <strong>'편집의 템포와 유머 감각'</strong>만 장착하면 가장 빠르게 팬덤이 폭발하는 시장입니다. 무명 스트리머에서 대형 게임 유튜버로 발돋움하는 3가지 킬러 전략입니다.
+        </p>
+    </div>
+
+    <div class="space-y-4">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-pink-600">PART 1.</span> 게임 유튜버의 3대 생존 공식
+        </h2>
+        <div class="my-6 rounded-2xl overflow-hidden shadow-md">
+            <img src="https://images.unsplash.com/photo-1542751371-adc38448a05e?w=1200&auto=format&fit=crop&q=80" alt="게이밍 룸과 스트리밍 장비" class="w-full h-auto object-cover max-h-[420px]">
+            <p class="text-center text-xs text-gray-500 py-2 bg-gray-50">▲ 시청자는 단순 게임 화면이 아니라 크리에이터의 리액션과 유쾌한 편집 서사를 소비합니다.</p>
+        </div>
+        <div class="space-y-3">
+            <div class="p-4 bg-gray-50 border-l-4 border-pink-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">1) 0.5초 밈(Meme) & 사운드 이펙트 템포 조절</p>
+                <p class="text-xs text-gray-600">죽는 순간이나 실수한 장면에 인터넷 유행 짤방(Meme)과 적절한 왜곡 효과(Ear-rape, Glitch, Freeze Frame)를 넣어 웃음 포인트를 극대화하세요.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-purple-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">2) 신규 업데이트 & 뉴비 탈출 핵심 공략 선점</p>
+                <p class="text-xs text-gray-600">게임 패치 당일 2시간 안에 "이번 시즌 1티어 무기 세팅 완벽 정리" 영상을 올려 검색 유입 트래픽을 독점하세요.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-indigo-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">3) 기승전결이 있는 미션형 예능 챌린지</p>
+                <p class="text-xs text-gray-600">"권총 한 자루로 최종 보스 클리어하기", "시청자가 시키는 대로만 플레이하기"처럼 명확한 목표와 위기가 있는 스토리를 구성하세요.</p>
+            </div>
+        </div>
+    </div>
+</div>
+'''
+    },
+
+    # 10. 음식 요리 ASMR
+    {
+        "title": "오감을 자극하는 ASMR 쿡방·먹방 채널의 카메라 앵글, 조명, 사운드 마스터 클래스",
+        "category": "채널 운영",
+        "author": "푸드 미디어 디렉터",
+        "tags": "#쿡방,#먹방,#ASMR,#푸드스타일링,#조명기법,#사운드디자인",
+        "thumbnail": "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&auto=format&fit=crop&q=80",
+        "summary": "음식 영상의 생명은 시각(비주얼)과 청각(ASMR)의 완벽한 하모니입니다. 기름에 고기가 튀겨지는 지글거리는 소리를 생생하게 담는 마이크 세팅과 음식 색감을 극대화하는 45도 탑라이트 조명 비법을 공개합니다.",
+        "views": 1820,
+        "likes": 98,
+        "content": '''
+<div class="space-y-8 text-gray-800 leading-relaxed text-[16px]">
+    <div class="p-6 bg-gradient-to-r from-orange-900 to-amber-950 text-white rounded-2xl border-l-4 border-amber-400 shadow-xl">
+        <p class="text-xl font-black text-amber-300 mb-2 leading-snug">
+            🍳 "시청자의 침샘을 폭발시키는 영상은 철저한 조명과 사운드 엔지니어링의 결과물입니다."
+        </p>
+        <p class="text-sm text-gray-300 leading-relaxed">
+            맛있는 요리라도 조명이 칙칙하면 식욕을 떨어뜨립니다. 세계적인 푸드 크리에이터들이 사용하는 <strong>'3점 조명 세팅'</strong>과 바삭한 식감을 극대화하는 <strong>'초근접 마이크 수음 테크닉'</strong>을 소개합니다.
+        </p>
+    </div>
+
+    <div class="space-y-4">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-amber-600">PART 1.</span> 침샘을 자극하는 푸드 비주얼 3원칙
+        </h2>
+        <div class="my-6 rounded-2xl overflow-hidden shadow-md">
+            <img src="https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&auto=format&fit=crop&q=80" alt="정갈한 요리 플레이팅과 따뜻한 조명" class="w-full h-auto object-cover max-h-[420px]">
+            <p class="text-center text-xs text-gray-500 py-2 bg-gray-50">▲ 역광(Backlight)을 주어 음식의 김(스팀)과 윤기를 살리는 것이 시즐(Sizzle)의 핵심입니다.</p>
+        </div>
+        <div class="space-y-3">
+            <div class="p-4 bg-gray-50 border-l-4 border-amber-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">1) 45도 사광(Key Light) + 후면 역광(Rim Light)</p>
+                <p class="text-xs text-gray-600">정면에서 빛을 때리면 음성이 평면적으로 보입니다. 뒤쪽 45도 각도에서 강한 빛을 쏘아 음식 표면의 반사광과 증기를 극대화하세요.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-orange-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">2) 60fps / 120fps 슬로우 모션 소스 삽입</p>
+                <p class="text-xs text-gray-600">치즈가 늘어나는 순간, 육즙이 터지는 순간을 2배 슬로우 모션으로 클로즈업하여 시각적 쾌감을 선사하세요.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-red-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">3) 스테레오 콘덴서 마이크와 게인(Gain) 최적화</p>
+                <p class="text-xs text-gray-600">주변 소음을 차단하고 칼질 소리, 기름 튀는 소리의 고음역대(High-Mid)를 이퀄라이저로 부스팅하여 선명도를 높이세요.</p>
+            </div>
+        </div>
+    </div>
+</div>
+'''
+    },
+
+    # 11. 경제 재테크 데이터 시각화
+    {
+        "title": "신뢰도를 극대화하여 슈퍼챗을 부르는 주식·부동산 콘텐츠 데이터 시각화 노하우",
+        "category": "수익화 팁",
+        "author": "금융 미디어 디렉터",
+        "tags": "#주식유튜브,#부동산,#재테크,#데이터시각화,#슈퍼챗,#신뢰도",
+        "thumbnail": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200&auto=format&fit=crop&q=80",
+        "summary": "단순히 HTS 화면이나 뉴스 기사를 캡처해서 읽어주면 시청자는 전문가로 인정하지 않습니다. 복잡한 거시경제 지표와 부동산 시세 데이터를 직관적인 모션 그래픽 차트로 시각화하여 고액 멤버십과 슈퍼챗을 이끌어내는 전략입니다.",
+        "views": 2040,
+        "likes": 115,
+        "content": '''
+<div class="space-y-8 text-gray-800 leading-relaxed text-[16px]">
+    <div class="p-6 bg-gradient-to-r from-blue-950 to-slate-900 text-white rounded-2xl border-l-4 border-blue-400 shadow-xl">
+        <p class="text-xl font-black text-blue-300 mb-2 leading-snug">
+            📊 "경제 콘텐츠의 권위는 '깔끔한 데이터 시각화'에서 탄생합니다."
+        </p>
+        <p class="text-sm text-gray-300 leading-relaxed">
+            시청자가 돈을 지불하고 멤버십에 가입하거나 슈퍼챗을 쏘는 이유는 <strong>'이 사람은 확실한 데이터와 근거로 인사이트를 준다'</strong>는 신뢰 때문입니다. 복잡한 수치를 한눈에 이해시키는 인포그래픽 노하우를 공개합니다.
+        </p>
+    </div>
+
+    <div class="space-y-4">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-blue-600">PART 1.</span> 고품격 금융 인포그래픽 3대 법칙
+        </h2>
+        <div class="my-6 rounded-2xl overflow-hidden shadow-md">
+            <img src="https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=1200&auto=format&fit=crop&q=80" alt="주식 캔들 차트와 거시경제 분석 지표" class="w-full h-auto object-cover max-h-[420px]">
+            <p class="text-center text-xs text-gray-500 py-2 bg-gray-50">▲ 텍스트 나열을 피하고 상승/하락 트렌드를 뚜렷한 색상 대비 차트로 제시해야 합니다.</p>
+        </div>
+        <div class="space-y-3">
+            <div class="p-4 bg-gray-50 border-l-4 border-blue-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">1) 3색 컬러 시스템 (Blue, Red, White/Dark)</p>
+                <p class="text-xs text-gray-600">상승과 긍정은 빨간색/초록색, 위험과 하락은 파란색/빨간색으로 통일하여 시청자가 그래프를 보자마자 시장 분위기를 직관적으로 체감하게 하세요.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-indigo-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">2) 공식 출처(한국은행, Fed, 통계청) 로고 노출</p>
+                <p class="text-xs text-gray-600">자료 하단에 공신력 있는 기관의 로고와 데이터 기준 시점을 명시하여 분석의 객관성을 보장하세요.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-emerald-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">3) 유사투자자문 법적 면책 조항(Disclaimer) 고지</p>
+                <p class="text-xs text-gray-600">"본 영상은 투자 권유가 아니며 모든 투자의 책임은 본인에게 있습니다"라는 자막을 명확히 넣어 채널을 법적 리스크로부터 보호하세요.</p>
+            </div>
+        </div>
+    </div>
+</div>
+'''
+    },
+
+    # 12. 브이로그 감성 연출
+    {
+        "title": "평범한 일상을 영화처럼 만드는 감성 브이로그 연출법: 샷 구성과 BGM 선곡 공식",
+        "category": "채널 운영",
+        "author": "시네마틱 브이로그 감독",
+        "tags": "#브이로그,#감성영상,#BGM선곡,#색보정,#LUT,#시네마틱",
+        "thumbnail": "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=1200&auto=format&fit=crop&q=80",
+        "summary": "특별한 이벤트가 없는 평범한 일상이라도 '카메라 앵글의 다양성'과 '심장을 울리는 BGM'이 결합하면 한 편의 감성 힐링 영화가 됩니다. 인서트 컷 배치, 24fps 시네마틱 프레임 레이트, 무료 저작권 음원 매칭 노하우를 전수합니다.",
+        "views": 2210,
+        "likes": 128,
+        "content": '''
+<div class="space-y-8 text-gray-800 leading-relaxed text-[16px]">
+    <div class="p-6 bg-gradient-to-r from-stone-900 to-zinc-950 text-white rounded-2xl border-l-4 border-amber-300 shadow-xl">
+        <p class="text-xl font-black text-amber-200 mb-2 leading-snug">
+            ☕ "브이로그는 무엇을 하느냐보다 '어떤 무드(Mood)로 보여주느냐'의 싸움입니다."
+        </p>
+        <p class="text-sm text-gray-300 leading-relaxed">
+            유명 연예인이 아닌 일반인의 일상을 남들이 끝까지 보게 만드는 힘은 <strong>'공감대와 영상미'</strong>에서 나옵니다. 평범한 커피 한 잔, 출근길 풍경을 감성적인 영화 씬으로 바꾸는 3가지 연출 공식을 공개합니다.
+        </p>
+    </div>
+
+    <div class="space-y-4">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-amber-700">PART 1.</span> 3단 샷 구성 원칙 (Wide - Medium - Close-up)
+        </h2>
+        <div class="my-6 rounded-2xl overflow-hidden shadow-md">
+            <img src="https://images.unsplash.com/photo-1517841905240-472988babdf9?w=1200&auto=format&fit=crop&q=80" alt="감성적인 자연광 카페 브이로그 장면" class="w-full h-auto object-cover max-h-[420px]">
+            <p class="text-center text-xs text-gray-500 py-2 bg-gray-50">▲ 하나의 행동을 3가지 서로 다른 앵글로 촬영하여 교차 편집하는 것이 프로의 비밀입니다.</p>
+        </div>
+        <div class="space-y-3">
+            <div class="p-4 bg-gray-50 border-l-4 border-amber-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">1) 익스트림 클로즈업(ECU) 인서트 컷</p>
+                <p class="text-xs text-gray-600">원두를 가는 소리, 연필로 다이어리를 적는 사각거리는 손끝 클로즈업을 2초 단위로 삽입하여 몰입감을 높이세요.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-stone-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">2) 24fps & 1/50 셔터스피드의 자연스러운 모션 블러</p>
+                <p class="text-xs text-gray-600">스마트폰 기본 60fps의 인위적인 선명함을 벗어나, 사람의 눈에 가장 편안한 24fps 시네마틱 규격을 설정하세요.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-yellow-600 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">3) 감정을 지배하는 로우파이(Lo-Fi) & 어쿠스틱 BGM</p>
+                <p class="text-xs text-gray-600">음악의 볼륨을 말소리보다 18dB 낮추고, 영상의 분위기 전환에 맞춰 BGM을 교체하는 선곡 센스를 발휘하세요.</p>
+            </div>
+        </div>
+    </div>
+</div>
+'''
+    },
+
+    # 13. 저작권 & 공정이용
+    {
+        "title": "저작권 위반(노란딱지) 없이 합법적으로 뉴스·이슈 자료를 인용·분석하는 공정 이용 가이드",
+        "category": "알고리즘 분석",
+        "author": "유튜브 저작권 전문 법률자문",
+        "tags": "#저작권,#공정이용,#FairUse,#노란딱지,#콘텐츠ID,#이슈유튜브",
+        "thumbnail": "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1200&auto=format&fit=crop&q=80",
+        "summary": "정성껏 만든 영상이 저작권 침해 경고나 노란딱지를 맞아 수익 창출이 정지되면 모든 노력이 수포로 돌아갑니다. 미국 저작권법과 유튜브 가이드라인이 인정하는 공정 이용(Fair Use)의 4대 기준과 안전 인용 테크닉을 총정리합니다.",
+        "views": 2540,
+        "likes": 142,
+        "content": '''
+<div class="space-y-8 text-gray-800 leading-relaxed text-[16px]">
+    <div class="p-6 bg-gradient-to-r from-red-950 to-slate-900 text-white rounded-2xl border-l-4 border-red-500 shadow-xl">
+        <p class="text-xl font-black text-red-300 mb-2 leading-snug">
+            ⚖️ "저작권법을 모르면 당신의 채널은 하루아침에 영구 삭제될 수 있습니다."
+        </p>
+        <p class="text-sm text-gray-300 leading-relaxed">
+            영화 리뷰, 시사 이슈, 연예 뉴스 채널을 운영하는 크리에이터들의 최대 고민은 <strong>'저작권 침해 경고(Copyright Strike)'</strong>와 <strong>'수익 제한(노란딱지)'</strong>입니다. 합법적인 비평과 인용으로 채널을 안전하게 방어하는 법적 가이드를 제공합니다.
+        </p>
+    </div>
+
+    <div class="space-y-4">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-red-600">PART 1.</span> 유튜브 공정 이용(Fair Use) 성립의 4대 판단 기준
+        </h2>
+        <div class="my-6 rounded-2xl overflow-hidden shadow-md">
+            <img src="https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1200&auto=format&fit=crop&q=80" alt="법원 판결봉과 저작권 법률 문서" class="w-full h-auto object-cover max-h-[420px]">
+            <p class="text-center text-xs text-gray-500 py-2 bg-gray-50">▲ 단순 복제가 아닌 비평, 교육, 패러디 등 새로운 가치를 창출하는 '변형적 이용'이어야 합니다.</p>
+        </div>
+        <div class="space-y-3">
+            <div class="p-4 bg-gray-50 border-l-4 border-red-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">1) 변형적 가치(Transformative Value) 창출</p>
+                <p class="text-xs text-gray-600">원본 영상에 크리에이터의 음성 해설, 자막 비평, 심층 분석 등 새로운 해석이 원본 분량보다 압도적으로 많아야 합니다.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-amber-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">2) 원본 클립의 최소 인용 (3~5초 룰)</p>
+                <p class="text-xs text-gray-600">하나의 연속된 장면을 5초 이상 그대로 재생하지 말고, 화면 크기 조절, 크롭, 컬러 그레이딩, 블러 등을 가미하세요.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-blue-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">3) 원본 시장 대체성 방지 (결말 스포일러 주의)</p>
+                <p class="text-xs text-gray-600">내 영상을 봄으로써 원본 영화나 방송을 볼 필요가 없어지게 만들면 공정 이용으로 인정받기 어렵습니다.</p>
+            </div>
+        </div>
+    </div>
+</div>
+'''
+    },
+
+    # 14. 섀도우밴 탈출
+    {
+        "title": "알고리즘 섀도우밴(노출 정지) 탈출법: 조회수 급감 원인 진단과 채널 심폐소생술 5단계",
+        "category": "알고리즘 분석",
+        "author": "유튜브 알고리즘 리커버리 팀",
+        "tags": "#섀도우밴,#노출수급감,#알고리즘리셋,#조회수회복,#채널복구",
+        "thumbnail": "https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=1200&auto=format&fit=crop&q=80",
+        "summary": "평소 1만 뷰 나오던 채널이 갑자기 노출수가 0으로 곤두박질쳤다면 섀도우밴을 의심해야 합니다. 무분별한 카피라이팅, 저작권 분쟁, 잦은 영상 삭제로 망가진 채널 알고리즘 색인을 정상화하는 5단계 심폐소생술을 공개합니다.",
+        "views": 2890,
+        "likes": 160,
+        "content": '''
+<div class="space-y-8 text-gray-800 leading-relaxed text-[16px]">
+    <div class="p-6 bg-gradient-to-r from-gray-900 to-slate-950 text-white rounded-2xl border-l-4 border-yellow-400 shadow-xl">
+        <p class="text-xl font-black text-yellow-300 mb-2 leading-snug">
+            🚨 "어제까지 잘 나오던 노출수가 하루아침에 바닥을 쳤다면 알고리즘 페널티를 점검하세요."
+        </p>
+        <p class="text-sm text-gray-300 leading-relaxed">
+            유튜브 공식적으로는 '섀도우밴(Shadowban)'이라는 단어를 쓰지 않지만, 시스템상 <strong>'스팸 메타데이터 감지'</strong>나 <strong>'시청자 피드백 급락'</strong>으로 인해 노출 추천 풀(Pool)에서 강제 제외되는 현상은 분명히 존재합니다. 죽어가는 채널을 살려내는 실전 복구 매뉴얼입니다.
+        </p>
+    </div>
+
+    <div class="space-y-4">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-yellow-600">PART 1.</span> 섀도우밴을 유발하는 3대 금기 행동
+        </h2>
+        <div class="my-6 rounded-2xl overflow-hidden shadow-md">
+            <img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=1200&auto=format&fit=crop&q=80" alt="비즈니스 진단 및 데이터 복구" class="w-full h-auto object-cover max-h-[420px]">
+            <p class="text-center text-xs text-gray-500 py-2 bg-gray-50">▲ 채널의 노출 클릭률과 평균 지속 시간의 이상 하락 지점을 진단해야 합니다.</p>
+        </div>
+        <div class="space-y-3">
+            <div class="p-4 bg-gray-50 border-l-4 border-red-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">1) 영상 올렸다가 지우고 다시 올리는 행위 (Re-upload)</p>
+                <p class="text-xs text-gray-600">조회수가 안 나온다고 영상을 삭제하고 재업로드하면 알고리즘은 이를 중복 스팸으로 인식하여 채널 전체 점수를 깎습니다.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-amber-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">2) 무관한 인기 태그 도배 (Tag Spamming)</p>
+                <p class="text-xs text-gray-600">더보기란이나 태그에 본문과 상관없는 유명 연예인이나 키워드를 수십 개 적는 행위는 즉각 노출 정지 사유입니다.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-blue-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">3) 갑작스러운 주제 급변경 (Category Shock)</p>
+                <p class="text-xs text-gray-600">게임 채널에서 갑자기 주식 영상을 올리면 기존 구독자들의 클릭률이 0%로 떨어져 알고리즘이 추천을 중단합니다.</p>
+            </div>
+        </div>
+    </div>
+</div>
+'''
+    },
+
+    # 15. 글로벌 다국어 전략
+    {
+        "title": "국내용 채널을 글로벌 100만 채널로 확장하는 다국어 자막 & 메타데이터 현지화 전략",
+        "category": "트렌드 분석",
+        "author": "글로벌 채널 디렉터",
+        "tags": "#글로벌유튜브,#다국어자막,#해외진출,#쇼츠글로벌,#100만채널",
+        "thumbnail": "https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=1200&auto=format&fit=crop&q=80",
+        "summary": "인구 5천만의 대한민국 시장에만 갇혀 계실 건가요? 언어 장벽이 없는 노보이스(No-voice) 시각 연출과 유튜브의 다국어 오디오/자막 기능을 활용하여 북미, 남미, 동남아 80억 시장을 공략하는 글로벌 확장 전략을 제시합니다.",
+        "views": 1920,
+        "likes": 108,
+        "content": '''
+<div class="space-y-8 text-gray-800 leading-relaxed text-[16px]">
+    <div class="p-6 bg-gradient-to-r from-blue-900 to-cyan-950 text-white rounded-2xl border-l-4 border-cyan-400 shadow-xl">
+        <p class="text-xl font-black text-cyan-300 mb-2 leading-snug">
+            🌍 "국내 10만 채널의 조회수 한계를 깨뜨리는 가장 확실한 방법은 '글로벌 오픈'입니다."
+        </p>
+        <p class="text-sm text-gray-300 leading-relaxed">
+            전 세계 25억 유튜브 사용자를 대상으로 영상을 배포하면, 국내에서는 1만 뷰 나올 소재가 <strong>1,000만 뷰 메가 히트작</strong>으로 둔갑합니다. 언어의 장벽을 허무는 3단계 글로벌 현지화 공식을 공개합니다.
+        </p>
+    </div>
+
+    <div class="space-y-4">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-cyan-600">PART 1.</span> 언어가 필요 없는 비언어적(Non-verbal) 콘텐츠 기획
+        </h2>
+        <div class="my-6 rounded-2xl overflow-hidden shadow-md">
+            <img src="https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=1200&auto=format&fit=crop&q=80" alt="세계 지도와 글로벌 네트워크" class="w-full h-auto object-cover max-h-[420px]">
+            <p class="text-center text-xs text-gray-500 py-2 bg-gray-50">▲ 시각적 행동과 직관적인 소리만으로 전 세계 누구나 이해할 수 있는 만국 공통 소재를 선택하세요.</p>
+        </div>
+        <div class="space-y-3">
+            <div class="p-4 bg-gray-50 border-l-4 border-cyan-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">1) 다국어 제목 및 설명란 자동 매핑 (Multi-language Metadata)</p>
+                <p class="text-xs text-gray-600">유튜브 스튜디오의 '자막' 탭에서 영어, 스페인어, 일본어, 인도네시아어 제목과 설명을 등록하여 현지인 홈 화면에 자국어로 뜨게 만드세요.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-blue-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">2) 다국어 오디오 트랙(Multi-language Audio) 도입</p>
+                <p class="text-xs text-gray-600">AI 더빙 기술을 활용해 영어 음성 트랙을 추가하여 미스터비스트처럼 시청자가 원하는 언어로 오디오를 선택하게 하세요.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-indigo-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">3) 시각 중심의 바디 랭귀지 & 텍스트 최소화</p>
+                <p class="text-xs text-gray-600">말이 많은 설명 대신 행동, 표정, 이모지, 효과음만으로 상황을 전달하는 슬랩스틱 및 직관적 구조를 구축하세요.</p>
+            </div>
+        </div>
+    </div>
+</div>
+'''
+    },
+
+    # 16. 크리에이터 비즈니스 모델
+    {
+        "title": "조회수 수익을 넘어서: 팬덤 커뮤니티, 멤버십, 전자책·강의 런칭으로 월 1,000만원 만들기",
+        "category": "수익화 팁",
+        "author": "크리에이터 비즈니스 코치",
+        "tags": "#크리에이터이코노미,#멤버십,#전자책런칭,#온라인강의,#월1000만원,#팬덤수익",
+        "thumbnail": "https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=1200&auto=format&fit=crop&q=80",
+        "summary": "알고리즘의 조회수 롤러코스터에 휘둘리지 않고 안정적인 사업체를 구축하는 법! 충성 팬덤을 모으는 커뮤니티 빌딩부터 고단가 유료 멤버십, 지식 창업 전자책 및 VOD 클래스 런칭까지 완벽한 비즈니스 퍼널을 설계합니다.",
+        "views": 2730,
+        "likes": 155,
+        "content": '''
+<div class="space-y-8 text-gray-800 leading-relaxed text-[16px]">
+    <div class="p-6 bg-gradient-to-r from-emerald-950 to-slate-900 text-white rounded-2xl border-l-4 border-emerald-400 shadow-xl">
+        <p class="text-xl font-black text-emerald-300 mb-2 leading-snug">
+            🏆 "진정한 1인 기업 크리에이터는 유튜브를 '홍보 채널'로 쓰고 '수익은 내 플랫폼'에서 거둡니다."
+        </p>
+        <p class="text-sm text-gray-300 leading-relaxed">
+            유튜브 알고리즘이 언제 내 영상을 버릴지 불안해하며 살 수 없습니다. 조회수라는 불안정한 파도에서 벗어나 <strong>'충성 팬 1,000명의 고정 구독 경제'</strong>를 완성하는 크리에이터 비즈니스 3단계 퍼널을 공개합니다.
+        </p>
+    </div>
+
+    <div class="space-y-4">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-emerald-600">PART 1.</span> 4단계 크리에이터 머니타이제이션 퍼널
+        </h2>
+        <div class="my-6 rounded-2xl overflow-hidden shadow-md">
+            <img src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=1200&auto=format&fit=crop&q=80" alt="비즈니스 강의 및 멘토링 세션" class="w-full h-auto object-cover max-h-[420px]">
+            <p class="text-center text-xs text-gray-500 py-2 bg-gray-50">▲ 무료 유튜브 영상으로 잠재고객을 모으고 고단가 백엔드 상품으로 연결해야 합니다.</p>
+        </div>
+        <div class="space-y-3">
+            <div class="p-4 bg-gray-50 border-l-4 border-emerald-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">1단계: 무료 유튜브 영상 ➔ 대중 신뢰 및 인지도 확보</p>
+                <p class="text-xs text-gray-600">내 전문 분야의 꿀팁을 아낌없이 무료로 공개하여 "이 사람 영상은 진짜 알짜배기다"라는 인식을 심어줍니다.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-teal-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">2단계: 리드 마그넷(무료 PDF) ➔ 뉴스레터 / 카카오톡 채널 구독</p>
+                <p class="text-xs text-gray-600">"댓글 링크에서 핵심 요약 템플릿 무료 배포 중"으로 유튜브 알고리즘 밖의 자체 고객 DB를 확보합니다.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-blue-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">3단계: 저단가 프론트엔드 상품 (전자책 / 유료 멤버십)</p>
+                <p class="text-xs text-gray-600">1~3만 원대의 부담 없는 전자책과 월 구독 멤버십 전용 라이브로 유료 결제 경험을 만듭니다.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-indigo-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">4단계: 고단가 백엔드 상품 (VOD 클래스 / 1:1 컨설팅)</p>
+                <p class="text-xs text-gray-600">30~100만 원대의 심화 마스터 클래스와 실시간 코칭으로 월 1,000만 원 이상의 순수익을 완성합니다.</p>
+            </div>
+        </div>
+    </div>
+</div>
+'''
+    },
+
+    # 17. 뷰티 패션 쇼츠
+    {
+        "title": "조회수와 구매 전환을 동시에 폭발시키는 뷰티·패션 쇼츠 튜토리얼 촬영 & 조명 기법",
+        "category": "쇼츠 전략",
+        "author": "뷰티 미디어 디렉터",
+        "tags": "#뷰티쇼츠,#패션유튜브,#메이크업튜토리얼,#조명세팅,#구매전환,#룩북",
+        "thumbnail": "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=1200&auto=format&fit=crop&q=80",
+        "summary": "피부결이 뭉개지거나 색조 발색이 왜곡되면 뷰티 영상의 가치는 바닥으로 떨어집니다. 피부 모공과 텍스처를 살리는 링라이트+소프트박스 조명 세팅과 0.5초 비포/애프터 비교로 화장품 완판을 이끄는 연출법을 공개합니다.",
+        "views": 2180,
+        "likes": 122,
+        "content": '''
+<div class="space-y-8 text-gray-800 leading-relaxed text-[16px]">
+    <div class="p-6 bg-gradient-to-r from-rose-950 to-pink-950 text-white rounded-2xl border-l-4 border-pink-400 shadow-xl">
+        <p class="text-xl font-black text-pink-300 mb-2 leading-snug">
+            💄 "뷰티·패션 쇼츠는 '0.5초 비포/애프터의 극적 대비'가 구매 전환을 결정합니다."
+        </p>
+        <p class="text-sm text-gray-300 leading-relaxed">
+            화장품과 패션 아이템은 시청자의 '외모 콤플렉스 해결'과 '변신에 대한 동경'을 자극하는 콘텐츠입니다. 색조 왜곡 없는 정확한 발색 촬영과 핏(Fit)을 살리는 카메라 워킹 노하우를 소개합니다.
+        </p>
+    </div>
+
+    <div class="space-y-4">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-pink-600">PART 1.</span> 뷰티 영상의 핵심: 5600K 데이라이트 조명 세팅
+        </h2>
+        <div class="my-6 rounded-2xl overflow-hidden shadow-md">
+            <img src="https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=1200&auto=format&fit=crop&q=80" alt="메이크업 뷰티 화장대와 조명 연출" class="w-full h-auto object-cover max-h-[420px]">
+            <p class="text-center text-xs text-gray-500 py-2 bg-gray-50">▲ 링라이트 단독 사용을 피하고 대형 소프트박스를 45도 각도에 배치해 부드러운 피부결을 살립니다.</p>
+        </div>
+        <div class="space-y-3">
+            <div class="p-4 bg-gray-50 border-l-4 border-pink-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">1) 0.5초 쌩얼 ➔ 완벽 메이크업 변신 후킹 (Before/After Hook)</p>
+                <p class="text-xs text-gray-600">가장 극적인 완성 메이크업 장면을 0.3초 먼저 보여준 후 쌩얼 튜토리얼을 시작하여 이탈률을 0%로 막으세요.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-rose-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">2) 화장품 질감(Texture) 초근접 매크로 샷</p>
+                <p class="text-xs text-gray-600">파운데이션의 수분감, 립스틱의 광택감을 렌즈 바로 앞에서 펴 바르는 감각적인 컷을 삽입하세요.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-purple-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">3) 룩북(Lookbook)의 3단 전신/상반신 컷 전환</p>
+                <p class="text-xs text-gray-600">음악 비트에 맞춰 발끝부터 모자까지 전신 핏 ➔ 상반신 ➔ 신발/가방 디테일로 자연스럽게 시선을 유도하세요.</p>
+            </div>
+        </div>
+    </div>
+</div>
+'''
+    },
+
+    # 18. 피트니스 운동 루틴
+    {
+        "title": "알고리즘 추천을 독점하는 홈트·피트니스 유튜브의 루틴 설계와 타임랩스 연출법",
+        "category": "채널 운영",
+        "author": "피트니스 미디어 코치",
+        "tags": "#홈트유튜브,#피트니스,#운동루틴,#타이머UI,#동기부여,#다이어트",
+        "thumbnail": "https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1200&auto=format&fit=crop&q=80",
+        "summary": "시청자가 화면을 켜놓고 '함께 운동하게 만드는' 영상은 시청 지속 시간이 100%를 초과하여 알고리즘의 무한 추천을 받습니다. 시각적 운동 타이머 UI, 타깃 근육 해부학 그래픽, 칼로리 소모량 표시를 활용한 킬러 루틴 설계법을 공개합니다.",
+        "views": 2320,
+        "likes": 130,
+        "content": '''
+<div class="space-y-8 text-gray-800 leading-relaxed text-[16px]">
+    <div class="p-6 bg-gradient-to-r from-teal-950 to-slate-900 text-white rounded-2xl border-l-4 border-teal-400 shadow-xl">
+        <p class="text-xl font-black text-teal-300 mb-2 leading-snug">
+            💪 "피트니스 영상의 궁극적인 목표는 시청자를 '관객'이 아닌 '참여자'로 만드는 것입니다."
+        </p>
+        <p class="text-sm text-gray-300 leading-relaxed">
+            운동 영상을 끝까지 보게 만드는 핵심은 <strong>'시각적 피드백과 동기부여'</strong>입니다. 남녀노소 누구나 매일 재생목록에 넣어두고 반복 시청하는 10분 홈트 루틴 비디오 제작 공식입니다.
+        </p>
+    </div>
+
+    <div class="space-y-4">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-teal-600">PART 1.</span> 시청 지속률 95%를 보장하는 4대 피트니스 UI 요소
+        </h2>
+        <div class="my-6 rounded-2xl overflow-hidden shadow-md">
+            <img src="https://images.unsplash.com/photo-1517838277536-f5f99be501cd?w=1200&auto=format&fit=crop&q=80" alt="피트니스 트레이닝 및 운동 공간" class="w-full h-auto object-cover max-h-[420px]">
+            <p class="text-center text-xs text-gray-500 py-2 bg-gray-50">▲ 직관적인 인터벌 타이머와 자극 부위 표시가 시청자의 운동 완주율을 극대화합니다.</p>
+        </div>
+        <div class="space-y-3">
+            <div class="p-4 bg-gray-50 border-l-4 border-teal-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">1) 45초 운동 / 15초 휴식의 시각적 프로그레스 바</p>
+                <p class="text-xs text-gray-600">화면 상단이나 측면에 남은 시간과 세트를 도넛 차트 또는 게이지 바로 명확히 표시하여 지루함을 덜어주세요.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-emerald-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">2) 자극 근육 부위(Target Muscle) 3D 하이라이트</p>
+                <p class="text-xs text-gray-600">지금 하는 동작이 엉덩이(둔근)인지 복근인지 직관적인 신체 그래픽에 빨간색으로 하이라이트 표시하세요.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-blue-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">3) 다음 동작 3초 전 미리보기(Next Exercise PIP)</p>
+                <p class="text-xs text-gray-600">휴식 시간 15초 동안 화면 귀퉁이에 다음 동작을 미리 보여주어 시청자가 끊김 없이 준비할 수 있도록 배려하세요.</p>
+            </div>
+        </div>
+    </div>
+</div>
+'''
+    }
+]
+
+    now_str = datetime.now().strftime('%Y-%m-%d %H:%M')
+    for idx, post in enumerate(posts_data, start=3):
         try:
-            c.execute('''UPDATE insight_posts SET 
-                            thumbnail = ?,
-                            content = ?,
-                            summary = ?,
-                            tags = ?
-                         WHERE id = 2 AND length(content) < 2000''', (
-                seed_post_2[4],
-                seed_post_2[3],
-                seed_post_2[2],
-                seed_post_2[5]
-            ))
-            c.execute('''UPDATE insight_posts SET 
-                            thumbnail = ?,
-                            content = ?,
-                            summary = ?,
-                            tags = ?
-                         WHERE id = 1 AND length(content) < 2000''', (
-                seed_post_1[4],
-                seed_post_1[3],
-                seed_post_1[2],
-                seed_post_1[5]
-            ))
-        except Exception as up_e:
-            print(f"[Init DB] Seed update note: {up_e}")
+            c.execute('SELECT COUNT(*) FROM insight_posts WHERE id = ?', (idx,))
+            if c.fetchone()[0] == 0:
+                c.execute('''INSERT INTO insight_posts 
+                            (id, title, category, summary, content, thumbnail, tags, author, views, likes, created_at, updated_at) 
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)''', (
+                    idx,
+                    post["title"],
+                    post["category"],
+                    post["summary"],
+                    post["content"].strip(),
+                    post["thumbnail"],
+                    post["tags"],
+                    post["author"],
+                    post["views"],
+                    post["likes"],
+                    now_str,
+                    now_str
+                ))
+            else:
+                c.execute('''UPDATE insight_posts SET 
+                                title = ?,
+                                category = ?,
+                                summary = ?,
+                                content = ?,
+                                thumbnail = ?,
+                                tags = ?,
+                                author = ?
+                             WHERE id = ? AND length(content) < 2000''', (
+                    post["title"],
+                    post["category"],
+                    post["summary"],
+                    post["content"].strip(),
+                    post["thumbnail"],
+                    post["tags"],
+                    post["author"],
+                    idx
+                ))
+        except Exception as p_e:
+            print(f"[Init DB] Post {idx} sync error: {p_e}")
+
+    try:
+        c.execute('''UPDATE insight_posts SET 
+                        thumbnail = ?,
+                        content = ?,
+                        summary = ?,
+                        tags = ?
+                     WHERE id = 2 AND length(content) < 2000''', (
+            seed_post_2[4],
+            seed_post_2[3],
+            seed_post_2[2],
+            seed_post_2[5]
+        ))
+        c.execute('''UPDATE insight_posts SET 
+                        thumbnail = ?,
+                        content = ?,
+                        summary = ?,
+                        tags = ?
+                     WHERE id = 1 AND length(content) < 2000''', (
+            seed_post_1[4],
+            seed_post_1[3],
+            seed_post_1[2],
+            seed_post_1[5]
+        ))
+    except Exception as up_e:
+        print(f"[Init DB] Seed update note: {up_e}")
 
     conn.commit()
     conn.close()
