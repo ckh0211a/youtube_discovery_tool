@@ -1535,23 +1535,248 @@ def init_db():
         seed_post_1 = (
             '2026년 유튜브 알고리즘 완벽 공략법: 시청 지속 시간과 VPH의 상관관계',
             '알고리즘 분석',
-            '유튜브 추천 시스템이 가장 주목하는 핵심 지표(VPH, 평균 시청 시간, 클릭률)를 분석하고 채널을 폭발적으로 성장시키는 실전 가이드입니다.',
-            '''<p class="lead">유튜브 알고리즘은 더 이상 단순한 조회수에 반응하지 않습니다. 2026년 최신 추천 피드 시스템의 핵심은 <strong>초반 30초의 시청 지속률(Retention)</strong>과 <strong>VPH(Views Per Hour, 시간당 조회수 가속도)</strong>에 집중되어 있습니다.</p>
-            <hr class="my-6 border-gray-200">
-            <h3>1. VPH(시간당 유입 속도)가 왜 알고리즘의 최우선 지표인가?</h3>
-            <p>영상이 업로드된 직후 1~2시간 동안 유입되는 속도가 채널 평균보다 3배 이상 높을 경우, 유튜브 시스템은 이를 '즉각적 트렌드 콘텐츠'로 분류하여 비구독자 홈 화면(Browse Features)에 대규모로 노출시킵니다.</p>
-            <blockquote class="border-l-4 border-red-500 pl-4 py-2 my-4 bg-red-50 text-gray-800 rounded-r">
-                <strong>💡 핵심 인사이트:</strong> 알림을 켠 충성 시청자층이 업로드 직후 즉시 클릭하고 끝까지 시청하도록 유도하는 <em>초반 1시간 골든타임</em>을 확보해야 합니다.
-            </blockquote>
-            <h3>2. 떡상 썸네일과 제목의 3원칙</h3>
-            <ul>
-                <li><strong>시각적 대비:</strong> 복잡한 배경 대신 피사체와 강렬한 텍스트 4글자 이내 배치</li>
-                <li><strong>호기심 갭(Curiosity Gap):</strong> 결과의 결말을 숨기고 '왜?'라는 의문을 유발하는 카피라이팅</li>
-                <li><strong>모바일 최적화:</strong> 스마트폰 화면에서 1초 만에 메시지가 인식되는 단순 명료한 구도</li>
-            </ul>
-            <p>지금 바로 채널의 VPH 분석 도구를 활용해 최근 업로드 영상들의 유입 가속도를 점검해보세요!</p>''',
-            'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&auto=format&fit=crop&q=80',
-            '#알고리즘,#VPH,#유튜브팁,#시청지속시간,#채널성장',
+            '유튜브 추천 시스템이 가장 주목하는 2대 핵심 지표인 VPH(시간당 유입 가속도)와 시청 지속 시간(Retention)의 복리 시너지 메커니즘을 5,000자 분량으로 완벽 해부한 실전 알고리즘 가이드북입니다.',
+            '''<div class="space-y-8 text-gray-800 leading-relaxed text-[16px]">
+
+    <!-- 도입부 리드문 -->
+    <div class="p-6 bg-gradient-to-r from-slate-900 to-indigo-950 text-white rounded-2xl border-l-4 border-rose-500 shadow-xl">
+        <p class="text-xl font-black text-rose-400 mb-2 leading-snug">
+            📊 "구독자 1,000명도 안 되는 채널이 어떻게 하루아침에 50만 뷰를 찍을 수 있었을까?"
+        </p>
+        <p class="text-sm text-gray-300 leading-relaxed">
+            유튜브 추천 시스템은 더 이상 단순한 '구독자 수'나 '과거의 누적 조회수'에 가중치를 두지 않습니다. 2026년 유튜브 딥러닝 추천 엔진(Deep Neural Recommendation Model)의 핵심은 <strong>초반 시청 지속 시간(Retention)</strong>과 <strong>VPH(Views Per Hour, 시간당 유입 가속도)</strong>라는 두 개의 축으로 완전히 재편되었습니다. 이 두 지표의 상관관계를 완벽히 이해하고 채널에 적용하는 순간, 여러분의 영상은 비구독자의 홈 화면(Browse Features)과 추천 동영상(Suggested Videos) 피드를 장악하게 됩니다.
+        </p>
+    </div>
+
+    <!-- 섹션 1: 알고리즘 패러다임의 변화 -->
+    <div class="space-y-4">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-rose-500">PART 1.</span> 2026 유튜브 알고리즘의 본질: "체류 시간의 복리 효과"
+        </h2>
+        <p>
+            유튜브의 사업 모델은 단 하나입니다. <em>"전 세계 시청자를 유튜브 플랫폼 안에 단 1초라도 더 오래 머물게 하여 더 많은 광고를 보게 만드는 것"</em>입니다. 따라서 유튜브 인공지능(AI) 알고리즘은 단순히 특정 영상을 많이 클릭했는지가 아니라, <strong>"이 영상을 본 시청자가 유튜브에 얼마나 만족하고 오래 머물렀는가?"</strong>를 끊임없이 계산합니다.
+        </p>
+        
+        <div class="my-6 rounded-2xl overflow-hidden shadow-md">
+            <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&auto=format&fit=crop&q=80" alt="유튜브 알고리즘 데이터 차트 및 분석 대시보드" class="w-full h-auto object-cover max-h-[420px]">
+            <p class="text-center text-xs text-gray-500 py-2 bg-gray-50">▲ 유튜브 추천 엔진은 초 단위의 시청 행동 데이터와 시간당 조회수 유입 속도를 실시간으로 추적합니다.</p>
+        </div>
+
+        <div class="p-5 bg-amber-50 border border-amber-200 rounded-2xl">
+            <h4 class="font-bold text-amber-900 text-base mb-2">💡 유튜브 추천 피드가 작동하는 3단계 필터링 구조</h4>
+            <ol class="list-decimal list-inside space-y-1.5 text-xs text-amber-800 leading-relaxed">
+                <li><strong>후보군 생성 (Candidate Generation):</strong> 수억 개의 영상 중 시청자의 최근 시청 기록 및 관심사와 일치하는 상위 수백 개의 후보 영상을 추출</li>
+                <li><strong>정밀 순위 매김 (Ranking & Scoring):</strong> 후보 영상들 중 <em>VPH 가속도</em>와 <em>예상 시청 지속 시간</em>이 가장 높은 순서대로 점수 부여</li>
+                <li><strong>개인화 피드 배치 (Personalization):</strong> 최종 점수가 높은 영상을 시청자 홈 화면 최상단과 다음 추천 영상 1순위에 강제 노출</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- 섹션 2: VPH의 과학적 메커니즘 -->
+    <div class="space-y-4 pt-6">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-rose-500">PART 2.</span> VPH(Views Per Hour, 시간당 유입 속도)의 비밀
+        </h2>
+        <p>
+            <strong>VPH(Views Per Hour)</strong>는 영상이 업로드된 후 '1시간당 몇 회의 조회수가 유입되고 있는가'를 나타내는 <strong>유입 가속도 지표</strong>입니다. 누적 조회수가 10만 회인 오래된 영상보다, 방금 올라와서 시간당 3,000회씩 폭발적으로 유입되는 영상이 알고리즘 점수에서 압도적으로 높은 가중치를 받습니다.
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-4">
+            <div class="p-5 bg-rose-50 rounded-2xl border border-rose-200">
+                <h4 class="font-black text-rose-700 text-base mb-2 flex items-center gap-1.5">
+                    <i class="fas fa-bolt"></i> 1. 업로드 직후 2시간 '골든 윈도우'
+                </h4>
+                <p class="text-xs text-gray-700 leading-relaxed">
+                    영상이 게시된 직후 1~2시간 동안의 VPH가 채널 평균보다 <strong>2.5배~3배 이상</strong> 높을 경우, 유튜브 엔진은 이 영상을 '실시간 트렌드 및 고반응 콘텐츠'로 긴급 분류합니다.
+                </p>
+            </div>
+
+            <div class="p-5 bg-blue-50 rounded-2xl border border-blue-200">
+                <h4 class="font-black text-blue-700 text-base mb-2 flex items-center gap-1.5">
+                    <i class="fas fa-network-wired"></i> 2. 3단계 노출 파이프라인 확장
+                </h4>
+                <p class="text-xs text-gray-700 leading-relaxed">
+                    초기 충성 구독자(1단계) ➔ 유사 관심사를 가진 비구독자 피드(2단계) ➔ 알고리즘 홈 화면 전체 대중(3단계)으로 노출 범위가 기하급수적으로 폭발합니다.
+                </p>
+            </div>
+        </div>
+
+        <h3 class="text-lg font-bold text-gray-900 pt-2">🔥 VPH를 폭발시키는 실전 업로드 전략 3가지</h3>
+        <div class="space-y-3">
+            <div class="p-4 bg-gray-50 border-l-4 border-rose-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">1) 내 채널 시청자가 가장 활발한 '피크 타임(Peak Time)' 공략</p>
+                <p class="text-xs text-gray-600">유튜브 스튜디오 '시청자' 탭에서 내 시청자들이 유튜브를 가장 많이 이용하는 시간대보다 <strong>30분~1시간 전에 미리 업로드</strong>하여 알림 수신자가 즉시 시청하도록 유도하세요. (일반적으로 평일 저녁 6시~8시, 주말 오전 10시~12시)</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-blue-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">2) 커뮤니티 탭 선공개 투표 및 티징(Teasing)</p>
+                <p class="text-xs text-gray-600">업로드 3시간 전에 커뮤니티 투표나 비하인드 컷을 올려 시청자의 기대감을 최고조로 끌어올리세요. 영상이 발행되자마자 첫 1시간 안에 유입되는 충성층의 VPH 화력이 급상승합니다.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-emerald-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">3) 고정 댓글 및 첫 댓글 소통을 통한 초반 참여도 부스팅</p>
+                <p class="text-xs text-gray-600">업로드 즉시 크리에이터가 직접 질문형 고정 댓글을 남기고, 초반 30분 동안 달리는 시청자 댓글에 하트와 대댓글을 실시간으로 달아주어 시청자의 재방문 및 참여율(Engagement)을 극대화하세요.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 섹션 3: 시청 지속 시간(Retention)의 3대 임계점 -->
+    <div class="space-y-4 pt-6">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-rose-500">PART 3.</span> 시청 지속 시간(Retention): 떡상을 가르는 3대 마의 구간
+        </h2>
+        <p>
+            VPH가 아무리 높아도 시청자가 영상을 10초 만에 끄고 나가버리면 알고리즘은 즉시 추천을 중단합니다. <strong>VPH가 로켓의 '점화 장치'라면, 시청 지속 시간은 로켓을 우주까지 날려 보내는 '연료'</strong>입니다.
+        </p>
+
+        <div class="my-6 rounded-2xl overflow-hidden shadow-md">
+            <img src="https://images.unsplash.com/photo-1579389083046-e3df9c2b3325?w=1200&auto=format&fit=crop&q=80" alt="영상 촬영 스튜디오 조명과 카메라 장비" class="w-full h-auto object-cover max-h-[420px]">
+            <p class="text-center text-xs text-gray-500 py-2 bg-gray-50">▲ 시청 지속률을 유지하기 위해서는 시각적 자극의 변화와 스토리텔링의 텐션 관리가 필수적입니다.</p>
+        </div>
+
+        <h3 class="text-lg font-bold text-gray-900">📈 시청 유지율 그래프의 3대 핵심 구간 공략법</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-3">
+            <div class="p-4 bg-white rounded-2xl border border-gray-200 shadow-sm">
+                <div class="w-8 h-8 rounded-lg bg-rose-100 text-rose-600 flex items-center justify-center font-bold mb-2">1</div>
+                <h4 class="font-bold text-gray-900 text-sm mb-1">0초 ~ 30초 구간 (오프닝)</h4>
+                <p class="text-xs text-gray-600 leading-relaxed">
+                    <strong>목표 유지율: 70% 이상</strong><br>
+                    썸네일과 제목에서 약속한 내용을 5초 안에 직접 언급해야 합니다. 인사말과 긴 인트로는 절대 금물이며, '이 영상을 끝까지 봐야 하는 이유'를 즉시 제시하세요.
+                </p>
+            </div>
+
+            <div class="p-4 bg-white rounded-2xl border border-gray-200 shadow-sm">
+                <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center font-bold mb-2">2</div>
+                <h4 class="font-bold text-gray-900 text-sm mb-1">중반부 50% 구간 (지루함 극복)</h4>
+                <p class="text-xs text-gray-600 leading-relaxed">
+                    <strong>목표 유지율: 45% ~ 55% 이상</strong><br>
+                    '오픈 루프(Open Loop)' 기법을 사용하여 "하지만 진짜 충격적인 반전은 3번째에 나옵니다"와 같이 뒤에 더 큰 정보가 있음을 끊임없이 암시하세요.
+                </p>
+            </div>
+
+            <div class="p-4 bg-white rounded-2xl border border-gray-200 shadow-sm">
+                <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold mb-2">3</div>
+                <h4 class="font-bold text-gray-900 text-sm mb-1">엔딩 10초 구간 (세션 연장)</h4>
+                <p class="text-xs text-gray-600 leading-relaxed">
+                    <strong>최종 엔드카드 클릭 유도</strong><br>
+                    "지금까지 OO였습니다 감사합니다"라고 작별 인사를 하는 순간 시청자는 나갑니다. 인사 없이 자연스럽게 다음 연관 영상으로 연결하는 엔드카드를 배치하세요.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 섹션 4: VPH와 Retention의 결합 시너지 공식 -->
+    <div class="space-y-4 pt-6">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-rose-500">PART 4.</span> VPH × Retention 결합 시너지: 100만 뷰 떡상 공식
+        </h2>
+        <p>
+            유튜브 추천 알고리즘은 단일 지표가 아닌 <strong>VPH와 Retention의 곱(Multiplication)</strong>으로 작동합니다.
+        </p>
+
+        <div class="p-6 bg-slate-900 text-white rounded-2xl shadow-xl space-y-4">
+            <h3 class="text-lg font-bold text-rose-400 flex items-center gap-2">
+                <i class="fas fa-calculator"></i> 알고리즘 폭발 시너지 매트릭스
+            </h3>
+            
+            <div class="overflow-x-auto">
+                <table class="w-full text-xs text-left border border-slate-700 rounded-xl overflow-hidden font-mono">
+                    <thead class="bg-slate-800 text-slate-300 font-bold">
+                        <tr>
+                            <th class="p-3">구분</th>
+                            <th class="p-3">초반 VPH</th>
+                            <th class="p-3">시청 지속률 (Retention)</th>
+                            <th class="p-3">알고리즘 추천 결과</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800 text-slate-300">
+                        <tr>
+                            <td class="p-3 font-bold text-red-400">케이스 A (어그로 낚시)</td>
+                            <td class="p-3 text-emerald-400 font-bold">매우 높음 (1,000+)</td>
+                            <td class="p-3 text-red-400 font-bold">매우 낮음 (25% 미만)</td>
+                            <td class="p-3 text-red-400">초반 3시간 후 추천 피드에서 강제 퇴출 (사망)</td>
+                        </tr>
+                        <tr>
+                            <td class="p-3 font-bold text-yellow-400">케이스 B (알짜배기 숨은 명작)</td>
+                            <td class="p-3 text-red-400 font-bold">매우 낮음 (50 미만)</td>
+                            <td class="p-3 text-emerald-400 font-bold">매우 높음 (65% 이상)</td>
+                            <td class="p-3 text-yellow-400">구독자에게만 맴돌다가 서서히 묻힘 (느린 성장)</td>
+                        </tr>
+                        <tr class="bg-rose-950/40">
+                            <td class="p-3 font-bold text-rose-400">케이스 C (10만~100만 떡상)</td>
+                            <td class="p-3 text-emerald-400 font-bold">높음 (500+ 이상)</td>
+                            <td class="p-3 text-emerald-400 font-bold">높음 (50% ~ 60% 이상)</td>
+                            <td class="p-3 text-rose-300 font-bold">비구독자 메인 홈 피드 대규모 노출 폭발 🚀</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <p class="text-xs text-gray-300 leading-relaxed pt-2">
+                💡 <strong>결론:</strong> 높은 클릭률(CTR)과 초반 VPH로 불을 붙이고, 탄탄한 시청 지속률(Retention)로 알고리즘이 끝없이 퍼나르게 만드는 <strong>'듀얼 밸런스'</strong>를 완성해야 합니다.
+            </p>
+        </div>
+    </div>
+
+    <!-- 섹션 5: 썸네일 & 제목 심리학 -->
+    <div class="space-y-4 pt-6">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-rose-500">PART 5.</span> 클릭률(CTR) 12%를 부르는 썸네일 & 카피라이팅 3원칙
+        </h2>
+        <p>
+            VPH의 첫 출발점은 결국 시청자가 홈 피드에서 스크롤을 멈추고 내 영상을 '클릭'하는 것입니다. 상위 1% 유튜버들이 철저히 지키는 썸네일 공식입니다.
+        </p>
+
+        <div class="my-6 rounded-2xl overflow-hidden shadow-md">
+            <img src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=1200&auto=format&fit=crop&q=80" alt="유튜브 로고와 모바일 추천 인터페이스" class="w-full h-auto object-cover max-h-[420px]">
+            <p class="text-center text-xs text-gray-500 py-2 bg-gray-50">▲ 모바일 3인치 화면에서도 0.5초 만에 메시지가 뇌리에 꽂히는 썸네일이 VPH 폭발의 시작점입니다.</p>
+        </div>
+
+        <div class="space-y-3">
+            <div class="p-4 bg-gray-50 border-l-4 border-purple-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">1) 시각적 단일 초점 (One Visual Focus) 원칙</p>
+                <p class="text-xs text-gray-600">배경을 흐리게(블러) 처리하고, 감정이 극대화된 인물의 표정이나 가장 핵심적인 오브젝트 딱 1개에만 시선이 꽂히도록 대비(Contrast)를 극대화하세요.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-amber-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">2) 텍스트 4글자 이내의 법칙 (The 4-Word Rule)</p>
+                <p class="text-xs text-gray-600">썸네일에 구구절절 긴 문장을 넣지 마세요. 스마트폰에서는 보이지도 않습니다. <em>"이게 된다고?", "절대 사지 마세요", "결국 터졌습니다"</em>와 같이 4글자 내외의 강렬한 단어만 남기세요.</p>
+            </div>
+            <div class="p-4 bg-gray-50 border-l-4 border-rose-500 rounded-r-xl">
+                <p class="font-bold text-gray-900 text-sm mb-1">3) 제목과 썸네일의 '역할 분담' (Curiosity Gap)</p>
+                <p class="text-xs text-gray-600">썸네일의 글자와 제목의 글자가 똑같으면 안 됩니다. 썸네일은 <strong>감정과 충격(호기심 유발)</strong>을 담당하고, 제목은 <strong>구체적인 키워드와 정보(신뢰성)</strong>를 설명하여 시너지 효과를 내야 합니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 섹션 6: TubeTrend를 활용한 실전 채널 성장 루틴 -->
+    <div class="space-y-4 pt-6">
+        <h2 class="text-2xl font-black text-gray-900 border-b pb-3 flex items-center gap-2">
+            <span class="text-rose-500">PART 6.</span> 튜브트렌드(TubeTrend)로 실시간 VPH 채굴하기
+        </h2>
+        <p>
+            성공하는 크리에이터는 아무도 보지 않는 주제를 혼자 고민하지 않습니다. <strong>TubeTrend(튜브트렌드) 분석 엔진</strong>을 활용해 지금 실시간으로 VPH가 폭발하고 있는 트렌드 소재를 3분 만에 찾아내세요.
+        </p>
+
+        <div class="p-5 bg-gradient-to-r from-rose-50 to-amber-50 border border-rose-200 rounded-2xl space-y-3">
+            <h4 class="font-black text-rose-900 text-base">🚀 실전 채널 성장 3단계 액션 플랜</h4>
+            <ol class="list-decimal list-inside space-y-2 text-xs text-rose-900 leading-relaxed">
+                <li><strong>실시간 떡상 TOP 50 검색:</strong> 현재 내 카테고리에서 VPH가 가장 가파르게 치솟는 인기 영상들의 오프닝 30초 후킹 멘트와 썸네일 구도를 벤치마킹합니다.</li>
+                <li><strong>채널 추적 및 라이벌 모니터링:</strong> 나와 비슷한 규모의 경쟁 채널 중 최근 구독자 대비 조회수가 5배 이상 터진 '이상 급상승 영상'을 발굴합니다.</li>
+                <li><strong>대본 추출 및 차별화 적용:</strong> 추출된 스크립트의 핵심 논리 구조를 분석하고, 최신 데이터와 나만의 시각을 더해 더 완성도 높은 후속 영상을 제작합니다.</li>
+            </ol>
+        </div>
+
+        <div class="pt-6 border-t border-gray-200 text-center space-y-3">
+            <p class="font-bold text-gray-800 text-lg">
+                "알고리즘을 탓하지 마세요. 알고리즘은 정직하게 시청자의 반응 데이터를 따라갈 뿐입니다."
+            </p>
+            <p class="text-xs text-gray-500 max-w-xl mx-auto leading-relaxed">
+                오늘 정리해 드린 <strong>[초반 2시간 VPH 부스팅]</strong>과 <strong>[오프닝 30초 시청 지속률 방어 전략]</strong>을 다음 영상에 즉시 적용해 보세요. 알고리즘이 여러분의 영상을 비구독자들의 추천 피드로 강력하게 밀어 올리기 시작할 것입니다.
+            </p>
+        </div>
+    </div>
+
+</div>''',
+            'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=1200&auto=format&fit=crop&q=80',
+            '#알고리즘분석,#VPH가속도,#시청지속시간,#유튜브추천피드,#채널성장,#클릭률CTR',
             'TubeTrend 수석 분석관',
             1280,
             45,
@@ -1890,6 +2115,17 @@ def init_db():
                 seed_post_2[3],
                 seed_post_2[2],
                 seed_post_2[5]
+            ))
+            c.execute('''UPDATE insight_posts SET 
+                            thumbnail = ?,
+                            content = ?,
+                            summary = ?,
+                            tags = ?
+                         WHERE id = 1 AND length(content) < 2000''', (
+                seed_post_1[4],
+                seed_post_1[3],
+                seed_post_1[2],
+                seed_post_1[5]
             ))
         except Exception as up_e:
             print(f"[Init DB] Seed update note: {up_e}")
