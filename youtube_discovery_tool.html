@@ -515,53 +515,43 @@
             color: #f3f4f6;
         }
 
-        /* ── Insight Detail Body: 흰 배경 블로그 뷰어 전용 오버라이드 ── */
+        /* ── Insight Detail Body: 흰 배경 블로그 뷰어 전용 오버라이드 및 완벽한 가독성 보장 ── */
+        #insightDetailBody {
+            color: #0f172a;
+        }
+
         #insightDetailBody h1,
         #insightDetailBody h2,
         #insightDetailBody h3,
         #insightDetailBody h4,
         #insightDetailBody h5,
         #insightDetailBody h6 {
-            color: #111827 !important;
+            color: #0f172a;
             font-weight: 800;
             margin-top: 1.5em;
             margin-bottom: 0.5em;
-        }
-
-        #insightDetailBody h1 *,
-        #insightDetailBody h2 *,
-        #insightDetailBody h3 *,
-        #insightDetailBody h4 *,
-        #insightDetailBody h5 *,
-        #insightDetailBody h6 * {
-            color: #111827 !important;
-        }
-
-        #insightDetailBody p *,
-        #insightDetailBody li * {
-            color: #374151 !important;
         }
 
         #insightDetailBody p,
         #insightDetailBody li,
         #insightDetailBody td,
         #insightDetailBody th {
-            color: #374151 !important;
+            color: #1e293b;
         }
 
         #insightDetailBody strong {
-            color: #111827 !important;
+            color: #0f172a;
             font-weight: 700;
         }
 
         #insightDetailBody a {
-            color: #2563eb !important;
+            color: #2563eb;
         }
 
         #insightDetailBody blockquote {
             border-left: 4px solid #e5e7eb;
             padding-left: 1rem;
-            color: #6b7280 !important;
+            color: #475569;
         }
 
         .prose ul {
@@ -570,8 +560,43 @@
         }
 
         .prose li {
-            color: #d1d5db;
+            color: #1e293b;
             margin-bottom: 0.5rem;
+        }
+
+        /* 다크 배경 및 그라데이션 배너 내부의 텍스트 색상 상속 보존 (안 보이는 글자 완벽 해결) */
+        #insightDetailBody [class*="bg-gradient-"] p,
+        #insightDetailBody [class*="bg-gradient-"] h1,
+        #insightDetailBody [class*="bg-gradient-"] h2,
+        #insightDetailBody [class*="bg-gradient-"] h3,
+        #insightDetailBody [class*="bg-gradient-"] h4,
+        #insightDetailBody [class*="from-"] p,
+        #insightDetailBody [class*="from-"] h1,
+        #insightDetailBody [class*="from-"] h2,
+        #insightDetailBody [class*="from-"] h3,
+        #insightDetailBody [class*="from-"] h4,
+        #insightDetailBody [class*="bg-orange-9"] p,
+        #insightDetailBody [class*="bg-stone-9"] p,
+        #insightDetailBody [class*="bg-amber-9"] p,
+        #insightDetailBody [class*="bg-blue-9"] p,
+        #insightDetailBody [class*="bg-slate-9"] p {
+            color: inherit !important;
+        }
+
+        #insightDetailBody [class*="bg-gradient-"] *,
+        #insightDetailBody [class*="from-"] *,
+        #insightDetailBody [class*="bg-orange-9"] *,
+        #insightDetailBody [class*="bg-amber-9"] *,
+        #insightDetailBody [class*="bg-stone-9"] *,
+        #insightDetailBody [class*="bg-blue-9"] *,
+        #insightDetailBody [class*="bg-slate-9"] *,
+        #insightDetailBody [class*="bg-cyan-9"] *,
+        #insightDetailBody [class*="bg-emerald-9"] *,
+        #insightDetailBody [class*="bg-indigo-9"] *,
+        #insightDetailBody [class*="bg-purple-9"] *,
+        #insightDetailBody [class*="bg-gray-9"] *,
+        #insightDetailBody [class*="bg-zinc-9"] * {
+            color: inherit;
         }
 
         .prose p {
@@ -20079,52 +20104,43 @@ ${commentsText}
             if (bodyElem) {
                 bodyElem.innerHTML = post.content || '';
 
-                // ── inline 색상 강제 정규화 (흰 배경 뷰어용) ──
-                // AI/에디터가 생성한 inline style color를 제거하고 읽기 좋은 색상으로 교체
+                // ── 스마트 색상 가독성 최적화 (다크 배경 보호 및 흰 배경 가독성 보장) ──
                 requestAnimationFrame(() => {
-                    // 제목 계열 (h1~h6) 및 그 자손 → 진한 검정
+                    const isDarkBg = (elem) => {
+                        return !!elem.closest('[class*="bg-gradient-"], [class*="from-"], [class*="bg-stone-9"], [class*="bg-orange-9"], [class*="bg-amber-9"], [class*="bg-blue-9"], [class*="bg-slate-9"], [class*="bg-cyan-9"], [class*="bg-emerald-9"], [class*="bg-indigo-9"], [class*="bg-purple-9"], [class*="bg-gray-9"], [class*="bg-zinc-9"], [class*="text-white"], [style*="linear-gradient"], [style*="rgba(255, 255, 255, 0.1)"]');
+                    };
+
+                    // 1. 제목 계열 (h1~h6)
                     bodyElem.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(el => {
-                        el.style.removeProperty('color');
-                        el.style.setProperty('color', '#111827', 'important');
-                        el.querySelectorAll('*').forEach(child => {
-                            // 파란색 계열 강조 span은 유지, 나머지 연한 색은 진하게
-                            const inlineColor = child.style.color;
-                            if (inlineColor) {
-                                // rgba/rgb로 투명하거나 연한 색인 경우 제거
-                                const isLight = /rgba?\s*\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,?\s*(0\.\d+|0)?\s*\)/.test(inlineColor)
-                                    ? (() => {
-                                        const m = inlineColor.match(/[\d.]+/g);
-                                        if (!m) return false;
-                                        const r = +m[0], g = +m[1], b = +m[2], a = m[3] !== undefined ? +m[3] : 1;
-                                        const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
-                                        return lum > 0.75 || a < 0.5;
-                                    })()
-                                    : false;
-                                if (isLight) {
-                                    child.style.setProperty('color', '#111827', 'important');
-                                }
-                            } else {
-                                child.style.setProperty('color', '#111827', 'important');
-                            }
-                        });
+                        if (isDarkBg(el)) {
+                            // 다크 배경 배너 내부: 밝은 골드/화이트 유지
+                            if (!el.style.color) el.style.setProperty('color', '#fdba74', 'important');
+                            return;
+                        }
+                        // 밝은 배경: 선명한 딥 블랙 적용
+                        el.style.setProperty('color', '#0f172a', 'important');
                     });
-                    // 본문 p, li → 진한 회색
+
+                    // 2. 본문 p, li
                     bodyElem.querySelectorAll('p, li').forEach(el => {
+                        if (isDarkBg(el)) {
+                            // 다크 배경 내부: 어두운 색으로 덮이지 않도록 보호
+                            const inlineColor = el.style.color;
+                            if (!inlineColor) {
+                                el.style.setProperty('color', '#f5f5f4', 'important');
+                            }
+                            return;
+                        }
+                        // 밝은 배경: 선명한 딥 그레이 적용
                         const inlineColor = el.style.color;
                         if (!inlineColor || /rgba?\s*\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*,?\s*(0\.\d*[0-4]|0)?\s*\)/.test(inlineColor)) {
-                            el.style.setProperty('color', '#374151', 'important');
+                            el.style.setProperty('color', '#1e293b', 'important');
                         }
-                        el.querySelectorAll('span, em, strong, b, i, a').forEach(child => {
-                            const cc = child.style.color;
-                            if (!cc) return;
-                            const m = cc.match(/[\d.]+/g);
-                            if (!m) return;
-                            const r = +m[0], g = +m[1], b2 = +m[2], a = m[3] !== undefined ? +m[3] : 1;
-                            const lum = (0.299 * r + 0.587 * g + 0.114 * b2) / 255;
-                            if (lum > 0.72 || a < 0.5) {
-                                child.style.setProperty('color', '#374151', 'important');
-                            }
-                        });
+                    });
+
+                    // 3. 뱃지(Badge) 전용 보호 (예: PART 1, PART 2)
+                    bodyElem.querySelectorAll('.bg-orange-600, .bg-blue-600, .bg-amber-600, .bg-red-600').forEach(b => {
+                        b.style.setProperty('color', '#ffffff', 'important');
                     });
                 });
             }
