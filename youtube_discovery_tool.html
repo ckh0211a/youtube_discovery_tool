@@ -20107,7 +20107,7 @@ ${commentsText}
                 // ── 스마트 색상 가독성 최적화 (다크 배경 보호 및 흰 배경 가독성 보장) ──
                 requestAnimationFrame(() => {
                     const isDarkBg = (elem) => {
-                        return !!elem.closest('[class*="bg-gradient-"], [class*="from-"], [class*="bg-stone-9"], [class*="bg-orange-9"], [class*="bg-amber-9"], [class*="bg-blue-9"], [class*="bg-slate-9"], [class*="bg-cyan-9"], [class*="bg-emerald-9"], [class*="bg-indigo-9"], [class*="bg-purple-9"], [class*="bg-gray-9"], [class*="bg-zinc-9"], [class*="text-white"], [style*="linear-gradient"], [style*="rgba(255, 255, 255, 0.1)"]');
+                        return !!elem.closest('[class*="bg-gradient-"], [class*="from-"], [class*="bg-stone-9"], [class*="bg-orange-9"], [class*="bg-amber-9"], [class*="bg-blue-9"], [class*="bg-slate-9"], [class*="bg-cyan-9"], [class*="bg-emerald-9"], [class*="bg-teal-9"], [class*="bg-indigo-9"], [class*="bg-purple-9"], [class*="bg-gray-9"], [class*="bg-zinc-9"], [class*="text-white"], [style*="linear-gradient"], [style*="rgba(255, 255, 255, 0.1)"]');
                     };
 
                     // 1. 제목 계열 (h1~h6)
@@ -20117,8 +20117,8 @@ ${commentsText}
                             if (!el.style.color) el.style.setProperty('color', '#fdba74', 'important');
                             return;
                         }
-                        // 밝은 배경: 선명한 딥 블랙 적용
-                        el.style.setProperty('color', '#0f172a', 'important');
+                        // 밝은 배경: 선명한 딥 블랙 적용 (이미 인라인 스타일이 있으면 존중)
+                        if (!el.style.color) el.style.setProperty('color', '#0f172a', 'important');
                     });
 
                     // 2. 본문 p, li
@@ -20138,8 +20138,17 @@ ${commentsText}
                         }
                     });
 
-                    // 3. 뱃지(Badge) 전용 보호 (예: PART 1, PART 2)
-                    bodyElem.querySelectorAll('.bg-orange-600, .bg-blue-600, .bg-amber-600, .bg-red-600').forEach(b => {
+                    // 3. 테이블 th, td 가독성 보장
+                    bodyElem.querySelectorAll('th, td').forEach(el => {
+                        if (isDarkBg(el)) {
+                            if (!el.style.color) el.style.setProperty('color', '#f8fafc', 'important');
+                        } else {
+                            if (!el.style.color) el.style.setProperty('color', '#0f172a', 'important');
+                        }
+                    });
+
+                    // 4. 뱃지(Badge) 전용 보호 (모든 파스텔/고대비 뱃지 화이트 보장)
+                    bodyElem.querySelectorAll('.bg-orange-600, .bg-blue-600, .bg-amber-600, .bg-red-600, .bg-emerald-600, .bg-teal-600, .bg-cyan-600, .bg-slate-700, .bg-purple-600, .bg-indigo-600').forEach(b => {
                         b.style.setProperty('color', '#ffffff', 'important');
                     });
                 });
