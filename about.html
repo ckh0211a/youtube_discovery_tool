@@ -3,71 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>서비스 소개 - YouTube Discovery Tool (TubeTrend)</title>
-    <meta name="description" content="TubeTrend(YouTube Discovery Tool)는 유튜브 트렌드 분석, 채널 추적, 소재 발굴을 위한 올인원 분석 도구입니다. 실시간 인기 영상 분석부터 AI 기반 콘텐츠 인사이트까지 제공합니다.">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <title>서비스 소개 및 이용 가이드 - YouTube Discovery Tool (TubeTrend)</title>
+    <meta name="description" content="TubeTrend(유튜브 소재 채굴기)의 기능 설명, 사용 방법, 자주 묻는 질문(FAQ), 그리고 상위 1% 크리에이터를 위한 관련 팁까지 한눈에 확인하세요.">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Outfit:wght@600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
         body {
             font-family: 'Noto Sans KR', sans-serif;
-            background: #0f172a;
+            background: #090d16;
             color: #e2e8f0;
             line-height: 1.8;
             min-height: 100vh;
+            overflow-x: hidden;
         }
+
+        /* ── Header ── */
         .header {
-            background: rgba(15, 23, 42, 0.95);
+            background: rgba(9, 13, 22, 0.92);
             backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 0.9rem 2rem;
             position: sticky;
             top: 0;
             z-index: 100;
         }
         .header-inner {
-            max-width: 900px;
+            max-width: 1140px;
             margin: 0 auto;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
         .logo {
-            font-size: 1.3rem;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.4rem;
             font-weight: 900;
-            background: linear-gradient(135deg, #f43f5e, #ec4899);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: #fff;
+        }
+        .logo-badge {
+            background: linear-gradient(135deg, #ef4444, #f43f5e);
+            color: white;
+            padding: 0.35rem 0.6rem;
+            border-radius: 0.75rem;
+            font-size: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .logo-text span {
+            background: linear-gradient(135deg, #f43f5e, #ec4899, #a855f7);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-decoration: none;
         }
-        .nav-links { display: flex; gap: 1.5rem; }
+        .nav-links { display: flex; gap: 1.2rem; align-items: center; }
         .nav-links a {
             color: #94a3b8;
             text-decoration: none;
             font-size: 0.9rem;
-            font-weight: 500;
-            transition: color 0.2s;
+            font-weight: 600;
+            transition: all 0.2s;
+            padding: 0.3rem 0.6rem;
+            border-radius: 0.5rem;
         }
-        .nav-links a:hover { color: #f1f5f9; }
-        .nav-links a.active { color: #f43f5e; }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 3rem 2rem 5rem;
+        .nav-links a:hover { color: #f8fafc; background: rgba(255, 255, 255, 0.05); }
+        .nav-links a.active { color: #f43f5e; background: rgba(244, 63, 94, 0.1); }
+        .nav-btn-start {
+            background: linear-gradient(135deg, #ef4444, #f43f5e);
+            color: #fff !important;
+            padding: 0.45rem 1.2rem !important;
+            border-radius: 2rem !important;
+            font-weight: 700 !important;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+        .nav-btn-start:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
         }
 
-        /* Hero */
+        /* ── Container ── */
+        .container {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 2.5rem 1.5rem 5rem;
+        }
+
+        /* ── Hero ── */
         .hero {
             text-align: center;
-            padding: 3rem 0 4rem;
+            padding: 3rem 0 3.5rem;
+            position: relative;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(244, 63, 94, 0.12) 0%, rgba(168, 85, 247, 0.08) 50%, transparent 70%);
+            filter: blur(60px);
+            z-index: -1;
+            pointer-events: none;
         }
         .hero-badge {
-            display: inline-block;
-            padding: 0.3rem 1rem;
-            background: rgba(16, 185, 129, 0.15);
-            border: 1px solid rgba(16, 185, 129, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 1.1rem;
+            background: rgba(244, 63, 94, 0.12);
+            border: 1px solid rgba(244, 63, 94, 0.25);
             border-radius: 2rem;
-            color: #34d399;
-            font-size: 0.8rem;
+            color: #fb7185;
+            font-size: 0.85rem;
             font-weight: 700;
             letter-spacing: 0.05em;
             margin-bottom: 1.5rem;
@@ -75,276 +129,1062 @@
         .hero h1 {
             font-size: 3rem;
             font-weight: 900;
-            line-height: 1.2;
-            margin-bottom: 1rem;
+            line-height: 1.25;
+            margin-bottom: 1.2rem;
+            color: #f8fafc;
+            letter-spacing: -0.02em;
         }
         .hero h1 .gradient {
-            background: linear-gradient(135deg, #f43f5e, #ec4899, #8b5cf6);
+            background: linear-gradient(135deg, #f43f5e, #ec4899, #a855f7);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         .hero p {
-            color: #64748b;
+            color: #94a3b8;
             font-size: 1.15rem;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-        .hero-cta {
-            margin-top: 2rem;
-            display: inline-block;
-            padding: 0.9rem 2.5rem;
-            background: linear-gradient(135deg, #f43f5e, #ec4899);
-            color: white;
-            font-weight: 700;
-            font-size: 1rem;
-            border-radius: 2rem;
-            text-decoration: none;
-            transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 20px rgba(244, 63, 94, 0.3);
-        }
-        .hero-cta:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(244, 63, 94, 0.4);
+            max-width: 720px;
+            margin: 0 auto 2rem;
+            line-height: 1.8;
         }
 
-        /* Features */
+        /* ── Jump Navigation Pills ── */
+        .jump-nav {
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            margin-bottom: 3.5rem;
+        }
+        .jump-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.65rem 1.25rem;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 2rem;
+            color: #cbd5e1;
+            font-size: 0.92rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.25s ease;
+        }
+        .jump-pill:hover {
+            background: rgba(244, 63, 94, 0.15);
+            border-color: rgba(244, 63, 94, 0.4);
+            color: #fff;
+            transform: translateY(-2px);
+        }
+        .jump-pill i {
+            color: #f43f5e;
+            font-size: 1rem;
+        }
+
+        /* ── Section Common ── */
+        .section-block {
+            margin-bottom: 5rem;
+            padding-top: 2rem;
+        }
+        .section-header {
+            text-align: center;
+            margin-bottom: 2.8rem;
+        }
+        .section-tag {
+            display: inline-block;
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #f43f5e;
+            background: rgba(244, 63, 94, 0.1);
+            padding: 0.25rem 0.85rem;
+            border-radius: 1rem;
+            margin-bottom: 0.6rem;
+            border: 1px solid rgba(244, 63, 94, 0.2);
+        }
+        .section-title {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: #f8fafc;
+            margin-bottom: 0.6rem;
+            letter-spacing: -0.02em;
+        }
+        .section-subtitle {
+            color: #94a3b8;
+            font-size: 1rem;
+            max-width: 650px;
+            margin: 0 auto;
+        }
+
+        /* ── SECTION 1: 기능 설명 (Features Grid) ── */
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
             gap: 1.5rem;
-            margin: 2rem 0 3rem;
         }
         .feature-card {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.06);
-            border-radius: 1rem;
-            padding: 2rem;
-            transition: transform 0.2s, border-color 0.2s;
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1.25rem;
+            padding: 1.8rem;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, rgba(244, 63, 94, 0.6), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
         }
         .feature-card:hover {
-            transform: translateY(-4px);
-            border-color: rgba(244, 63, 94, 0.3);
+            transform: translateY(-5px);
+            border-color: rgba(244, 63, 94, 0.35);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+            background: rgba(15, 23, 42, 0.9);
         }
-        .feature-icon {
+        .feature-card:hover::before { opacity: 1; }
+        .feature-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.2rem;
+        }
+        .feature-icon-box {
             width: 48px;
             height: 48px;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.5rem;
-            margin-bottom: 1rem;
+            font-size: 1.35rem;
+        }
+        .icon-red { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .icon-blue { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .icon-emerald { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .icon-purple { background: rgba(168, 85, 247, 0.15); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.3); }
+        .icon-amber { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .icon-pink { background: rgba(244, 63, 94, 0.15); color: #fb7185; border: 1px solid rgba(244, 63, 94, 0.3); }
+        .icon-cyan { background: rgba(6, 182, 212, 0.15); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.3); }
+        .icon-indigo { background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.3); }
+
+        .feature-badge {
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 0.2rem 0.6rem;
+            border-radius: 1rem;
+            background: rgba(255, 255, 255, 0.06);
+            color: #94a3b8;
+            border: 1px solid rgba(255, 255, 255, 0.08);
         }
         .feature-card h3 {
             color: #f1f5f9;
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
+            font-size: 1.2rem;
+            font-weight: 800;
+            margin-bottom: 0.6rem;
         }
         .feature-card p {
-            color: #64748b;
-            font-size: 0.9rem;
-            line-height: 1.6;
+            color: #94a3b8;
+            font-size: 0.92rem;
+            line-height: 1.7;
+            margin-bottom: 1rem;
         }
-        .icon-red { background: rgba(244, 63, 94, 0.15); }
-        .icon-blue { background: rgba(59, 130, 246, 0.15); }
-        .icon-green { background: rgba(16, 185, 129, 0.15); }
-        .icon-purple { background: rgba(139, 92, 246, 0.15); }
-        .icon-amber { background: rgba(245, 158, 11, 0.15); }
-        .icon-pink { background: rgba(236, 72, 153, 0.15); }
+        .feature-points {
+            list-style: none;
+            padding: 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            padding-top: 0.8rem;
+        }
+        .feature-points li {
+            font-size: 0.82rem;
+            color: #cbd5e1;
+            margin-bottom: 0.35rem;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .feature-points li i { color: #34d399; font-size: 0.75rem; }
 
-        /* Section */
-        .section-title {
-            font-size: 1.8rem;
+        /* ── SECTION 2: 사용 방법 (How to Use - 5 Steps) ── */
+        .step-timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            max-width: 960px;
+            margin: 0 auto;
+        }
+        .step-card {
+            display: flex;
+            gap: 1.8rem;
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1.25rem;
+            padding: 1.8rem 2rem;
+            transition: all 0.3s;
+            position: relative;
+        }
+        .step-card:hover {
+            border-color: rgba(244, 63, 94, 0.4);
+            transform: translateX(5px);
+            background: rgba(15, 23, 42, 0.95);
+        }
+        .step-number-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .step-number {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #ef4444, #f43f5e);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-weight: 900;
-            color: #f1f5f9;
-            text-align: center;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.35);
+            flex-shrink: 0;
+        }
+        .step-line {
+            width: 2px;
+            flex-grow: 1;
+            background: rgba(255, 255, 255, 0.1);
+        }
+        .step-content { flex: 1; }
+        .step-tag {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: #fb7185;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.3rem;
+            display: block;
+        }
+        .step-content h3 {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #f8fafc;
             margin-bottom: 0.5rem;
         }
-        .section-subtitle {
-            color: #64748b;
-            text-align: center;
-            margin-bottom: 2.5rem;
+        .step-content p {
+            font-size: 0.92rem;
+            color: #94a3b8;
+            line-height: 1.7;
+            margin-bottom: 0.8rem;
+        }
+        .step-tip {
+            background: rgba(244, 63, 94, 0.08);
+            border-left: 3px solid #f43f5e;
+            padding: 0.6rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.84rem;
+            color: #fecdd3;
         }
 
-        /* Stats */
-        .stats-row {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 1.5rem;
-            margin: 3rem 0;
+        /* ── SECTION 3: 자주 묻는 질문 (FAQ Accordion) ── */
+        .faq-wrap {
+            max-width: 860px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
         }
-        .stat-card {
-            text-align: center;
-            padding: 2rem 1rem;
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.06);
+        .faq-filters {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        .faq-filter-btn {
+            padding: 0.4rem 1rem;
+            border-radius: 2rem;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: #94a3b8;
+            font-size: 0.85rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .faq-filter-btn.active,
+        .faq-filter-btn:hover {
+            background: #f43f5e;
+            color: white;
+            border-color: #f43f5e;
+        }
+        .faq-item {
+            background: rgba(15, 23, 42, 0.75);
+            border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 1rem;
+            overflow: hidden;
+            transition: border-color 0.2s;
         }
-        .stat-number {
-            font-size: 2.5rem;
+        .faq-item.open {
+            border-color: rgba(244, 63, 94, 0.4);
+            background: rgba(15, 23, 42, 0.95);
+        }
+        .faq-question {
+            padding: 1.3rem 1.6rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            gap: 1rem;
+        }
+        .faq-question h4 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .faq-q-badge {
+            background: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            font-size: 0.85rem;
             font-weight: 900;
-            background: linear-gradient(135deg, #f43f5e, #8b5cf6);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
         }
-        .stat-label {
-            color: #64748b;
+        .faq-icon {
             font-size: 0.9rem;
-            margin-top: 0.3rem;
+            color: #94a3b8;
+            transition: transform 0.3s ease;
+        }
+        .faq-item.open .faq-icon {
+            transform: rotate(180deg);
+            color: #f43f5e;
+        }
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.35s ease-out;
+            padding: 0 1.6rem;
+            color: #cbd5e1;
+            font-size: 0.92rem;
+            line-height: 1.8;
+            border-top: 1px solid transparent;
+        }
+        .faq-item.open .faq-answer {
+            max-height: 500px;
+            padding: 0.5rem 1.6rem 1.5rem;
+            border-top-color: rgba(255, 255, 255, 0.05);
         }
 
-        /* CTA Section */
-        .cta-section {
+        /* ── SECTION 4: 관련 팁 (Related Tips) ── */
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+        .tip-card {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 1.25rem;
+            padding: 1.8rem;
+            transition: all 0.3s;
+            position: relative;
+        }
+        .tip-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(245, 158, 11, 0.4);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            background: rgba(15, 23, 42, 0.9);
+        }
+        .tip-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.8rem;
+        }
+        .tip-tag-pill {
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 0.2rem 0.6rem;
+            border-radius: 1rem;
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        .tip-card h3 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #f8fafc;
+            margin-bottom: 0.6rem;
+        }
+        .tip-card p {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            line-height: 1.7;
+            margin-bottom: 0.8rem;
+        }
+        .tip-takeaway {
+            background: rgba(245, 158, 11, 0.07);
+            border-left: 3px solid #f59e0b;
+            padding: 0.5rem 0.85rem;
+            border-radius: 0.4rem;
+            font-size: 0.82rem;
+            color: #fde68a;
+            font-weight: 500;
+        }
+
+        /* ── Bottom CTA ── */
+        .bottom-cta {
             text-align: center;
             padding: 4rem 2rem;
-            background: linear-gradient(135deg, rgba(244, 63, 94, 0.08), rgba(139, 92, 246, 0.08));
-            border-radius: 1.5rem;
-            border: 1px solid rgba(255,255,255,0.06);
-            margin: 3rem 0;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(168, 85, 247, 0.1));
+            border-radius: 1.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            margin: 4rem 0 2rem;
+            position: relative;
+            overflow: hidden;
         }
-        .cta-section h2 {
-            font-size: 1.8rem;
+        .bottom-cta h2 {
+            font-size: 2.2rem;
             font-weight: 900;
-            color: #f1f5f9;
-            margin-bottom: 1rem;
-            border: none;
-            padding: 0;
+            color: #fff;
+            margin-bottom: 0.8rem;
         }
-        .cta-section h2::before { display: none; }
-        .cta-section p {
-            color: #94a3b8;
-            margin-bottom: 2rem;
-            max-width: 500px;
-            margin-left: auto;
-            margin-right: auto;
+        .bottom-cta p {
+            color: #cbd5e1;
+            font-size: 1.05rem;
+            max-width: 580px;
+            margin: 0 auto 2rem;
+        }
+        .cta-btn-large {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 1rem 2.8rem;
+            background: linear-gradient(135deg, #ef4444, #f43f5e);
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 800;
+            border-radius: 2rem;
+            text-decoration: none;
+            box-shadow: 0 6px 25px rgba(239, 68, 68, 0.4);
+            transition: all 0.25s;
+        }
+        .cta-btn-large:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 35px rgba(239, 68, 68, 0.5);
         }
 
+        /* ── Footer ── */
         .footer {
-            border-top: 1px solid rgba(255,255,255,0.06);
-            padding: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 2.5rem 2rem;
             text-align: center;
         }
-        .footer-links { display: flex; gap: 2rem; justify-content: center; margin-bottom: 1rem; flex-wrap: wrap; }
-        .footer-links a { color: #64748b; text-decoration: none; font-size: 0.85rem; transition: color 0.2s; }
-        .footer-links a:hover { color: #f1f5f9; }
-        .footer p { color: #475569; font-size: 0.8rem; text-align: center; }
-        @media (max-width: 640px) {
-            .hero h1 { font-size: 2rem; }
-            .container { padding: 2rem 1.2rem 3rem; }
-            .stats-row { grid-template-columns: 1fr; }
-            .nav-links { gap: 0.8rem; }
-            .nav-links a { font-size: 0.8rem; }
+        .footer-links {
+            display: flex;
+            gap: 1.8rem;
+            justify-content: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+        .footer-links a {
+            color: #64748b;
+            text-decoration: none;
+            font-size: 0.88rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .footer-links a:hover { color: #f8fafc; }
+        .footer p { color: #475569; font-size: 0.8rem; }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.2rem; }
+            .section-title { font-size: 1.8rem; }
+            .nav-links { display: none; }
+            .step-card { flex-direction: column; gap: 1rem; }
+            .step-number-wrap { flex-direction: row; }
+            .step-line { display: none; }
+            .container { padding: 1.5rem 1rem 3rem; }
         }
     </style>
 </head>
 <body>
+    <!-- Top Sticky Header -->
     <header class="header">
         <div class="header-inner">
-            <a href="/" class="logo">TubeTrend</a>
+            <a href="/" class="logo">
+                <span class="logo-badge"><i class="fab fa-youtube"></i></span>
+                <span class="logo-text">Tube<span>Trend</span></span>
+            </a>
             <nav class="nav-links">
-                <a href="/about" class="active">소개</a>
+                <a href="#features">기능 설명</a>
+                <a href="#how-to-use">사용 방법</a>
+                <a href="#faq">자주 묻는 질문</a>
+                <a href="#tips">관련 팁</a>
                 <a href="/privacy">개인정보</a>
                 <a href="/terms">이용약관</a>
                 <a href="/contact">문의</a>
+                <a href="/" class="nav-btn-start">앱 실행 →</a>
             </nav>
         </div>
     </header>
 
     <main class="container">
-        <!-- Hero -->
-        <div class="hero">
-            <span class="hero-badge">YOUTUBE DISCOVERY TOOL</span>
-            <h1>유튜브 트렌드를<br><span class="gradient">한눈에 분석하세요</span></h1>
-            <p>TubeTrend는 유튜브 크리에이터와 마케터를 위한 올인원 분석 도구입니다. 실시간 트렌드부터 AI 기반 인사이트까지, 콘텐츠 전략에 필요한 모든 것을 제공합니다.</p>
-            <a href="/" class="hero-cta">무료로 시작하기 →</a>
-        </div>
+        <!-- Hero Section -->
+        <section class="hero">
+            <span class="hero-badge"><i class="fas fa-sparkles"></i> 2026 OFFICIAL USER GUIDE</span>
+            <h1>유튜브 성공을 위한<br><span class="gradient">데이터 분석 & 소재 채굴기</span></h1>
+            <p>
+                <strong>TubeTrend(유튜브 소재 채굴기)</strong>는 조회수 정체기를 겪는 크리에이터와 마케터를 위해 설계된 실시간 트렌드 분석 및 AI 콘텐츠 기획 올인원 솔루션입니다.
+            </p>
 
-        <!-- Stats -->
-        <div class="stats-row">
-            <div class="stat-card">
-                <div class="stat-number">12+</div>
-                <div class="stat-label">핵심 분석 기능</div>
+            <!-- 4대 핵심 주제 바로가기 네비게이션 알약 -->
+            <div class="jump-nav">
+                <a href="#features" class="jump-pill"><i class="fas fa-cubes"></i> 1. 기능 설명</a>
+                <a href="#how-to-use" class="jump-pill"><i class="fas fa-route"></i> 2. 사용 방법</a>
+                <a href="#faq" class="jump-pill"><i class="fas fa-circle-question"></i> 3. 자주 묻는 질문</a>
+                <a href="#tips" class="jump-pill"><i class="fas fa-lightbulb"></i> 4. 관련 팁</a>
             </div>
-            <div class="stat-card">
-                <div class="stat-number">실시간</div>
-                <div class="stat-label">트렌드 데이터 업데이트</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">AI</div>
-                <div class="stat-label">Gemini 기반 분석</div>
-            </div>
-        </div>
+        </section>
 
-        <!-- Features -->
-        <h2 class="section-title">주요 기능</h2>
-        <p class="section-subtitle">크리에이터에게 필요한 모든 분석 도구를 한 곳에서</p>
+        <!-- ══════════════════════════════════════════════════════ -->
+        <!-- 1. 기능 설명 (Features Description) -->
+        <!-- ══════════════════════════════════════════════════════ -->
+        <section id="features" class="section-block">
+            <div class="section-header">
+                <span class="section-tag">Core Features</span>
+                <h2 class="section-title">1. 기능 설명</h2>
+                <p class="section-subtitle">
+                    단순 조회수를 넘어 알고리즘의 심장인 VPH(시간당 조회수)와 AI 리텐션 분석까지, 크리에이터에게 필요한 9대 핵심 기능을 제공합니다.
+                </p>
+            </div>
 
-        <div class="features-grid">
-            <div class="feature-card">
-                <div class="feature-icon icon-red">📡</div>
-                <h3>채널 추적</h3>
-                <p>라이벌 채널과 관심 채널을 실시간으로 모니터링하고, 새 영상 업로드 알림을 받으세요.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon icon-blue">🔍</div>
-                <h3>주제별 콘텐츠</h3>
-                <p>키워드 기반으로 인기 콘텐츠를 검색하고 소재 아이디어와 알고리즘 트렌드를 분석합니다.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon icon-green">📊</div>
-                <h3>실시간 떡상 TOP 50</h3>
-                <p>지금 유튜브에서 가장 빠르게 성장하는 콘텐츠를 실시간으로 확인하세요.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon icon-purple">🌍</div>
-                <h3>해외 인기 영상</h3>
-                <p>글로벌 실시간 트렌드를 분석하고, 해외 인기 소재를 빠르게 발굴합니다.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon icon-amber">💰</div>
-                <h3>수익성 검사</h3>
-                <p>채널 및 영상의 예상 수익을 분석하고 수익 최적화 전략을 세워보세요.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon icon-pink">🤖</div>
-                <h3>AI 콘텐츠 분석</h3>
-                <p>Google Gemini AI를 활용한 스크립트 분석, 자동 번역, 인사이트 도출 기능을 제공합니다.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon icon-red">📝</div>
-                <h3>소스 추출</h3>
-                <p>영상의 자막과 스크립트를 자동으로 추출하여 콘텐츠 제작에 활용하세요.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon icon-blue">🌐</div>
-                <h3>다국어 번역</h3>
-                <p>12개국어 번역 및 타임코드 번역 기능으로 글로벌 콘텐츠 전략을 수립하세요.</p>
-            </div>
-            <div class="feature-card">
-                <div class="feature-icon icon-green">🎙️</div>
-                <h3>TTS 스튜디오</h3>
-                <p>고품질 음성 변환(Typecast) 기능으로 나레이션을 쉽고 빠르게 제작합니다.</p>
-            </div>
-        </div>
+            <div class="features-grid">
+                <!-- Card 1 -->
+                <div class="feature-card">
+                    <div class="feature-top">
+                        <div class="feature-icon-box icon-red"><i class="fas fa-bolt"></i></div>
+                        <span class="feature-badge">핵심 지표</span>
+                    </div>
+                    <h3>실시간 VPH 떡상 분석 엔진</h3>
+                    <p>
+                        단순 누적 조회수가 아닌 <strong>시간당 조회수(VPH, Views Per Hour)</strong>를 실시간 연산하여 현재 알고리즘이 폭발적으로 밀어주는 급상승 떡상 영상을 1초 만에 감지합니다.
+                    </p>
+                    <ul class="feature-points">
+                        <li><i class="fas fa-check"></i> 구독자 대비 조회수 300%+ 알고리즘 수혜 영상 선별</li>
+                        <li><i class="fas fa-check"></i> 1시간/6시간/24시간 단위 성장 속도 정밀 추적</li>
+                    </ul>
+                </div>
 
-        <!-- CTA -->
-        <div class="cta-section">
-            <h2>지금 바로 시작하세요</h2>
-            <p>Google 계정으로 간편 로그인하고, 유튜브 트렌드 분석의 새로운 경험을 만나보세요.</p>
-            <a href="/" class="hero-cta">TubeTrend 시작하기 →</a>
+                <!-- Card 2 -->
+                <div class="feature-card">
+                    <div class="feature-top">
+                        <div class="feature-icon-box icon-blue"><i class="fas fa-gem"></i></div>
+                        <span class="feature-badge">소재 발굴</span>
+                    </div>
+                    <h3>키워드 & 니치 금광 채굴기</h3>
+                    <p>
+                        원하는 주제나 틈새(Niche) 키워드를 입력하면, 경쟁 강도는 낮고 시청자 수요는 높은 <strong>'블루오션 꿀소재'</strong>를 데이터 기반으로 정확히 채굴합니다.
+                    </p>
+                    <ul class="feature-points">
+                        <li><i class="fas fa-check"></i> 카테고리별(경제, 테크, 이슈, 예능 등) 정밀 필터링</li>
+                        <li><i class="fas fa-check"></i> 날짜·기간별 최신 트렌드 영상 실시간 랭킹화</li>
+                    </ul>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="feature-card">
+                    <div class="feature-top">
+                        <div class="feature-icon-box icon-emerald"><i class="fas fa-fire"></i></div>
+                        <span class="feature-badge">실시간 트렌드</span>
+                    </div>
+                    <h3>실시간 떡상 TOP 50 & 쇼츠 피드</h3>
+                    <p>
+                        지금 대한민국 및 글로벌 유튜브에서 가장 뜨거운 롱폼 영상과 쇼츠(Shorts) 50편을 실시간 피드로 제공하여 시청자들의 관심사 변화를 놓치지 않습니다.
+                    </p>
+                    <ul class="feature-points">
+                        <li><i class="fas fa-check"></i> 쇼츠 전용 모드로 1분 미만 숏폼 떡상 공식 파악</li>
+                        <li><i class="fas fa-check"></i> 썸네일 CTR 및 시선 집중 디자인 즉시 벤치마킹</li>
+                    </ul>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="feature-card">
+                    <div class="feature-top">
+                        <div class="feature-icon-box icon-purple"><i class="fas fa-globe-americas"></i></div>
+                        <span class="feature-badge">글로벌 확장</span>
+                    </div>
+                    <h3>해외 인기 소재 & 트렌드 레이더</h3>
+                    <p>
+                        미국, 일본 등 글로벌 시장에서 이미 수백만 뷰가 터진 성공 소재를 선제적으로 발굴하여 국내 채널에 맞게 번안·현지화(Localization)할 수 있도록 돕습니다.
+                    </p>
+                    <ul class="feature-points">
+                        <li><i class="fas fa-check"></i> 국가별 필터로 해외 급상승 알고리즘 역추적</li>
+                        <li><i class="fas fa-check"></i> 검증된 해외 포맷을 국내 1호로 선점하는 전략 수립</li>
+                    </ul>
+                </div>
+
+                <!-- Card 5 -->
+                <div class="feature-card">
+                    <div class="feature-top">
+                        <div class="feature-icon-box icon-amber"><i class="fas fa-sack-dollar"></i></div>
+                        <span class="feature-badge">수익성 진단</span>
+                    </div>
+                    <h3>수익성 검사 & 채널 RPM 최적화</h3>
+                    <p>
+                        채널의 카테고리별 예상 RPM(1,000회 조회당 수익)과 수익 창출(YPP) 자격 요건을 실시간 진단하고, 광고 외 제휴 및 커머스 다각화 전략을 제시합니다.
+                    </p>
+                    <ul class="feature-points">
+                        <li><i class="fas fa-check"></i> 고단가(금융/비즈니스/IT) 키워드 RPM 비교 분석</li>
+                        <li><i class="fas fa-check"></i> 예상 월 수익 및 8분 이상 미드롤 배치 최적화 안내</li>
+                    </ul>
+                </div>
+
+                <!-- Card 6 -->
+                <div class="feature-card">
+                    <div class="feature-top">
+                        <div class="feature-icon-box icon-pink"><i class="fas fa-brain"></i></div>
+                        <span class="feature-badge">AI 리서치</span>
+                    </div>
+                    <h3>AI 대본 분석 & 스크립트 추출</h3>
+                    <p>
+                        인기 영상의 자막과 오디오를 1초 만에 텍스트로 추출하고, Google Gemini AI를 통해 3초 후킹 문구, 스토리 전개 구조, 시청 지속률 비결을 자동 요약합니다.
+                    </p>
+                    <ul class="feature-points">
+                        <li><i class="fas fa-check"></i> 타임코드별 대사 및 화면 전환 포인트 완벽 추출</li>
+                        <li><i class="fas fa-check"></i> 핵심 인사이트 요약본 및 스토리보드 작법 가이드</li>
+                    </ul>
+                </div>
+
+                <!-- Card 7 -->
+                <div class="feature-card">
+                    <div class="feature-top">
+                        <div class="feature-icon-box icon-cyan"><i class="fas fa-language"></i></div>
+                        <span class="feature-badge">다국어 자막</span>
+                    </div>
+                    <h3>12개국 다국어 번역 & 타임코드 동기화</h3>
+                    <p>
+                        추출된 스크립트를 타임코드 오차 없이 영어, 일본어, 스페인어 등 12개 주요 언어로 1-Click 번역하여 해외 시청자를 타깃팅하는 글로벌 자막 생성을 지원합니다.
+                    </p>
+                    <ul class="feature-points">
+                        <li><i class="fas fa-check"></i> SRT 및 텍스트 포맷 무손실 변환 지원</li>
+                        <li><i class="fas fa-check"></i> 해외 유입 트래픽 5배 확장을 위한 메타데이터 번역</li>
+                    </ul>
+                </div>
+
+                <!-- Card 8 -->
+                <div class="feature-card">
+                    <div class="feature-top">
+                        <div class="feature-icon-box icon-indigo"><i class="fas fa-microphone-lines"></i></div>
+                        <span class="feature-badge">오디오 제작</span>
+                    </div>
+                    <h3>TTS 음성 스튜디오 & 나레이션 제작</h3>
+                    <p>
+                        기계음을 완전히 탈피한 하이퍼 리얼리스틱 AI 음성 엔진을 통해 대본을 자연스러운 고품질 성우 나레이션 오디오 파일로 즉시 변환합니다.
+                    </p>
+                    <ul class="feature-points">
+                        <li><i class="fas fa-check"></i> 다양한 목소리 톤(신뢰감, 발랄함, 다큐멘터리 등) 제공</li>
+                        <li><i class="fas fa-check"></i> 원클릭 오디오 다운로드 및 영상 편집 툴 연동</li>
+                    </ul>
+                </div>
+
+                <!-- Card 9 -->
+                <div class="feature-card">
+                    <div class="feature-top">
+                        <div class="feature-icon-box icon-red"><i class="fas fa-radar"></i></div>
+                        <span class="feature-badge">경쟁사 분석</span>
+                    </div>
+                    <h3>채널 추적 & 라이벌 모니터링</h3>
+                    <p>
+                        벤치마킹 중인 라이벌 채널을 등록해두면, 새 영상 업로드 시각, 초기 1시간 조회수 폭발 추이, 사용된 태그와 썸네일 전략을 실시간 레이더망으로 포착합니다.
+                    </p>
+                    <ul class="feature-points">
+                        <li><i class="fas fa-check"></i> 내 관심 채널 클라우드 동기화 (기기간 자동 연동)</li>
+                        <li><i class="fas fa-check"></i> 경쟁 채널의 약점(결핍 키워드) 자동 추출</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════════════════ -->
+        <!-- 2. 사용 방법 (How to Use - 5 Steps) -->
+        <!-- ══════════════════════════════════════════════════════ -->
+        <section id="how-to-use" class="section-block">
+            <div class="section-header">
+                <span class="section-tag">Step by Step Guide</span>
+                <h2 class="section-title">2. 사용 방법</h2>
+                <p class="section-subtitle">
+                    소재 검색부터 VPH 분석, AI 대본 추출, 그리고 벤치마킹 영상 제작까지 이어지는 5단계 실전 워크플로우입니다.
+                </p>
+            </div>
+
+            <div class="step-timeline">
+                <!-- Step 1 -->
+                <div class="step-card">
+                    <div class="step-number-wrap">
+                        <div class="step-number">1</div>
+                        <div class="step-line"></div>
+                    </div>
+                    <div class="step-content">
+                        <span class="step-tag">Step 1. 소재 탐색</span>
+                        <h3>키워드 검색 또는 실시간 떡상 피드 선택</h3>
+                        <p>
+                            TubeTrend 메인 화면 상단 검색창에 제작하고자 하는 <strong>핵심 주제나 키워드(예: '재테크', 'AI 쇼츠', '건강 루틴')</strong>를 입력하세요. 특별한 키워드가 정해지지 않았다면 대시보드의 <strong>[실시간 떡상 TOP 50]</strong> 또는 <strong>[주제별 콘텐츠]</strong> 카드를 클릭하여 지금 뜨는 트렌드 목록을 바로 불러올 수 있습니다.
+                        </p>
+                        <div class="step-tip">
+                            <i class="fas fa-lightbulb"></i> <strong>꿀팁:</strong> 국가 설정을 '미국(US)'이나 '일본(JP)'으로 변경하면 아직 국내에 소개되지 않은 신선한 글로벌 인기 소재를 먼저 확인할 수 있습니다.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="step-card">
+                    <div class="step-number-wrap">
+                        <div class="step-number">2</div>
+                        <div class="step-line"></div>
+                    </div>
+                    <div class="step-content">
+                        <span class="step-tag">Step 2. 데이터 필터링</span>
+                        <h3>VPH(시간당 조회수) 정렬 및 알고리즘 수혜 영상 선별</h3>
+                        <p>
+                            검색 결과 상단 정렬 옵션에서 <strong>[VPH 급상승순]</strong>을 선택하세요. 단순 총 조회수가 많은 과거 영상은 배제하고, 현재 시점 시청자들의 클릭과 시청 시간이 집중되고 있는 '살아있는 영상'만 골라냅니다. 특히 <strong>구독자 수 1만 이하인데 VPH가 500 이상</strong> 터지고 있는 영상을 중점적으로 눈여겨보세요.
+                        </p>
+                        <div class="step-tip">
+                            <i class="fas fa-filter"></i> <strong>필터 기준:</strong> '업로드 7일 이내' + 'VPH 300 이상' 조건을 만족하는 영상이 가장 벤치마킹 성공 확률이 높습니다.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="step-card">
+                    <div class="step-number-wrap">
+                        <div class="step-number">3</div>
+                        <div class="step-line"></div>
+                    </div>
+                    <div class="step-content">
+                        <span class="step-tag">Step 3. 스크립트 추출</span>
+                        <h3>영상 카드 클릭 & 1초 만에 자막/대본 추출</h3>
+                        <p>
+                            분석할 영상 카드를 클릭하면 상세 분석 모달창이 열립니다. 여기서 <strong>[대본/자막 추출]</strong> 버튼을 누르면 영상의 전체 스크립트가 타임코드와 함께 깔끔한 텍스트로 추출됩니다. 자막이 없는 영상도 자체 AI 음성 인식 모듈이 음성을 자동으로 텍스트로 변환해 줍니다.
+                        </p>
+                        <div class="step-tip">
+                            <i class="fas fa-copy"></i> <strong>원클릭 복사:</strong> [클립보드 복사] 버튼으로 텍스트를 복사하거나 파일(.txt)로 저장하여 노션이나 워드에서 즉시 편집할 수 있습니다.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4 -->
+                <div class="step-card">
+                    <div class="step-number-wrap">
+                        <div class="step-number">4</div>
+                        <div class="step-line"></div>
+                    </div>
+                    <div class="step-content">
+                        <span class="step-tag">Step 4. AI 분석 및 다국어 번역</span>
+                        <h3>Gemini AI 요약 및 타임코드 다국어 번역 실행</h3>
+                        <p>
+                            <strong>[AI 스크립트 분석]</strong> 버튼을 누르면 Gemini AI가 영상의 '첫 3초 후킹 포인트', '시청 지속률 유지 비결', '핵심 요약'을 분석해 줍니다. 글로벌 시청자를 노린다면 <strong>[다국어 번역]</strong> 기능을 켜서 타임코드 손실 없이 12개 언어의 자막 파일(SRT)을 한 번에 생성하세요.
+                        </p>
+                        <div class="step-tip">
+                            <i class="fas fa-robot"></i> <strong>AI 프롬프트:</strong> "이 대본의 구조를 바탕으로 더 강렬한 3초 후킹과 반전을 넣은 새로운 대본을 써줘"라고 요청하면 제작 시간이 80% 단축됩니다.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 5 -->
+                <div class="step-card">
+                    <div class="step-number-wrap">
+                        <div class="step-number">5</div>
+                        <div class="step-line"></div>
+                    </div>
+                    <div class="step-content">
+                        <span class="step-tag">Step 5. 영상 제작 및 업로드</span>
+                        <h3>TTS 음성 합성 & 나만의 고유 콘텐츠로 완성</h3>
+                        <p>
+                            완성된 대본을 <strong>[TTS 스튜디오]</strong>에 입력하여 자연스러운 성우 나레이션을 다운로드하세요. 여기에 어울리는 B-roll 영상 클립을 배치하고 나만의 독창적인 해설과 의견을 더하면, 유튜브 알고리즘의 '재사용 콘텐츠' 제재를 완벽히 피하는 고품질 영상이 탄생합니다.
+                        </p>
+                        <div class="step-tip">
+                            <i class="fas fa-shield-halved"></i> <strong>주의사항:</strong> 타인의 대본을 글자 그대로 읽는 것은 금물입니다. 반드시 핵심 앵글과 뼈대만 참고하고 본인의 말투로 재창작하세요!
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════════════════ -->
+        <!-- 3. 자주 묻는 질문 (FAQ) -->
+        <!-- ══════════════════════════════════════════════════════ -->
+        <section id="faq" class="section-block">
+            <div class="section-header">
+                <span class="section-tag">FAQ & Troubleshooting</span>
+                <h2 class="section-title">3. 자주 묻는 질문</h2>
+                <p class="section-subtitle">
+                    TubeTrend 이용 중 크리에이터분들이 가장 많이 질문하시는 내용들을 알기 쉽게 정리했습니다.
+                </p>
+            </div>
+
+            <!-- FAQ 필터 탭 -->
+            <div class="faq-filters">
+                <button class="faq-filter-btn active" onclick="filterFaq('all', this)">전체 질문</button>
+                <button class="faq-filter-btn" onclick="filterFaq('algo', this)">알고리즘 & VPH</button>
+                <button class="faq-filter-btn" onclick="filterFaq('api', this)">API 키 & 계정</button>
+                <button class="faq-filter-btn" onclick="filterFaq('monet', this)">수익화 & 저작권</button>
+            </div>
+
+            <div class="faq-wrap">
+                <!-- Q1 -->
+                <div class="faq-item open" data-cat="algo">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <h4><span class="faq-q-badge">Q</span> VPH(시간당 조회수)란 무엇이며 왜 일반 조회수보다 중요한가요?</h4>
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>
+                            <strong>VPH(Views Per Hour)</strong>는 '해당 영상이 최근 1시간 동안 얻은 평균 조회수'를 뜻합니다. 일반 총 조회수는 3년 전에 업로드되어 누적된 영상도 수백만 회에 달할 수 있어 현재 트렌드를 반영하지 못합니다. 반면 VPH는 <strong>'지금 이 순간 유튜브 추천 알고리즘이 시청자 홈 피드에 집중 노출하고 있는 영상'</strong>을 실시간으로 감지하므로, 지금 즉시 벤치마킹해야 할 소재를 가장 정확하게 짚어냅니다.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Q2 -->
+                <div class="faq-item" data-cat="api">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <h4><span class="faq-q-badge">Q</span> 유튜브 API 키는 꼭 등록해야 하나요? 등록 방법은 어떻게 되나요?</h4>
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>
+                            기본적인 검색 및 조회는 사이트 공용 API로 바로 이용하실 수 있습니다. 다만 공용 API는 전 세계 사용자가 함께 사용하여 일일 할당량이 소진될 수 있습니다. <strong>Google Cloud Console(무료)</strong>에서 개인 YouTube Data API v3 키를 발급받아 메인 화면의 [환경 설정]에 등록하시면, 매일 10,000포인트의 할당량이 단독 제공되어 어떤 상황에서도 끊김 없이 쾌적하게 사용하실 수 있습니다. 키는 브라우저 로컬 저장소에만 보관되므로 안전합니다.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Q3 -->
+                <div class="faq-item" data-cat="monet">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <h4><span class="faq-q-badge">Q</span> 수익성 검사(RPM) 결과는 어떤 기준으로 산출되나요?</h4>
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>
+                            유튜브 공식 영상 메타데이터, 채널 카테고리, 영상 길이(8분 이상 미드롤 유무), 시청자 연령층 및 국가별 광고 단가 빅데이터를 종합하여 연산됩니다. 예를 들어 금융·재테크·IT 카테고리는 조회수 1회당 가치가 엔터테인먼트 장르보다 3~5배 높게 책정되며, 이를 기반으로 예상 월 광고 수익과 RPM(조회수 1,000회당 수익)을 현실적인 범위로 산출해 드립니다.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Q4 -->
+                <div class="faq-item" data-cat="algo">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <h4><span class="faq-q-badge">Q</span> 쇼츠(Shorts) 영상도 스크립트 추출과 트렌드 분석이 가능한가요?</h4>
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>
+                            네, 완벽하게 지원합니다! 대시보드에서 <strong>[쇼츠 전용 모드]</strong>를 선택하거나 쇼츠 영상의 URL을 입력하시면 60초 미만 숏폼 영상의 자막 추출, VPH 급상승 지표, 그리고 초반 3초 후킹 문구 분석까지 롱폼 영상과 동일하게 원클릭으로 진행하실 수 있습니다.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Q5 -->
+                <div class="faq-item" data-cat="api">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <h4><span class="faq-q-badge">Q</span> 자막(CC)이 등록되어 있지 않은 영상도 대본 추출이 되나요?</h4>
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>
+                            네, 가능합니다. 영상에 크리에이터가 수동으로 넣은 공식 자막이나 유튜브 자동 생성 자막이 존재하면 즉시 1초 만에 불러오며, 자막이 전혀 없는 영상의 경우 TubeTrend 서버에 내장된 <strong>고성능 AI 음성 인식 엔진(Whisper 기반)</strong>이 영상의 오디오 트랙을 분석하여 정확도 95% 이상의 텍스트 대본으로 변환해 드립니다.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Q6 -->
+                <div class="faq-item" data-cat="monet">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <h4><span class="faq-q-badge">Q</span> 추출한 스크립트를 활용해 영상을 만들면 저작권 문제가 없나요?</h4>
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>
+                            타인의 스크립트를 토씨 하나 안 바꾸고 그대로 낭독하거나 복사해 영상을 만들면 <strong>저작권 침해 및 유튜브의 '재사용 콘텐츠(Reused Content)' 제재</strong>로 인해 채널 수익 창출이 박탈될 수 있습니다. 올바른 활용법은 추출된 대본의 <strong>'스토리 전개 구조(기-승-전-결)'와 '시청자 호기심 유발 질문'의 뼈대만 벤치마킹</strong>하고, 실제 문장과 예시, 본인만의 관점은 100% 본인의 언어로 재구성하여 작성하는 것입니다.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Q7 -->
+                <div class="faq-item" data-cat="api">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <h4><span class="faq-q-badge">Q</span> 튜브트렌드 헬퍼(TubeTrend Helper) 프로그램은 무엇인가요?</h4>
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>
+                            튜브트렌드 헬퍼는 대용량 영상의 고화질 다운로드 및 로컬 PC의 그래픽카드(GPU)를 활용한 초고속 자막 변환을 지원하는 보조 데스크톱 유틸리티입니다. 웹 브라우저 단독으로도 90% 이상의 기능을 사용하실 수 있으며, 대용량 오프라인 작업이 필요하신 전문 크리에이터분들께 헬퍼 연동을 권장합니다.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Q8 -->
+                <div class="faq-item" data-cat="algo">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <h4><span class="faq-q-badge">Q</span> 스마트폰이나 태블릿 등 모바일 기기에서도 이용할 수 있나요?</h4>
+                        <i class="fas fa-chevron-down faq-icon"></i>
+                    </div>
+                    <div class="faq-answer">
+                        <p>
+                            네, TubeTrend는 반응형 웹(Responsive Web) 표준을 준수하여 제작되었습니다. 아이폰, 갤럭시, 아이패드, 갤럭시 탭 등 모든 모바일 기기의 모바일 웹 브라우저(Safari, Chrome, Samsung Internet 등)에서 데스크톱과 동일하게 떡상 영상 검색과 스크립트 복사 기능을 편리하게 이용하실 수 있습니다.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══════════════════════════════════════════════════════ -->
+        <!-- 4. 관련 팁 (Related Tips - 5 Pro Tips) -->
+        <!-- ══════════════════════════════════════════════════════ -->
+        <section id="tips" class="section-block">
+            <div class="section-header">
+                <span class="section-tag">Pro Creator Strategy</span>
+                <h2 class="section-title">4. 관련 팁</h2>
+                <p class="section-subtitle">
+                    조회수 100만 회를 달성한 상위 1% 전업 크리에이터들이 실제로 활용하는 5가지 실전 알고리즘 공략 노하우입니다.
+                </p>
+            </div>
+
+            <div class="tips-grid">
+                <!-- Tip 1 -->
+                <div class="tip-card">
+                    <div class="tip-header">
+                        <span class="tip-tag-pill">알고리즘 공략</span>
+                    </div>
+                    <h3>Tip 1. VPH 서지 발생 후 48시간 이내 '파생 영상' 업로드</h3>
+                    <p>
+                        구독자 1만 명 이하의 중소형 채널에서 VPH 500 이상이 터진 영상을 발견했다면, 유튜브 알고리즘이 현재 해당 주제에 엄청난 트래픽을 배분하고 있다는 뜻입니다. <strong>48시간 이내에 유사한 핵심 키워드를 제목에 포함한 파생 영상</strong>을 제작해 올리면, 알고리즘이 해당 영상 시청자에게 내 영상을 '다음 추천 동영상'으로 띄워줄 확률이 3배 이상 급증합니다.
+                    </p>
+                    <div class="tip-takeaway">
+                        📌 <strong>실행 지침:</strong> 같은 주제를 다루되, 썸네일 카피와 첫 3초 후킹의 시각적 연출을 더욱 자극적이고 직관적으로 업그레이드하세요.
+                    </div>
+                </div>
+
+                <!-- Tip 2 -->
+                <div class="tip-card">
+                    <div class="tip-header">
+                        <span class="tip-tag-pill">수익 최적화</span>
+                    </div>
+                    <h3>Tip 2. 고단가 니치(Niche) 키워드 결합으로 RPM 3배 만들기</h3>
+                    <p>
+                        단순 일상이나 게임 영상은 100만 뷰를 기록해도 100~200만 원 수익에 그치지만, <strong>금융, 부동산, B2B 소프트웨어, 헬스케어, 자동차</strong> 관련 키워드가 결합된 영상은 같은 100만 뷰로도 600~1,000만 원 이상의 광고 정산금을 받습니다. 대본 기획 시 금융 용어나 고단가 구매 전환 키워드를 자연스럽게 녹여내어 광고 단가를 끌어올리세요.
+                    </p>
+                    <div class="tip-takeaway">
+                        📌 <strong>실행 지침:</strong> 영상 길이를 최소 8분 1초 이상으로 제작하여 중간 광고(미드롤)를 시청 흐름이 끊기지 않는 3분, 6분 지점에 배치하세요.
+                    </div>
+                </div>
+
+                <!-- Tip 3 -->
+                <div class="tip-card">
+                    <div class="tip-header">
+                        <span class="tip-tag-pill">리텐션 엔지니어링</span>
+                    </div>
+                    <h3>Tip 3. 첫 3초 이탈을 막는 '통념 파괴 + 오픈 루프' 공식</h3>
+                    <p>
+                        <em>"안녕하세요, 누구입니다"</em> 식의 지루한 인사는 시청자의 40%를 5초 만에 이탈시킵니다. 영상 시작과 동시에 <strong>상식을 깨부수는 충격적인 질문</strong>(예: "당신이 매일 마시는 이 건강 음료가 사실은 노화를 2배 빠르게 만듭니다")을 던지고, <em>"오늘 영상 후반부에 공개할 단 1가지 대체 습관만 알아도~"</em>와 같이 끝까지 봐야 할 강력한 보상(오픈 루프)을 심어두세요.
+                    </p>
+                    <div class="tip-takeaway">
+                        📌 <strong>실행 지침:</strong> 영상 초반 30초 내에 썸네일에서 던진 약속의 힌트를 제공하여 낚시성이라는 느낌을 완전히 지워야 합니다.
+                    </div>
+                </div>
+
+                <!-- Tip 4 -->
+                <div class="tip-card">
+                    <div class="tip-header">
+                        <span class="tip-tag-pill">다각화 머니 파이프라인</span>
+                    </div>
+                    <h3>Tip 4. 애드센스 의존 탈피: 제휴 쇼핑 링크 자동화</h3>
+                    <p>
+                        조회수 광고 수익에만 기대는 채널은 알고리즘 변덕에 취약합니다. 영상에서 소개한 장비, 도서, 영양제 등의 <strong>쿠팡 파트너스 및 유튜브 쇼핑 제휴 링크</strong>를 고정 댓글과 설명란 최상단에 배치하세요. 구독자 3천 명 채널로도 월 200~300만 원 이상의 안정적인 커머스 제휴 커미션을 창출할 수 있습니다.
+                    </p>
+                    <div class="tip-takeaway">
+                        📌 <strong>실행 지침:</strong> 링크만 덩그러니 올리지 말고 "영상 3분 20초에 등장한 가성비 조명 최저가 좌표"와 같이 명확한 명분을 제시하세요.
+                    </div>
+                </div>
+
+                <!-- Tip 5 -->
+                <div class="tip-card">
+                    <div class="tip-header">
+                        <span class="tip-tag-pill">채널 안전성</span>
+                    </div>
+                    <h3>Tip 5. 유튜브 노란딱지·수익 박탈을 막는 '10% 휴먼 터치' 룰</h3>
+                    <p>
+                        최근 유튜브는 무료 스톡 비디오와 AI 음성을 기계적으로 이어붙인 영상에 '반복적인 콘텐츠' 판정을 내리고 있습니다. 이를 방어하는 가장 확실한 기술은 <strong>1) 최소 30% 이상의 독자적 해설 삽입, 2) 5초 이상 타인 클립 연속 노출 금지(줌인/화면분할 가공), 3) 일관된 채널 고유 워터마크 및 인트로 적용</strong>입니다.
+                    </p>
+                    <div class="tip-takeaway">
+                        📌 <strong>실행 지침:</strong> AI로 초안을 잡더라도 최종 영상 렌더링 전 반드시 크리에이터 본인의 목소리나 주관적 견해를 한 숟가락 더하세요.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bottom CTA -->
+        <div class="bottom-cta">
+            <h2>지금 바로 유튜브 금광 채굴을 시작하세요</h2>
+            <p>
+                데이터가 증명하는 실시간 떡상 키워드와 VPH 알고리즘 분석으로 여러분 채널의 폭발적인 성장을 경험해보세요.
+            </p>
+            <a href="/" class="cta-btn-large">
+                <i class="fas fa-play"></i> TubeTrend 무료로 시작하기 →
+            </a>
         </div>
     </main>
 
+    <!-- Footer -->
     <footer class="footer">
         <div class="footer-links">
-            <a href="/">홈</a>
-            <a href="/about">소개</a>
+            <a href="/">홈(앱)</a>
+            <a href="/about">서비스 소개</a>
             <a href="/privacy">개인정보처리방침</a>
             <a href="/terms">이용약관</a>
-            <a href="/contact">문의하기</a>
+            <a href="/contact">고객문의</a>
         </div>
-        <p>&copy; 2026 TubeTrend (YouTube Discovery Tool). All rights reserved.</p>
+        <p>&copy; 2026 TubeTrend (YouTube Discovery Tool). All rights reserved. | 문의: ckh0211a@naver.com</p>
     </footer>
+
+    <!-- FAQ Toggle & Filter Script -->
+    <script>
+        function toggleFaq(el) {
+            const item = el.closest('.faq-item');
+            const isOpen = item.classList.contains('open');
+            // Close other items
+            document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+            if (!isOpen) {
+                item.classList.add('open');
+            }
+        }
+
+        function filterFaq(category, btn) {
+            document.querySelectorAll('.faq-filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const items = document.querySelectorAll('.faq-item');
+            items.forEach(item => {
+                if (category === 'all' || item.getAttribute('data-cat') === category) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                    item.classList.remove('open');
+                }
+            });
+        }
+    </script>
 </body>
 </html>
